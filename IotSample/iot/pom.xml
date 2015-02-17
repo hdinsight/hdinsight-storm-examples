@@ -1,0 +1,147 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.microsoft.hdinsight.storm.samples</groupId>
+  <artifactId>iot</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0</version>
+  <name>iot</name>
+  <url>http://maven.apache.org</url>
+  <properties>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-shade-plugin</artifactId>
+	    <version>2.3</version>
+	    <executions>
+	      <execution>
+	        <goals>
+	          <goal>shade</goal>
+	        </goals>
+	        <phase>package</phase>
+	      </execution>
+	    </executions>
+	    <configuration>
+	      <createDependencyReducedPom>true</createDependencyReducedPom>
+	      <minimizeJar>false</minimizeJar>
+	      <relocations>
+	        <relocation>
+	          <!-- this is needed by documentdb bolt,
+	            to avoid version conflict for httpclient in Storm -->
+	          <pattern>org.apache.http</pattern>
+	          <shadedPattern>iot.org.apache.http</shadedPattern>
+	        </relocation>
+	      </relocations>
+	    </configuration>
+	  </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.storm</groupId>
+      <artifactId>storm-core</artifactId>
+      <version>0.9.2-incubating</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <!-- exclude httpclient to avoid version conflict with documentdb -->
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.microsoft.eventhubs</groupId>
+      <artifactId>eventhubs-storm-spout</artifactId>
+      <version>0.9</version>
+    </dependency>
+    
+    <!-- dependencies for data reference bolt -->
+    <dependency>
+      <groupId>com.microsoft.azure</groupId> 
+      <artifactId>azure-documentdb</artifactId> 
+      <version>0.9.3</version> 
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.3</version>
+    </dependency>
+    
+    <!-- dependencies for wasb bolt -->
+    <dependency>
+      <groupId>org.apache.storm</groupId>
+      <artifactId>storm-hdfs</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-hdfs</artifactId>
+        </exclusion>
+      </exclusions>
+      <version>0.9.3</version>
+    </dependency>
+    <!--
+    This is a temporary workaround to make HdfsBolt work with WASB through hadoop-azure project.
+    For now, we have to build hadoop-client, hadoop-hdfs and hadoop-azure from Hadoop trunk
+    (which defaults to 3.0.0-SNAPSHOT version). And push those jars and dependencies to local
+    mvn repo (take a look at push_lib_mvn.ps1).
+    
+    Once Hadoop 2.7 is released, we can just switch to that version.
+    Note that hadoop-azure is added to Hadoop on Hadoop 2.7.
+    -->
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <version>3.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+      <version>3.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-azure</artifactId>
+      <version>3.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+      <version>3.0.0-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.microsoft.windowsazure.storage</groupId>
+      <artifactId>microsoft-windowsazure-storage-sdk</artifactId>
+      <version>0.6.0</version>
+    </dependency>
+    
+    <!-- dependencies for type conversion bolt -->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20140107</version>
+    </dependency>
+  </dependencies>
+</project>

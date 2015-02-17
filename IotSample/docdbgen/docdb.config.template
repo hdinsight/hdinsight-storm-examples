@@ -1,0 +1,4 @@
+documentdb.host = {DOCUMENTDB_HOST}
+documentdb.master.key = {DOCUMENTDB_KEY}
+documentdb.database = {DOCUMENTDB_DATABASE}
+documentdb.collection = {DOCUMENTDB_COLLECTION}

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- Put site-specific property overrides in this file. -->
+<configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+  <property>
+    <name>fs.azure.account.key.{WASB_ACCOUNT_NAME}.blob.core.windows.net</name>
+    <value>{WASB_ACCOUNT_KEY}</value>
+  </property>
+  
+  <property>
+    <name>fs.defaultFS</name>
+    <value>wasb://{WASB_CONTAINER}@{WASB_ACCOUNT_NAME}.blob.core.windows.net</value>
+  </property>
+  
+  <property>
+    <name>fs.AbstractFileSystem.wasb.impl</name>
+    <value>org.apache.hadoop.fs.azure.Wasb</value>
+  </property>
+  
+  <property>
+    <name>fs.wasb.impl</name>
+    <value>org.apache.hadoop.fs.azure.NativeAzureFileSystem</value>
+  </property>
+
+</configuration>

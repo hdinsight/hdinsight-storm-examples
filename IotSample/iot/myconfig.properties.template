@@ -1,0 +1,16 @@
+#eventhubs spout configurations
+eventhubspout.username = {EVENTHUBS_USERNAME}
+eventhubspout.password = {EVENTHUBS_PASSWORD}
+eventhubspout.namespace = {EVENTHUBS_NAMESPACE}
+eventhubspout.entitypath = {EVENTHUBS_ENTITY_PATH}
+eventhubspout.targetfqnaddress = {EVENTHUBS_FQDN_SUFFIX}
+eventhubspout.partitions.count = {EVENTHUBS_PARTITION_COUNT}
+
+eventhubspout.checkpoint.interval = 10
+eventhub.receiver.credits = 1024
+
+#document db configurations
+documentdb.host = {DOCUMENTDB_HOST}
+documentdb.master.key = {DOCUMENTDB_KEY}
+documentdb.database = {DOCUMENTDB_DATABASE}
+documentdb.collection = {DOCUMENTDB_COLLECTION}

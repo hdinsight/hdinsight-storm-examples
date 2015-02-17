@@ -1,0 +1,6 @@
+eventhubs.username = {EVENTHUBS_USERNAME}
+eventhubs.password = {EVENTHUBS_PASSWORD}
+eventhubs.namespace = {EVENTHUBS_NAMESPACE}
+eventhubs.entitypath = {EVENTHUBS_ENTITY_PATH}
+eventhubs.targetfqnaddress = {EVENTHUBS_FQDN_SUFFIX}
+eventhubs.partitions.count = {EVENTHUBS_PARTITION_COUNT}

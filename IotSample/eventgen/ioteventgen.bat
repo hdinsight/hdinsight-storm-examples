@@ -1,0 +1,1 @@
+java -jar target\eventgen-1.0-jar-with-dependencies.jar eventhubs.config ..\vehiclevin.txt 200
