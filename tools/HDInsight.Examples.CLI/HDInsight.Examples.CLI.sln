@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDInsight.Examples.CLI", "HDInsight.Examples.CLI.csproj", "{8B18EDCA-33B4-4B0B-A6A6-0C1A2D3BE09E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8B18EDCA-33B4-4B0B-A6A6-0C1A2D3BE09E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B18EDCA-33B4-4B0B-A6A6-0C1A2D3BE09E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B18EDCA-33B4-4B0B-A6A6-0C1A2D3BE09E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B18EDCA-33B4-4B0B-A6A6-0C1A2D3BE09E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8;packages\EnterpriseLibrary.TransientFaultHandling.ServiceBus.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.TransientFaultHandling.WindowsAzure.Storage.6.0.1304.1\lib\NET45
+	EndGlobalSection
+EndGlobal
