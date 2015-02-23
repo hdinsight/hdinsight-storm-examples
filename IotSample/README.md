@@ -9,7 +9,7 @@ vehiclegen.py: this is a simple python scripts to generate random vehicle VIN nu
 
 eventgen: the Azure EventHubs generator, a standalone java program to write messages to Azure EventHubs. It uses the vehicle info to generate engine temperature messages for each vehicle.
 
-docdbgen: The Azure DocumentDB generator, a standalone java program to create document DB collection that stores vehicle VIN to model number map. Later the document DB is used to retrieve model number from the VIN.
+docdbgen: The Azure DocumentDB generator, a standalone java program to create DocumentDB collection that stores vehicle VIN to model number map. Later the document DB is used to retrieve model number from the VIN.
 
 iot: The Storm topology, it has the following components:
 EventHubSpout: source of stream
