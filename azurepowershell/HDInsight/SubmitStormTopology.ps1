@@ -12,12 +12,12 @@ Param(
     [Parameter(Mandatory = $true)]
     [String]$className,                             # required
     [String]$additionalParam,                       # required    at least include the topology name
-    [String]$clusterDnsSurfix="azurehdinsight.net"  # optional
+    [String]$clusterDnsSuffix="azurehdinsight.net"  # optional
     )
 #example:
 #.\SubmitStormTopology.ps1 shanyuautostorm admin HdInsight123! /Storm/SubmittedJars/storm-starter.jar storm.starter.ExclamationTopology hahaex
 
-$url = "https://{0}.{1}{2}" -f $clusterName,$clusterDnsSurfix,"/StormDashboard/SubmitWasbJar"
+$url = "https://{0}.{1}{2}" -f $clusterName,$clusterDnsSuffix,"/StormDashboard/SubmitWasbJar"
 $body = @{
     FilePath = $jarPath;
     ClassName = $className;
