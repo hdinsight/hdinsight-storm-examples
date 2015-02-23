@@ -4,6 +4,8 @@ This repository contains complete and easy to use examples that demonstrate the 
 ## Getting Started
 Each of the examples folder contains a build_#example_name#.bat that you can use to get started. It will first build all the required projects and then run the example.
 
+Read more about writing Storm C# applications in [SCP.Net](SCPNet-GettingStarted.md)
+
 ## Examples
 
 ### Internet of Things Example (Java)

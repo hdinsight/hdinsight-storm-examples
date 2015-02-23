@@ -2,6 +2,8 @@
 This is an end-to-end example that allows you to deploy all the required Azure resources and deploy the SCP.Net based topologies.
 The end-to-end example has been automated using the HDInsight.Examples.CLI tool.
 
+Read more about SCP.NET in [SCPNet-GettingStarted](../SCPNet-GettingStarted.md)
+
 ## Getting Started
 Run the ```realtimeetl\build_realtimeetl.cmd``` to build and run the end-to-end example.
 
