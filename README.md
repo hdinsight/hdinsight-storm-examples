@@ -7,9 +7,9 @@ Each of the examples folder contains a build_#example_name#.bat that you can use
 ## Examples
 
 ### Internet of Things Example (Java)
-[IoT Sample using EventHub, Storm, DocDB](IotSample/README.md)
+[IoT Sample using Azure EventHubs, Storm, Azure DocumentDB](IotSample/README.md)
 
 ### Real Time ETL Example (SCP.Net)
-[Real Time ETL using EventHub, Storm, HBase & SCP.Net](realtimeetl/README.md)
+[Real Time ETL using Azure EventHubs, Storm, HBase & SCP.Net](realtimeetl/README.md)
 
 Stay tuned for more examples.
