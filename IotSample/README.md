@@ -40,8 +40,8 @@ Run this script in Azure Powershell Window:
 
 This script will open a browser window for the external Storm UI, you need to enter Storm cluster credentials, they are stored at config\configurations.properties
 
-Note, in the case of failure in creating resources in Azure, you can run ".\delete_resources_in_azure.ps1" which will delete resources that have been created.
+Note, in the case of failure in creating resources in Azure, you can run ".\delete_azure_resources.ps1" which will delete resources that have been created.
 
 ### How to clean and delete all resources in Azure ###
 Run this script in Azure Powershell Window:
-.\delete_resources_in_azure.ps1
+.\delete_azure_resources.ps1

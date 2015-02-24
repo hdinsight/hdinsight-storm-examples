@@ -18,4 +18,4 @@ $config = @{
     RANDOM_CLUSTER_PASSWORD = GetRandomAlphaNumeric(10)
 }
 
-.\config\ReplaceStringInFile.ps1 ".\config\configurations.properties.template" ".\config\configurations.properties" $config
+.\ReplaceStringInFile.ps1 ".\configurations.properties.template" ".\configurations.properties" $config

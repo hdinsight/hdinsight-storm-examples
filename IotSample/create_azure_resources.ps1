@@ -5,6 +5,12 @@ if(-not (& "$AzurePowershellPath\check_azure_powershell.ps1"))
     throw "Not running in Azure Powershell"
 }
 
+# Make sure you delete azure resources first
+if(Test-Path ".\config\configurations.properties")
+{
+    throw "Please call delete_azure_resources.ps1 before creating new resources"
+}
+
 $VerbosePreference = "SilentlyContinue"
 $ErrorActionPreference = "Stop"
 
@@ -27,7 +33,9 @@ Select-AzureSubscription -SubscriptionName $subName
 $startTime = Get-Date
 
 Write-Host "Step 0: Generating Random Configurations"
+pushd config
 .\generate_random_config.ps1
+popd
 $config = .\config\ReadConfig.ps1 ".\config\configurations.properties"
 
 Write-Host "Step 1: Creating Storage and update storage key in configurations.properties"

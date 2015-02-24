@@ -28,6 +28,9 @@ Write-Host "Deleting DocumentDB"
 Write-Host "Deleting Storage Account"
 & "$AzurePowershellPath\Storage\DeleteStorageAccount.ps1" $config["WASB_ACCOUNT_NAME"]
 
+Write-Host "Deleting configuration.properties file"
+Remove-Item config\configurations.properties
+
 $finishTime = Get-Date
 $totalSeconds = ($finishTime - $startTime).TotalSeconds
 Write-Host "Successfully cleaned Azure stuff, completed in $totalSeconds seconds"
