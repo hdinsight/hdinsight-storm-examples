@@ -1,0 +1,11 @@
+#Azure EventHubs configurations
+eventhubspout.username = {EVENTHUBS_USERNAME}
+eventhubspout.password = {EVENTHUBS_PASSWORD}
+eventhubspout.namespace = {EVENTHUBS_NAMESPACE}
+eventhubspout.entitypath = {EVENTHUBS_ENTITY_PATH}
+eventhubspout.partitions.count = {EVENTHUBS_PARTITION_COUNT}
+
+eventhubspout.checkpoint.interval = 10
+eventhub.receiver.credits = 1024
+
+sqldb.connection.str = jdbc:sqlserver://{SQLAZURE_SERVER_NAME}.database.windows.net:1433;database={SQLAZURE_DB_NAME};user={SQLAZURE_USER};password={SQLAZURE_PASSWORD};encrypt=true;hostNameInCertificate=*.database.windows.net;loginTimeout=30

@@ -1,0 +1,26 @@
+[CmdletBinding(PositionalBinding=$True)]
+Param(
+    [Parameter(Mandatory = $true)]
+    [ValidatePattern("^[a-z0-9-]*$")]
+    [String]$topologyName
+    )
+
+$AzurePowershellPath="..\..\azurepowershell"
+    
+$storageAccountName = "{WASB_ACCOUNT_NAME}"
+$containerName = "{WASB_CONTAINER}"
+$fileName = ".\target\eventgen-1.0-jar-with-dependencies.jar"
+$blobName = "Storm/SubmittedJars/eventgen-1.0.jar"
+
+$clusterName = "{HDINSIGHT_CLUSTER_NAME}"
+$clusterUsername = "{HDINSIGHT_CLUSTER_USERNAME}"
+$clusterPassword = "{HDINSIGHT_CLUSTER_PASSWORD}"
+$jarPath = "{0}{1}" -f "/",$blobName
+$className = "com.microsoft.hdinsight.storm.samples.EventGenTopology"
+$additionalParam = $topologyName
+
+$result = & "$AzurePowershellPath\Storage\UploadFileToStorage.ps1" $storageAccountName $containerName $fileName $blobName
+$result = & "$AzurePowershellPath\HDInsight\SubmitStormTopology.ps1" $clusterName $clusterUsername $clusterPassword $jarPath $className $additionalParam
+
+$url = "https://${clusterName}.azurehdinsight.net/StormDashboard/StormExtUI"
+return $url

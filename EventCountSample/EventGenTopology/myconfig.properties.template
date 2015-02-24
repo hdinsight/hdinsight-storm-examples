@@ -1,0 +1,9 @@
+#Azure EventHubs configurations
+eventhubs.username = {EVENTHUBS_USERNAME}
+eventhubs.password = {EVENTHUBS_PASSWORD}
+eventhubs.namespace = {EVENTHUBS_NAMESPACE}
+eventhubs.entitypath = {EVENTHUBS_ENTITY_PATH}
+eventhubs.partitions.count = {EVENTHUBS_PARTITION_COUNT}
+
+eventhubs.event.size = 30
+eventhubs.event.count.perpartition = 6000000

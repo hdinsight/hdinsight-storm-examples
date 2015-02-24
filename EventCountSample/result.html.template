@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+  <meta http-equiv="refresh" content="3">
+
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+google.load("visualization", "1", {packages:["corechart"]});
+
+var data, connection, rand;
+  
+  google.setOnLoadCallback(function() {
+    getDbData(drawVisualization);
+});
+
+var colorArray = ['green', 'blue', 'red','purple'];
+//var colorArray = ['green'];
+
+function getDbData(callback) {
+
+	connection = new ActiveXObject("ADODB.Connection") ;
+	var connectionstring= "Data Source={SQLAZURE_SERVER_NAME}.database.windows.net;Initial Catalog={SQLAZURE_DB_NAME};User ID={SQLAZURE_USER};Password={SQLAZURE_PASSWORD};Provider=SQLOLEDB"
+	connection.Open(connectionstring);
+	var rs = new ActiveXObject("ADODB.Recordset");
+	var count = 0;
+
+	arr = [];
+	arr.push(['Timestamp', 'Count', { role: 'style' }]);
+	rs.Open("Select top 60 * from dbo.EHEventCount order by timestamp desc;", connection);
+	rand = Math.floor(Math.random() * colorArray.length);
+	
+	if (!rs.bof) {
+		rs.MoveFirst
+		while(!rs.eof)
+		{
+		   arr.push([rs.fields(0).value/1000, rs.fields(1).value, colorArray[rand]]);	   
+		   rs.movenext;
+		}	
+		
+		rs.close;
+
+		callback();
+	}	
+}
+
+
+function drawVisualization() {
+
+	var data = google.visualization.arrayToDataTable(arr);
+    var options = {
+    title: 'EventHub Event Count',
+    hAxis: {title: 'Timestamp', titleTextStyle: {color: 'Black'}},
+    vAxis: { viewWindow: {max:  2000000} }
+  };
+
+  var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+
+  chart.draw(data, options);
+  
+  connection.close;
+}
+
+  </script>
+  </head>
+   <body>
+
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>
