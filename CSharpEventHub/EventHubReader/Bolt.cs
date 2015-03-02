@@ -44,7 +44,7 @@ namespace EventHubReader
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Properties.Settings.Default.StorageConnection);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
             //Create a table named 'events' if it doesn't already exist
-            table = tableClient.GetTableReference("events");
+            table = tableClient.GetTableReference(Properties.Settings.Default.TableName);
             table.CreateIfNotExists();
         }
         /// <summary>

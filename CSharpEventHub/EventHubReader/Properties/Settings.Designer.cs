@@ -77,5 +77,14 @@ namespace EventHubReader.Properties {
                 return ((string)(this["StorageConnection"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("events")]
+        public string TableName {
+            get {
+                return ((string)(this["TableName"]));
+            }
+        }
     }
 }
