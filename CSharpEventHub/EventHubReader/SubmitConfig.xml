@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StormSubmissionConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CurrentClusterName>larrystorm93</CurrentClusterName>
+  <IsHybrid>true</IsHybrid>
+  <HybridPath>C:\Users\larryfr\Documents\GitHub\hdinsight-storm-examples\lib</HybridPath>
+</StormSubmissionConfig>
