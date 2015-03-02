@@ -89,11 +89,6 @@ namespace EventHubAggregatorToHBaseTopology
 
             TopologyBuilder topologyBuilder = new TopologyBuilder(this.GetType().Name);
 
-            // Set a customized JSON Deserializer to deserialize a C# object (emitted by C# Spout) into JSON string for Java to Deserialize
-            // Here, fullname of the Java JSON Deserializer class is required followed by the Java types for each of the fields
-            List<string> javaDeserializerInfo =
-                new List<string>() { "microsoft.scp.storm.multilang.CustomizedInteropJSONDeserializer", "java.lang.String" };
-
             topologyBuilder.SetSpout(
                     typeof(EventGenerator).Name,
                     EventGenerator.Get,
