@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.SCPLogger</name>
+    </assembly>
+    <members>
+        <member name="P:Microsoft.SCP.SCPLogger.Config.LoggerElement.LoggerName">
+            <summary>
+            The name of this logger.
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.SCPLogger.Config.LoggerElement.FactoryName">
+            <summary>
+            Refers to the factory to be used.
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.SCPLogger.Config.LoggerFactoryElement.Name">
+            <summary>
+            Indicates the logger name which resolves to this factory
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.SCPLogger.Config.LoggerFactoryElement.Type">
+            <summary>
+            Indicates the named factory Type
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.SCPLogger.Config.SCPLogger.Factories">
+            <summary>
+            The factories specified within the application configuration.
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.SCPLogger.LoggerFactory.CachedLoggerFactory">
+            <summary>
+            LoggerFactory which has a local cache to improve performance
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.SCPLogger.LoggerManager.GetLogger(System.String)">
+            <summary>
+            Get a Logger with the given name
+            </summary>
+            <param name="name">used to find the specified logger</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPLogger.LoggerManager.GetLogger">
+            <summary>
+            Get a Logger with default name
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Microsoft.SCP.SCPLogger.LoggerManager.Resolver">
+            <summary>
+            get/set a LoggerFactory resolver
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.SCPLogger.Logger.DecoratedFormattedLogger">
+            <summary>
+            decorate the logger with the specified Loglevel and formatter
+            this is to provide a way to let user customize these info
+            </summary>
+        </member>
+        <member name="F:Microsoft.SCP.SCPLogger.Logger.NullLogger.instance">
+            <summary>
+            Singleton instance.
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.SCPLogger.Resolver.ConfigLoggerFactoryResolver">
+            <summary>
+            resolve LoggerFactory from current app's config file.
+            </summary>
+        </member>
+    </members>
+</doc>

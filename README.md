@@ -11,7 +11,11 @@ Read more about writing Storm C# applications in [SCP.Net](SCPNet-GettingStarted
 ### Internet of Things Example (Java)
 [IoT Sample using Azure EventHubs, Storm, Azure DocumentDB](IotSample/README.md)
 
-### Real Time ETL Example (SCP.Net)
+### Real Time ETL Example (C#, SCP.Net)
 [Real Time ETL using Azure EventHubs, Storm, HBase & SCP.Net](realtimeetl/README.md)
+
+### Event Hub Example (C#, SCP.Net)
+
+[Basic C# example of reading and writing to Event Hub](CsharpEventHub/README.md)
 
 Stay tuned for more examples.

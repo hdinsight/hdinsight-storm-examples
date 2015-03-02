@@ -1,0 +1,550 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Thrift</name>
+    </assembly>
+    <members>
+        <member name="M:Thrift.Collections.TCollections.Equals(System.Collections.IEnumerable,System.Collections.IEnumerable)">
+            <summary>
+            This will return true if the two collections are value-wise the same.
+            If the collection contains a collection, the collections will be compared using this method.
+            </summary>
+        </member>
+        <member name="M:Thrift.Collections.TCollections.GetHashCode(System.Collections.IEnumerable)">
+            <summary>
+            This returns a hashcode based on the value of the enumerable.
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TAbstractBase.Write(Thrift.Protocol.TProtocol)">
+            
+             Writes the objects out to the protocol
+            
+        </member>
+        <member name="M:Thrift.Protocol.TBase.Read(Thrift.Protocol.TProtocol)">
+            
+             Reads the TObject from the given input protocol.
+            
+        </member>
+        <member name="T:Thrift.Protocol.TBinaryProtocol.Factory">
+            Factory
+        </member>
+        <member name="F:Thrift.Protocol.TCompactProtocol.lastField_">
+            Used to keep track of the last field for the current and previous structs,
+            so we can do the delta stuff.
+        </member>
+        <member name="F:Thrift.Protocol.TCompactProtocol.booleanField_">
+            If we encounter a boolean field begin, save the TField here so it can 
+            have the value incorporated.
+        </member>
+        <member name="F:Thrift.Protocol.TCompactProtocol.boolValue_">
+            If we Read a field header, and it's a boolean field, save the boolean 
+            value here so that ReadBool can use it.
+        </member>
+        <member name="F:Thrift.Protocol.TCompactProtocol.byteDirectBuffer">
+            Writes a byte without any possibility of all that field header nonsense. 
+            Used internally by other writing methods that know they need to Write a byte.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteByteDirect(System.Int32)">
+            Writes a byte without any possibility of all that field header nonsense.
+        </member>
+        <member name="F:Thrift.Protocol.TCompactProtocol.i32buf">
+            Write an i32 as a varint. Results in 1-5 bytes on the wire.
+            TODO: make a permanent buffer like WriteVarint64?
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteMessageBegin(Thrift.Protocol.TMessage)">
+            Write a message header to the wire. Compact Protocol messages contain the
+            protocol version so we can migrate forwards in the future if need be.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteStructBegin(Thrift.Protocol.TStruct)">
+            Write a struct begin. This doesn't actually put anything on the wire. We 
+            use it as an opportunity to put special placeholder markers on the field
+            stack so we can get the field id deltas correct.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteStructEnd">
+            Write a struct end. This doesn't actually put anything on the wire. We use
+            this as an opportunity to pop the last field from the current struct off
+            of the field stack.
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Thrift.Protocol.TCompactProtocol.WriteFieldBegin(Thrift.Protocol.TField)" -->
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteFieldBeginInternal(Thrift.Protocol.TField,System.Byte)">
+            The workhorse of WriteFieldBegin. It has the option of doing a 
+            'type override' of the type header. This is used specifically in the 
+            boolean field case.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteFieldStop">
+            Write the STOP symbol so we know there are no more fields in this struct.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteMapBegin(Thrift.Protocol.TMap)">
+            Write a map header. If the map is empty, omit the key and value type 
+            headers, as we don't need any additional information to skip it.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteListBegin(Thrift.Protocol.TList)">
+            Write a list header.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteSetBegin(Thrift.Protocol.TSet)">
+            Write a set header.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteBool(System.Boolean)">
+            Write a boolean value. Potentially, this could be a boolean field, in 
+            which case the field header info isn't written yet. If so, decide what the
+            right type header is for the value and then Write the field header. 
+            Otherwise, Write a single byte.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteByte(System.SByte)">
+            Write a byte. Nothing to see here!
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteI16(System.Int16)">
+            Write an I16 as a zigzag varint.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteI32(System.Int32)">
+            Write an i32 as a zigzag varint.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteI64(System.Int64)">
+            Write an i64 as a zigzag varint.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteDouble(System.Double)">
+            Write a double to the wire as 8 bytes.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteString(System.String)">
+            Write a string to the wire with a varint size preceding.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteBinary(System.Byte[])">
+            Write a byte array, using a varint for the size. 
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.WriteCollectionBegin(Thrift.Protocol.TType,System.Int32)">
+            Abstract method for writing the start of lists and sets. List and sets on 
+            the wire differ only by the type indicator.
+        </member>
+        <member name="F:Thrift.Protocol.TCompactProtocol.varint64out">
+            Write an i64 as a varint. Results in 1-10 bytes on the wire.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.longToZigzag(System.Int64)">
+            Convert l into a zigzag long. This allows negative numbers to be 
+            represented compactly as a varint.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.intToZigZag(System.Int32)">
+            Convert n into a zigzag int. This allows negative numbers to be 
+            represented compactly as a varint.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.fixedLongToBytes(System.Int64,System.Byte[],System.Int32)">
+            Convert a long into little-endian bytes in buf starting at off and going 
+            until off+7.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadMessageBegin">
+            Read a message header. 
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadStructBegin">
+            Read a struct begin. There's nothing on the wire for this, but it is our
+            opportunity to push a new struct begin marker onto the field stack.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadStructEnd">
+            Doesn't actually consume any wire data, just removes the last field for 
+            this struct from the field stack.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadFieldBegin">
+            Read a field header off the wire. 
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadMapBegin">
+            Read a map header off the wire. If the size is zero, skip Reading the key
+            and value type. This means that 0-length maps will yield TMaps without the
+            "correct" types.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadListBegin">
+            Read a list header off the wire. If the list size is 0-14, the size will 
+            be packed into the element type header. If it's a longer list, the 4 MSB
+            of the element type header will be 0xF, and a varint will follow with the
+            true size.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadSetBegin">
+            Read a set header off the wire. If the set size is 0-14, the size will 
+            be packed into the element type header. If it's a longer set, the 4 MSB
+            of the element type header will be 0xF, and a varint will follow with the
+            true size.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadBool">
+            Read a boolean off the wire. If this is a boolean field, the value should
+            already have been Read during ReadFieldBegin, so we'll just consume the
+            pre-stored value. Otherwise, Read a byte.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadByte">
+            Read a single byte off the wire. Nothing interesting here.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadI16">
+            Read an i16 from the wire as a zigzag varint.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadI32">
+            Read an i32 from the wire as a zigzag varint.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadI64">
+            Read an i64 from the wire as a zigzag varint.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadDouble">
+            No magic here - just Read a double off the wire.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadString">
+            Reads a byte[] (via ReadBinary), and then UTF-8 decodes it.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadBinary">
+            Read a byte[] from the wire. 
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadBinary(System.Int32)">
+            Read a byte[] of a known length from the wire. 
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadVarint32">
+            Read an i32 from the wire as a varint. The MSB of each byte is set
+            if there is another byte to follow. This can Read up to 5 bytes.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.ReadVarint64">
+            Read an i64 from the wire as a proper varint. The MSB of each byte is set 
+            if there is another byte to follow. This can Read up to 10 bytes.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.zigzagToInt(System.UInt32)">
+            Convert from zigzag int to int.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.zigzagToLong(System.UInt64)">
+            Convert from zigzag long to long.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.bytesToLong(System.Byte[])">
+            Note that it's important that the mask bytes are long literals, 
+            otherwise they'll default to ints, and when you shift an int left 56 bits,
+            you just get a messed up int.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.getTType(System.Byte)">
+            Given a TCompactProtocol.Types constant, convert it to its corresponding 
+            TType value.
+        </member>
+        <member name="M:Thrift.Protocol.TCompactProtocol.getCompactType(Thrift.Protocol.TType)">
+            Given a TType value, find the appropriate TCompactProtocol.Types constant.
+        </member>
+        <member name="T:Thrift.Protocol.TCompactProtocol.Types">
+            All of the on-wire type codes.
+        </member>
+        <member name="T:Thrift.Protocol.TCompactProtocol.Factory">
+            Factory
+        </member>
+        <member name="T:Thrift.Protocol.TJSONProtocol">
+             <summary>
+             JSON protocol implementation for thrift.
+            
+             This is a full-featured protocol supporting Write and Read.
+            
+             Please see the C++ class header for a detailed description of the
+             protocol's wire format.
+            
+             Adapted from the Java version.
+             </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.PushContext(Thrift.Protocol.TJSONProtocol.JSONBaseContext)">
+            <summary>
+             Push a new JSON context onto the stack.
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.PopContext">
+            <summary>
+             Pop the last JSON context off the stack
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.#ctor(Thrift.Transport.TTransport)">
+            <summary>
+             TJSONProtocol Constructor
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.ReadJSONSyntaxChar(System.Byte[])">
+            <summary>
+             Read a byte that must match b[0]; otherwise an exception is thrown.
+             Marked protected to avoid synthetic accessor in JSONListContext.Read
+             and JSONPairContext.Read
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.HexVal(System.Byte)">
+            <summary>
+             Convert a byte containing a hex char ('0'-'9' or 'a'-'f') into its
+             corresponding hex value
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.HexChar(System.Byte)">
+            <summary>
+             Convert a byte containing a hex value to its corresponding hex character
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.WriteJSONString(System.Byte[])">
+            <summary>
+             Write the bytes in array buf as a JSON characters, escaping as needed
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.WriteJSONInteger(System.Int64)">
+            <summary>
+             Write out number as a JSON value. If the context dictates so, it will be
+             wrapped in quotes to output as a JSON string.
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.WriteJSONDouble(System.Double)">
+            <summary>
+             Write out a double as a JSON value. If it is NaN or infinity or if the
+             context dictates escaping, Write out as JSON string.
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.WriteJSONBase64(System.Byte[])">
+            <summary>
+             Write out contents of byte array b as a JSON string with base-64 encoded
+             data
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.ReadJSONString(System.Boolean)">
+            <summary>
+             Read in a JSON string, unescaping as appropriate.. Skip Reading from the
+             context if skipContext is true.
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.IsJSONNumeric(System.Byte)">
+            <summary>
+             Return true if the given byte could be a valid part of a JSON number.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Thrift.Protocol.TJSONProtocol.ReadJSONNumericChars" -->
+        <member name="M:Thrift.Protocol.TJSONProtocol.ReadJSONInteger">
+            <summary>
+             Read in a JSON number. If the context dictates, Read in enclosing quotes.
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.ReadJSONDouble">
+            <summary>
+             Read in a JSON double value. Throw if the value is not wrapped in quotes
+             when expected or if wrapped in quotes when not expected.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Thrift.Protocol.TJSONProtocol.ReadJSONBase64" -->
+        <member name="T:Thrift.Protocol.TJSONProtocol.Factory">
+            <summary>
+            Factory for JSON protocol objects
+            </summary>
+        </member>
+        <member name="T:Thrift.Protocol.TJSONProtocol.JSONBaseContext">
+            <summary>
+             Base class for tracking JSON contexts that may require
+             inserting/Reading additional JSON syntax characters
+             This base context does nothing.
+            </summary>
+        </member>
+        <member name="T:Thrift.Protocol.TJSONProtocol.JSONListContext">
+            <summary>
+             Context for JSON lists. Will insert/Read commas before each item except
+             for the first one
+            </summary>
+        </member>
+        <member name="T:Thrift.Protocol.TJSONProtocol.JSONPairContext">
+            <summary>
+             Context for JSON records. Will insert/Read colons before the value portion
+             of each record pair, and commas before each key except the first. In
+             addition, will indicate that numbers in the key position need to be
+             escaped in quotes (since JSON keys must be strings).
+            </summary>
+        </member>
+        <member name="T:Thrift.Protocol.TJSONProtocol.LookaheadReader">
+            <summary>
+             Holds up to one byte from the transport
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.LookaheadReader.Read">
+            <summary>
+             Return and consume the next byte to be Read, either taking it from the
+             data buffer if present or getting it from the transport otherwise.
+            </summary>
+        </member>
+        <member name="M:Thrift.Protocol.TJSONProtocol.LookaheadReader.Peek">
+            <summary>
+             Return the next byte to be Read without consuming, filling the data
+             buffer if it has not been filled alReady.
+            </summary>
+        </member>
+        <member name="T:Thrift.Protocol.TMultiplexedProcessor">
+             TMultiplexedProcessor is a TProcessor allowing a single TServer to provide multiple services.
+             To do so, you instantiate the processor and then register additional processors with it, 
+             as shown in the following example:
+            
+                 TMultiplexedProcessor processor = new TMultiplexedProcessor();
+            
+                 processor.registerProcessor(
+                     "Calculator",
+                     new Calculator.Processor(new CalculatorHandler()));
+            
+                 processor.registerProcessor(
+                     "WeatherReport",
+                     new WeatherReport.Processor(new WeatherReportHandler()));
+            
+                 TServerTransport t = new TServerSocket(9090);
+                 TSimpleServer server = new TSimpleServer(processor, t);
+            
+                 server.serve();
+        </member>
+        <member name="M:Thrift.Protocol.TMultiplexedProcessor.RegisterProcessor(System.String,Thrift.TProcessor)">
+             'Register' a service with this TMultiplexedProcessor. This allows us to broker 
+             requests to individual services by using the service name to select them at request time.
+            
+             Args: 
+             - serviceName    Name of a service, has to be identical to the name
+                              declared in the Thrift IDL, e.g. "WeatherReport".
+             - processor      Implementation of a service, ususally referred to as "handlers", 
+                              e.g. WeatherReportHandler implementing WeatherReport.Iface.
+        </member>
+        <member name="M:Thrift.Protocol.TMultiplexedProcessor.Process(Thrift.Protocol.TProtocol,Thrift.Protocol.TProtocol)">
+             This implementation of process performs the following steps:
+            
+             - Read the beginning of the message.
+             - Extract the service name from the message.
+             - Using the service name to locate the appropriate processor.
+             - Dispatch to the processor, with a decorated instance of TProtocol
+                that allows readMessageBegin() to return the original TMessage.
+              
+             Throws an exception if 
+             - the message type is not CALL or ONEWAY, 
+             - the service name was not found in the message, or 
+             - the service name has not been RegisterProcessor()ed.  
+        </member>
+        <member name="T:Thrift.Protocol.TMultiplexedProcessor.StoredMessageProtocol">
+            Our goal was to work with any protocol.  In order to do that, we needed
+            to allow them to call readMessageBegin() and get a TMessage in exactly
+            the standard format, without the service name prepended to TMessage.name.
+        </member>
+        <member name="T:Thrift.Protocol.TProtocolDecorator">
+             TProtocolDecorator forwards all requests to an enclosed TProtocol instance, 
+             providing a way to author concise concrete decorator subclasses.  While it has 
+             no abstract methods, it is marked abstract as a reminder that by itself, 
+             it does not modify the behaviour of the enclosed TProtocol.
+            
+             See p.175 of Design Patterns (by Gamma et al.)
+             See TMultiplexedProtocol
+        </member>
+        <member name="M:Thrift.Protocol.TProtocolDecorator.#ctor(Thrift.Protocol.TProtocol)">
+            Encloses the specified protocol.
+            @param protocol All operations will be forward to this protocol.  Must be non-null.
+        </member>
+        <member name="T:Thrift.Protocol.TMultiplexedProtocol">
+             TMultiplexedProtocol is a protocol-independent concrete decorator that allows a Thrift 
+             client to communicate with a multiplexing Thrift server, by prepending the service name 
+             to the function name during function calls.
+            
+             NOTE: THIS IS NOT TO BE USED BY SERVERS.  
+             On the server, use TMultiplexedProcessor to handle requests from a multiplexing client.
+            
+             This example uses a single socket transport to invoke two services:
+            
+                 TSocket transport = new TSocket("localhost", 9090);
+                 transport.open();
+                 
+                 TBinaryProtocol protocol = new TBinaryProtocol(transport);
+            
+                 TMultiplexedProtocol mp = new TMultiplexedProtocol(protocol, "Calculator");
+                 Calculator.Client service = new Calculator.Client(mp);
+            
+                 TMultiplexedProtocol mp2 = new TMultiplexedProtocol(protocol, "WeatherReport");
+                 WeatherReport.Client service2 = new WeatherReport.Client(mp2);
+            
+                 System.out.println(service.add(2,2));
+                 System.out.println(service2.getTemperature());
+            
+        </member>
+        <member name="F:Thrift.Protocol.TMultiplexedProtocol.SEPARATOR">
+            Used to delimit the service name from the function name 
+        </member>
+        <member name="M:Thrift.Protocol.TMultiplexedProtocol.#ctor(Thrift.Protocol.TProtocol,System.String)">
+             Wrap the specified protocol, allowing it to be used to communicate with a
+             multiplexing server.  The <code>serviceName</code> is required as it is
+             prepended to the message header so that the multiplexing server can broker
+             the function call to the proper service.
+            
+             Args:
+              protocol        Your communication protocol of choice, e.g. TBinaryProtocol
+              serviceName     The service name of the service communicating via this protocol.
+        </member>
+        <member name="M:Thrift.Protocol.TMultiplexedProtocol.WriteMessageBegin(Thrift.Protocol.TMessage)">
+            Prepends the service name to the function name, separated by TMultiplexedProtocol.SEPARATOR.
+            Args:
+              tMessage     The original message.
+        </member>
+        <member name="T:Thrift.Server.TThreadedServer">
+            <summary>
+            Server that uses C# threads (as opposed to the ThreadPool) when handling requests
+            </summary>
+        </member>
+        <member name="F:Thrift.Server.TServer.processor">
+            Core processor
+        </member>
+        <member name="F:Thrift.Server.TServer.serverTransport">
+            Server transport
+        </member>
+        <member name="F:Thrift.Server.TServer.inputTransportFactory">
+            Input Transport Factory
+        </member>
+        <member name="F:Thrift.Server.TServer.outputTransportFactory">
+            Output Transport Factory
+        </member>
+        <member name="F:Thrift.Server.TServer.inputProtocolFactory">
+            Input Protocol Factory
+        </member>
+        <member name="F:Thrift.Server.TServer.outputProtocolFactory">
+            Output Protocol Factory
+        </member>
+        <member name="M:Thrift.Server.TServer.#ctor(Thrift.TProcessor,Thrift.Transport.TServerTransport)">
+            Default constructors.
+        </member>
+        <member name="M:Thrift.Server.TServer.Serve">
+            The run method fires up the server and gets things going.
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Thrift.Server.TThreadedServer.Serve" -->
+        <member name="M:Thrift.Server.TThreadedServer.Execute">
+            <summary>
+            Loops on processing a client forever
+            threadContext will be a TTransport instance
+            </summary>
+            <param name="threadContext"></param>
+        </member>
+        <member name="T:Thrift.Server.TSimpleServer">
+            <summary>
+            Simple single-threaded server for testing
+            </summary>
+        </member>
+        <member name="T:Thrift.Server.TThreadPoolServer">
+            <summary>
+            Server that uses C# built-in ThreadPool to spawn threads when handling requests
+            </summary>
+        </member>
+        <member name="M:Thrift.Server.TThreadPoolServer.Serve">
+            <summary>
+            Use new ThreadPool thread for each new client connection
+            </summary>
+        </member>
+        <member name="M:Thrift.Server.TThreadPoolServer.Execute(System.Object)">
+            <summary>
+            Loops on processing a client forever
+            threadContext will be a TTransport instance
+            </summary>
+            <param name="threadContext"></param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Thrift.Transport.TTransportFactory" -->
+        <member name="F:Thrift.Transport.TServerSocket.server">
+            Underlying server with socket
+        </member>
+        <member name="F:Thrift.Transport.TServerSocket.port">
+            Port to listen on
+        </member>
+        <member name="F:Thrift.Transport.TServerSocket.clientTimeout">
+            Timeout for client sockets from accept
+        </member>
+        <member name="F:Thrift.Transport.TServerSocket.useBufferedSockets">
+            Whether or not to wrap new TSocket connections in buffers
+        </member>
+        <member name="M:Thrift.Transport.TServerSocket.#ctor(System.Net.Sockets.TcpListener)">
+            Creates a server socket from underlying socket object
+        </member>
+        <member name="M:Thrift.Transport.TServerSocket.#ctor(System.Net.Sockets.TcpListener,System.Int32)">
+            Creates a server socket from underlying socket object
+        </member>
+        <member name="M:Thrift.Transport.TServerSocket.#ctor(System.Int32)">
+            Creates just a port listening server socket
+        </member>
+        <member name="M:Thrift.Transport.TServerSocket.#ctor(System.Int32,System.Int32)">
+            Creates just a port listening server socket
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="EventHubWriter.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="EventHubPolicyName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">writer</Value>
+    </Setting>
+    <Setting Name="EventHubPolicyKey" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">The writer policy key</Value>
+    </Setting>
+    <Setting Name="EventHubNamespace" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">The Event Hub namespace</Value>
+    </Setting>
+    <Setting Name="EventHubName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">The Event Hub name</Value>
+    </Setting>
+    <Setting Name="EventHubPartitionCount" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
