@@ -1,1 +1,0 @@
-java -cp target\docdbgen-1.0-jar-with-dependencies.jar com.microsoft.hdinsight.storm.samples.DocDbGen docdb.config ..\vehiclevin.txt
