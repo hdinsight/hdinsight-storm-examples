@@ -19,6 +19,8 @@ package com.microsoft.hdinsight.storm.examples;
 
 import java.util.Map;
 
+import backtype.storm.Config;
+import backtype.storm.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +38,7 @@ public class DBGlobalCountBolt extends BaseBasicBolt {
   private static final Logger logger = LoggerFactory
       .getLogger(DBGlobalCountBolt.class);
   
-  private long lastDBLogTime;
-  private long curCountForDB;
+    private long curCountForDB;
   private SqlDb db;
   private String connectionStr;
   
@@ -47,10 +48,8 @@ public class DBGlobalCountBolt extends BaseBasicBolt {
   
   @Override
   public void prepare(Map config, TopologyContext context) {
-    lastDBLogTime = System.currentTimeMillis();
     curCountForDB = 0;
     db = new SqlDb(connectionStr);
-    //db.resetTable();
     db.dropTable();
     db.createTable();
   }
@@ -62,23 +61,31 @@ public class DBGlobalCountBolt extends BaseBasicBolt {
 
   @Override
   public void execute(Tuple tuple, BasicOutputCollector collector) {
-    //int partial = (Integer)tuple.getValueByField("partial_count");
-    int partial = tuple.getInteger(0);
-    
-    curCountForDB += partial;
-    long now = System.currentTimeMillis();
-    long logPeriodMs = (now - lastDBLogTime);
-    if (logPeriodMs > 1000) {
+    if (isTickTuple(tuple)) {
       logger.info("updating database, curCount: " + curCountForDB);
-      db.insertValue(now, curCountForDB);
-      lastDBLogTime = now;
+      db.insertValue(System.currentTimeMillis(), curCountForDB);
       curCountForDB = 0;
+    }
+    else {
+      //int partial = (Integer)tuple.getValueByField("partial_count");
+      int partial = tuple.getInteger(0);
+      curCountForDB += partial;
     }
   }
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer declarer) {
-    
   }
 
+  @Override
+  public Map<String,Object>  getComponentConfiguration() {
+    Config conf = new Config();
+    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
+    return conf;
+  }
+
+  private static boolean isTickTuple(Tuple tuple) {
+    return tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID)
+        && tuple.getSourceStreamId().equals(Constants.SYSTEM_TICK_STREAM_ID);
+  }
 }

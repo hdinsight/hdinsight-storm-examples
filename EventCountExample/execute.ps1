@@ -18,10 +18,15 @@ if(-not $?)
 
 $configFile = Join-Path $scriptDir "run\configurations.properties"
 $config = & "$scriptDir\..\scripts\config\ReadConfig.ps1" $configFile
+Select-AzureSubscription -SubscriptionName $config["AZURE_SUBSCRIPTION_NAME"]
 
 ###########################################################
 # EventGenTopology
 ###########################################################
+
+Write-SpecialLog ("For benchmark test, go to Azure portal to set Throughput Unit to 20 for Service Bus " + $config["EVENTHUBS_NAMESPACE"]) (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "Press any key to continue..." (Get-ScriptName) (Get-ScriptLineNumber)
+cmd /c pause | out-null
 
 $localJarPath = "$scriptDir\EventGenTopology\target\eventgen-1.0-jar-with-dependencies.jar"
 $blobPath = "Storm/SubmittedJars/eventgen-1.0.jar"

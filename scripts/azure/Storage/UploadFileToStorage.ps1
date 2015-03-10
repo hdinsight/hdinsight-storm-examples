@@ -21,13 +21,3 @@ $destContext = New-AzureStorageContext -StorageAccountName $AccountName -Storage
 
 Write-InfoLog "Copying the file [$FilePath] from local workstation to Blob [$BlobName]" (Get-ScriptName) (Get-ScriptLineNumber)
 $blobUpload = Set-AzureStorageBlobContent -File $FilePath -Container $ContainerName -Blob $BlobName -context $destContext -Force
-
-if($LASTEXITCODE -eq 0)
-{
-    Write-InfoLog "Successfully uploaded file: $FilePath" (Get-ScriptName) (Get-ScriptLineNumber)
-}
-else
-{
-    Write-ErrorLog "Failed to upload file: $FilePath" (Get-ScriptName) (Get-ScriptLineNumber)
-    throw "Failed to upload file: $FilePath"
-}

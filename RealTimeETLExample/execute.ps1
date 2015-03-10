@@ -18,6 +18,7 @@ if(-not $?)
 
 $configFile = Join-Path $scriptDir "run\configurations.properties"
 $config = & "$scriptDir\..\scripts\config\ReadConfig.ps1" $configFile
+Select-AzureSubscription -SubscriptionName $config["AZURE_SUBSCRIPTION_NAME"]
 
 $topologyDir = Join-Path $scriptDir "EventHubAggregatorToHBaseTopology"
 $topologyBinDir = Join-Path $topologyDir "bin\Debug"

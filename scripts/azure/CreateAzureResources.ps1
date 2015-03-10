@@ -135,7 +135,7 @@ if($eventhub)
         param($subName,$scriptDir,$configFile,$config)
         Select-AzureSubscription -SubscriptionName $subName
         & "$scriptDir\..\init.ps1"
-        $ehPassword = & "$scriptDir\EventHubs\CreateEventHubs.ps1" $config["EVENTHUBS_NAMESPACE"] $config["EVENTHUBS_ENTITY_PATH"] $config["EVENTHUBS_USERNAME"]
+        $ehPassword = & "$scriptDir\EventHubs\CreateEventHubs.ps1" $config["EVENTHUBS_NAMESPACE"] $config["EVENTHUBS_ENTITY_PATH"] $config["EVENTHUBS_USERNAME"] "West Europe" $config["EVENTHUBS_PARTITION_COUNT"]
         if(-not [String]::IsNullOrWhiteSpace($ehPassword))
         {
             & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{EVENTHUBS_PASSWORD=$ehPassword}
@@ -165,7 +165,7 @@ $scriptCreateStorm = {
     param($subName,$scriptDir,$configFile,$config)
     Select-AzureSubscription -SubscriptionName $subName
     & "$scriptDir\..\init.ps1"
-    $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm"
+    $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_SIZE"]
     if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
     {
         & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{STORM_CLUSTER_URL=$cluster.ConnectionUrl}
@@ -179,7 +179,7 @@ if($hbase)
         param($subName,$scriptDir,$configFile,$config)
         Select-AzureSubscription -SubscriptionName $subName
         & "$scriptDir\..\init.ps1"
-        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase"
+        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_SIZE"]
         if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
         {
             & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HBASE_CLUSTER_URL=$cluster.ConnectionUrl}

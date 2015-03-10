@@ -20,6 +20,7 @@ $inputConfig = @{
 EVENTHUBS="true"
 SQLAZURE="true"
 EVENTHUBS_PARTITION_COUNT=32
+STORM_CLUSTER_SIZE=32
 }
 
 #Create Run Configuration
