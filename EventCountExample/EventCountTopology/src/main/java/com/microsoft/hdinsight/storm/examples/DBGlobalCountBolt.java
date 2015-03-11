@@ -38,7 +38,7 @@ public class DBGlobalCountBolt extends BaseBasicBolt {
   private static final Logger logger = LoggerFactory
       .getLogger(DBGlobalCountBolt.class);
   
-    private long curCountForDB;
+  private long curCountForDB;
   private SqlDb db;
   private String connectionStr;
   

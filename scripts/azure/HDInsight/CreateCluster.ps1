@@ -56,7 +56,7 @@ else
     $SecurePwd = ConvertTo-SecureString $ClusterPassword -AsPlainText -Force
     $Creds = New-Object System.Management.Automation.PSCredential($ClusterUsername, $SecurePwd)
 
-    Write-InfoLog "Creating Azure HDInsight $ClusterType cluster [$ClusterName]" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "Creating Azure HDInsight $ClusterType cluster: $ClusterName" (Get-ScriptName) (Get-ScriptLineNumber)
     try
     {
         $Cluster = New-AzureHDInsightCluster -Name $ClusterName -Config $Config -Location "$Location" -Credential $Creds

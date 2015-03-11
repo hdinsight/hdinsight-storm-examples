@@ -12,9 +12,9 @@ $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath
 $serviceBusDll = & "$scriptDir\GetServiceBusDll.ps1"
 
-Write-InfoLog "Adding the $serviceBusDll assembly to the script..." (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "Adding the assembly: '$serviceBusDll' to the script." (Get-ScriptName) (Get-ScriptLineNumber)
 Add-Type -Path $serviceBusDll
-Write-InfoLog "The $serviceBusDll assembly has been successfully added to the script." (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "The assembly: '$serviceBusDll' has been successfully added to the script." (Get-ScriptName) (Get-ScriptLineNumber)
 
 try
 {
@@ -47,5 +47,5 @@ if ($CurrentNamespace)
 }
 else
 {
-    Write-InfoLog "The namespace [$Namespace] does not exists."  (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "The namespace: $Namespace does not exists."  (Get-ScriptName) (Get-ScriptLineNumber)
 }

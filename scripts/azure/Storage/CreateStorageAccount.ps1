@@ -19,7 +19,7 @@ if($Result -ne $null)
 }
 else
 {
-    Write-InfoLog "Creating Storage Account: $AccountName" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "Creating Storage Account: $AccountName in location: $Location" (Get-ScriptName) (Get-ScriptLineNumber)
     $Result = New-AzureStorageAccount -StorageAccountName $AccountName -Location "$Location"
     Write-InfoLog "$Result" (Get-ScriptName) (Get-ScriptLineNumber)
 }
@@ -27,5 +27,5 @@ else
 Write-InfoLog "Getting Storage Key for $AccountName" (Get-ScriptName) (Get-ScriptLineNumber)
 $PrimaryKey = $(Get-AzureStorageKey -StorageAccountName $AccountName).Primary
 
-Write-SpecialLog "Successfully created Storage Account [$AccountName] in [$Location]" (Get-ScriptName) (Get-ScriptLineNumber)
+Write-SpecialLog "Successfully created Storage Account: $AccountName in location: $Location" (Get-ScriptName) (Get-ScriptLineNumber)
 return $PrimaryKey

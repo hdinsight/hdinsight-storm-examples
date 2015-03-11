@@ -32,37 +32,37 @@ $CurrentNamespace = Get-AzureSBNamespace -Name $Namespace
 # Check if the namespace already exists or needs to be created
 if ($CurrentNamespace)
 {
-    Write-InfoLog "The namespace [$Namespace] already exists in the [$($CurrentNamespace.Region)] region." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "The namespace: $Namespace already exists in location: $($CurrentNamespace.Region)" (Get-ScriptName) (Get-ScriptLineNumber)
 }
 else
 {
-    Write-InfoLog "The [$Namespace] namespace does not exist." (Get-ScriptName) (Get-ScriptLineNumber)
-    Write-InfoLog "Creating the [$Namespace] namespace in the [$Location] region..." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "The namespace: $Namespace does not exist." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "Creating namespace: $Namespace in location: $Location" (Get-ScriptName) (Get-ScriptLineNumber)
     $CurrentNamespace = New-AzureSBNamespace -Name $Namespace -Location $Location -CreateACSNamespace $CreateACSNamespace -NamespaceType Messaging
     #introduce a delay so that the namespace info can be retrieved
     sleep -s 15
     $CurrentNamespace = Get-AzureSBNamespace -Name $Namespace
-    Write-InfoLog "The [$Namespace] namespace in the [$Location] region has been successfully created." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "The namespace: $Namespace in location: $Location has been successfully created." (Get-ScriptName) (Get-ScriptLineNumber)
 }
 
 # Create the NamespaceManager object to create the event hub
-Write-InfoLog "Creating a NamespaceManager object for the [$Namespace] namespace..." (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "Creating a NamespaceManager object for the namespace: $Namespace" (Get-ScriptName) (Get-ScriptLineNumber)
 $NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($CurrentNamespace.ConnectionString);
-Write-InfoLog "NamespaceManager object for the [$Namespace] namespace has been successfully created." (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "NamespaceManager object for the namespace: $Namespace has been successfully created." (Get-ScriptName) (Get-ScriptLineNumber)
 
 $MyAccessRights = [Microsoft.ServiceBus.Messaging.AccessRights[]]([Microsoft.ServiceBus.Messaging.AccessRights]::Manage,[Microsoft.ServiceBus.Messaging.AccessRights]::Send,[Microsoft.ServiceBus.Messaging.AccessRights]::Listen)
 
 # Check if the event hub already exists
 if ($NamespaceManager.EventHubExists($Path))
 {
-    Write-InfoLog "The [$Path] event hub already exists in the [$Namespace] namespace." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "The event hub: $Path already exists in the namespace: $Namespace." (Get-ScriptName) (Get-ScriptLineNumber)
     $EventHubDescription = $NamespaceManager.GetEventHub($Path)
     $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule -ArgumentList $EventHubsKeyName,$MyAccessRights
     $dummy = $EventHubDescription.Authorization.TryGetSharedAccessAuthorizationRule($EventHubsKeyName, [ref]$Rule)
 }
 else
 {
-    Write-InfoLog "Creating the [$Path] event hub in the [$Namespace] namespace: PartitionCount=[$PartitionCount] MessageRetentionInDays=[$MessageRetentionInDays]..." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "Creating the event hub: $Path in the namespace: $Namespace - : PartitionCount = $PartitionCount, MessageRetentionInDays = $MessageRetentionInDays" (Get-ScriptName) (Get-ScriptLineNumber)
     $EventHubDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.EventHubDescription -ArgumentList $Path
     $EventHubDescription.PartitionCount = $PartitionCount
     $EventHubDescription.MessageRetentionInDays = $MessageRetentionInDays
@@ -72,15 +72,15 @@ else
     $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule -ArgumentList $EventHubsKeyName,$EventHubsPassword,$MyAccessRights
     $EventHubDescription.Authorization.Add($Rule)
     $EventHubDescription = $NamespaceManager.CreateEventHub($EventHubDescription);
-    Write-InfoLog "The [$Path] event hub in the [$Namespace] namespace has been successfully created." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "The event hub: $Path in the namespace: $Namespace has been successfully created." (Get-ScriptName) (Get-ScriptLineNumber)
 }
 
 # Create the consumer group if not exists
-Write-InfoLog "Creating the consumer group [$ConsumerGroupName] for the [$Path] event hub..." (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "Creating the consumer group: $ConsumerGroupNam] for the event hub: $Path" (Get-ScriptName) (Get-ScriptLineNumber)
 $ConsumerGroupDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.ConsumerGroupDescription -ArgumentList $Path, $ConsumerGroupName
 $ConsumerGroupDescription.UserMetadata = $ConsumerGroupUserMetadata
 $ConsumerGroupDescription = $NamespaceManager.CreateConsumerGroupIfNotExists($ConsumerGroupDescription);
-Write-InfoLog "The consumer group [$ConsumerGroupName] for the [$Path] event hub has been successfully created." (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "The consumer group: $ConsumerGroupName for the event hub: $Path has been successfully created." (Get-ScriptName) (Get-ScriptLineNumber)
 
 $finishTime = Get-Date
 $totalSeconds = ($finishTime - $startTime).TotalSeconds

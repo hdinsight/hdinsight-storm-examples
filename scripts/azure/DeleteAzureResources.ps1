@@ -35,16 +35,9 @@ $startTime = Get-Date
 Write-SpecialLog "Deleting Azure resources for example: $ExampleDir" (Get-ScriptName) (Get-ScriptLineNumber)
 
 $configFile = Join-Path $ExampleDir "run\configurations.properties"
-
-$config = @{}
 $config = & "$scriptDir\..\config\ReadConfig.ps1" $configFile
 
-if($config.Count -eq 0)
-{
-    throw "No run configurations found!"
-}
-
-$config.Keys | % { if(-not ($_.Contains("PASSWORD") -or $_.Contains("KEY"))) { Write-SpecialLog ("Key = " + $_ + ", Value = " + $config[$_]) (Get-ScriptName) (Get-ScriptLineNumber) } }
+$config.Keys | sort | % { if(-not ($_.Contains("PASSWORD") -or $_.Contains("KEY"))) { Write-SpecialLog ("Key = " + $_ + ", Value = " + $config[$_]) (Get-ScriptName) (Get-ScriptLineNumber) } }
 
 $subName = $config["AZURE_SUBSCRIPTION_NAME"]
 Switch-AzureMode -Name AzureServiceManagement

@@ -35,9 +35,11 @@ Write-SpecialLog "Step 0: Creating Run Configuration" (Get-ScriptName) (Get-Scri
 & "$scriptDir\GenerateRandomConfig.ps1" $configFile $ExamplePrefix
 
 $defaultConfig=@{
+AZURE_LOCATION="West Europe"
 STORM_CLUSTER_SIZE=4
 HBASE_CLUSTER_SIZE=4
 }
+
 #Update any passed in input configurations. This is mostly used for examples to specify different components to deploy
 if($InputConfig -ne $null)
 {

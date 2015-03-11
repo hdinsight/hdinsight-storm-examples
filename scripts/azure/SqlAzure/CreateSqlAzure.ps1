@@ -29,10 +29,10 @@ if(-not ([String]::IsNullOrWhiteSpace($ServerName)))
 if(-not $SqlServer)
 {
     # Provision new SQL Database Server
-    Write-InfoLog "Creating SQL Server" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog "Creating SQL Server in location: $Location" (Get-ScriptName) (Get-ScriptLineNumber)
     $SqlServer = New-AzureSqlDatabaseServer -AdministratorLogin $AdminLogin `
         -AdministratorLoginPassword $AdminPassword -Location $Location
-    Write-InfoLog ("Created SQL Server: " + $SqlServer.ServerName) (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog ("Created SQL Server: {0} in location: {1}" -f $SqlServer.ServerName,$SqlServer.Location) (Get-ScriptName) (Get-ScriptLineNumber)
 
     #######################################################
     # 2. Azure SQL Server configuration --> authentication

@@ -29,7 +29,12 @@ Remove-Item "$scriptDir\EventHubAggregatorToHBaseTopology\*.zip" -Force
 Remove-Item "$scriptDir\EventHubAggregatorToHBaseTopology\*.suo" -Force
 Remove-Item "$scriptDir\EventHubAggregatorToHBaseTopology\*.user" -Force
 
-cmd /c "git checkout -- ""$scriptDir\EventHubAggregatorToHBaseTopology\SCPHost.exe.config"""
+cmd /c "git checkout -- ""$scriptDir\EventHubAggregatorToHBaseTopology\SCPHost.exe.config"" 2>&1" | Out-Null
+if($LASTEXITCODE -ne 0)
+{
+    Write-WarnLog "Failed to revert '$scriptDir\EventHubAggregatorToHBaseTopology\SCPHost.exe.config'." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-WarnLog "Please revert the file manually from Git Shell using 'git checkout -- ""$scriptDir\EventHubAggregatorToHBaseTopology\SCPHost.exe.config""" (Get-ScriptName) (Get-ScriptLineNumber)
+}
 
 #Run Azure Cleanup
 & "$scriptDir\..\scripts\cleanup.ps1" "$scriptDir"
