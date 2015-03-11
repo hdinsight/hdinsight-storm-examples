@@ -36,7 +36,7 @@ Read more about this example here: [Real Time ETL example using Azure EventHubs,
 * Writing Storm applications in C# using [SCP.Net](SCPNet-GettingStarted.md)
 
 ## References
-* [HDInsight] http://azure.microsoft.com/en-us/documentation/services/hdinsight/
+* [HDInsight] (http://azure.microsoft.com/en-us/documentation/services/hdinsight/)
 * [Azure Event Hubs] (http://azure.microsoft.com/en-us/services/event-hubs/)
 * [DocumentDB] (http://azure.microsoft.com/en-us/services/documentdb/)
 * [SQL Azure] (http://azure.microsoft.com/en-us/services/sql-database/)
