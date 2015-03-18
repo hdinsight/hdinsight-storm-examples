@@ -35,7 +35,7 @@ $className = "com.microsoft.hdinsight.storm.examples.EventGenTopology"
 
 Write-SpecialLog "Submitting Storm topology to generate events" (Get-ScriptName) (Get-ScriptLineNumber)
 $result = & "$scriptDir\..\scripts\azure\Storage\UploadFileToStorage.ps1" $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $localJarPath $blobPath
-#$result = & "$scriptDir\..\scripts\storm\SubmitStormTopology.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] $jarPath $className "EventGenTopology"
+$result = & "$scriptDir\..\scripts\storm\SubmitStormTopology.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] $jarPath $className "EventGenTopology"
 
 Write-InfoLog "Waiting for a short while for topologies to get started ..." (Get-ScriptName) (Get-ScriptLineNumber)
 sleep -s 15
