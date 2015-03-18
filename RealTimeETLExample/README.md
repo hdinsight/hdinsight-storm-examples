@@ -5,6 +5,7 @@ Read more about SCP.NET in [SCPNet-GettingStarted](../SCPNet-GettingStarted.md)
 
 ## Prerequisites
 In order to build and run the example, you need to have:
+
 1. Visual Studio 2012 or Visual Studio 2013.
 2. Latest version of Azure Powershell (0.8.13 or later).
 3. An active Azure subscription for deploying Azure services for example execution.
