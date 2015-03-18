@@ -31,12 +31,32 @@ namespace EventCountHybridTopology
             TopologyBuilder topologyBuilder = new TopologyBuilder(typeof(EventCountHybridTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             JavaComponentConstructor constructor =
+                new JavaComponentConstructor("com.microsoft.eventhubs.spout.EventHubSpout",
+                    new List<object>() { 
+                                    appConfig.EventHubUsername, 
+                                    appConfig.EventHubPassword,
+                                    appConfig.EventHubNamespace, 
+                                    appConfig.EventHubEntityPath,
+                                    appConfig.EventHubPartitions},
+                    new List<string>() { 
+                                    "java.lang.String",
+                                    "java.lang.String",
+                                    "java.lang.String",
+                                    "java.lang.String",
+                                    "int"}
+                );
+
+            //For more advanced scenarios where you may wish to pass complex java objects
+            //You can use the CreateFromClojureExpr method to pass in a clojure expression
+            /*
+            JavaComponentConstructor constructor =
                 JavaComponentConstructor.CreateFromClojureExpr(
                 String.Format(@"(com.microsoft.eventhubs.spout.EventHubSpout. (com.microsoft.eventhubs.spout.EventHubSpoutConfig. " +
                 @"""{0}"" ""{1}"" ""{2}"" ""{3}"" {4} """"))",
                 appConfig.EventHubUsername, appConfig.EventHubPassword,
                 appConfig.EventHubNamespace, appConfig.EventHubEntityPath,
                 appConfig.EventHubPartitions));
+            */
 
             topologyBuilder.SetJavaSpout(
                 "com.microsoft.eventhubs.spout.EventHubSpout",

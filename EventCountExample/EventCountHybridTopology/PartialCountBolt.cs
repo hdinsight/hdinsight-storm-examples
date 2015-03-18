@@ -13,10 +13,11 @@ namespace EventCountHybridTopology
         Context ctx;
         AppConfig appConfig;
 
-        const long PartialCountBatchSize = 1000L;
         long partialCount = 0L;
         long totalCount = 0L;
         long finalCount = 0L;
+
+        Stopwatch stopwatch;
 
         public PartialCountBolt(Context ctx)
         {
@@ -36,6 +37,7 @@ namespace EventCountHybridTopology
             finalCount = appConfig.EventCountPerPartition;
 
             Context.Logger.Info("finalCount: " + finalCount);
+            stopwatch = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -47,15 +49,17 @@ namespace EventCountHybridTopology
             partialCount++;
             totalCount ++;
 
-            //emit the partialCount when larger than PartialCountBatchSize
+            //emit the partialCount every second
             //Specially handle the end of stream using finalCount so that this bolt flushes the count on last expected tuple
-            if ((partialCount >= PartialCountBatchSize) || (totalCount >= finalCount))
+            //TODO: In future when SCP.Net will support TickTuple, we should revisit this and use Tick tuple for windowing
+            if ((stopwatch.ElapsedMilliseconds >= 1000L) || (totalCount >= finalCount))
             {
                 Context.Logger.Info("emitting partialCount: " + partialCount + 
                     ", totalCount: " + totalCount +
                     ", finalCount: " + finalCount);
                 this.ctx.Emit(new Values(partialCount));
                 partialCount = 0L;
+                stopwatch.Restart();
             }
             this.ctx.Ack(tuple);
         }

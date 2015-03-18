@@ -8,7 +8,4 @@ eventhubspout.partitions.count = {EVENTHUBS_PARTITION_COUNT}
 eventhubspout.checkpoint.interval = 10
 eventhub.receiver.credits = 1024
 
-#This value should be the same as it was specified in EventGenTopology
-eventhubs.event.count.perpartition = 3200000
-
 sqldb.connection.str = jdbc:sqlserver://{SQLAZURE_SERVER_NAME}.database.windows.net:1433;database={SQLAZURE_DB_NAME};user={SQLAZURE_USER};password={SQLAZURE_PASSWORD};encrypt=true;hostNameInCertificate=*.database.windows.net;loginTimeout=30

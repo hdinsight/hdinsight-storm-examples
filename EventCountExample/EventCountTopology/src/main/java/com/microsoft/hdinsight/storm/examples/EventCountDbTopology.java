@@ -14,7 +14,6 @@ import com.microsoft.eventhubs.spout.EventHubSpoutConfig;
 public class EventCountDbTopology {
   protected EventHubSpoutConfig spoutConfig;
   protected String sqlConnectionStr;
-  protected long finalCountPerPartition;
   
   protected void readEHConfig(Properties properties) throws Exception {
     String username = properties.getProperty("eventhubspout.username");
@@ -54,9 +53,6 @@ public class EventCountDbTopology {
       spoutConfig.setTargetAddress(targetFqnAddress);      
     }
     
-    finalCountPerPartition = Long.parseLong(properties.getProperty("eventhubs.event.count.perpartition"));
-    System.out.println("finalCountPerPartition: " + finalCountPerPartition);
-    
     //read sqldb configurations
     sqlConnectionStr = properties.getProperty("sqldb.connection.str");
   }
@@ -73,9 +69,9 @@ public class EventCountDbTopology {
     
     topologyBuilder.setSpout(EventHubSpout.class.getSimpleName(), eventHubSpout, spoutConfig.getPartitionCount())
       .setNumTasks(spoutConfig.getPartitionCount());
-    topologyBuilder.setBolt(PartialCountBolt.class.getSimpleName(), new PartialCountBolt(finalCountPerPartition), partitionCount)
+    topologyBuilder.setBolt(PartialCountBolt.class.getSimpleName(), new PartialCountBolt(), partitionCount)
       .localOrShuffleGrouping(EventHubSpout.class.getSimpleName()).setNumTasks(partitionCount);
-    topologyBuilder.setBolt(DBGlobalCountBolt.class.getSimpleName(), new DBGlobalCountBolt(sqlConnectionStr, finalCountPerPartition * partitionCount), 1)
+    topologyBuilder.setBolt(DBGlobalCountBolt.class.getSimpleName(), new DBGlobalCountBolt(sqlConnectionStr), 1)
       .globalGrouping(PartialCountBolt.class.getSimpleName()).setNumTasks(1);
     return topologyBuilder.createTopology();
   }

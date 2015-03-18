@@ -6,6 +6,8 @@ eventhubs.entitypath = {EVENTHUBS_ENTITY_PATH}
 eventhubs.partitions.count = {EVENTHUBS_PARTITION_COUNT}
 
 eventhubs.event.size = 30
-#If you change the below value do NOT forget to change the same values in the EventCountTopology and EventCountHybridTopology
+
+#If you change the value below do NOT forget to set the same value for EventCountPerPartition in the EventCountHybridTopology\SCPHost.exe.config
+#SCP.Net does not support Tick tuples yet, hence we use this number to detect end of stream
 #It is also helpful to keep this number as a multiple of partition count to aide in allGrouping were each spout sends equal amount of tuples to each bolt
 eventhubs.event.count.perpartition = 3200000

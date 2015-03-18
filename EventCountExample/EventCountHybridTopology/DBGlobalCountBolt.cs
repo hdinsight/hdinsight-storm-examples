@@ -22,7 +22,7 @@ namespace EventCountHybridTopology
         SqlDb db;
         SqlConnectionStringBuilder sqlConnStringBuilder;
 
-        long curCountForDB = 0L;
+        long partialCount = 0L;
         long totalCount = 0L;
         long finalCount = 0L;
 
@@ -48,8 +48,9 @@ namespace EventCountHybridTopology
             db.dropTable();
             db.createTable();
 
-            curCountForDB = 0L;
+            partialCount = 0L;
             totalCount = 0L;
+            //finalCount in this global both is across all the partitions
             finalCount = appConfig.EventCountPerPartition * appConfig.EventHubPartitions;
 
             Context.Logger.Info("finalCount: " + finalCount);
@@ -70,23 +71,21 @@ namespace EventCountHybridTopology
         public void Execute(SCPTuple tuple)
         {
             //Merge partialCount from all EventCountPartialCountBolt 
-            var partialCount = tuple.GetLong(0);
-            curCountForDB += partialCount;
-            totalCount += partialCount;
+            var incomingPartialCount = tuple.GetLong(0);
+            partialCount += incomingPartialCount;
+            totalCount += incomingPartialCount;
 
-            //Write the curCountForDB every second. 
+            //Write the partialCount to SqlDb every second. 
             //Specially handle the end of stream using finalCount so that this bolt flushes the count on last expected tuple
-            //Alternatively you can also use TickTuple to create this 1 second rolling window
-            //We chose not to use it to have a parity between the Java and SCP.Net for now
-            //TODO: In future when SCP.Net will support TickTuple, we should revisit and change this back to using TickTuple
+            //TODO: In future when SCP.Net will support TickTuple, we should revisit this and use Tick tuple for windowing
             if ((stopwatch.ElapsedMilliseconds >= 1000L) || (totalCount >= finalCount))
             {
                 Context.Logger.Info("updating database" +
-                    ", curCountForDB: " + curCountForDB + 
+                    ", partialCount: " + partialCount + 
                     ", totalCount: " + totalCount +
                     ", finalCount: " + finalCount);
-                db.insertValue(CurrentTimeMillis(), curCountForDB);
-                curCountForDB = 0L;
+                db.insertValue(CurrentTimeMillis(), partialCount);
+                partialCount = 0L;
                 stopwatch.Restart();
             }
         }

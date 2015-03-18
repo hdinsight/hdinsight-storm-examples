@@ -20,6 +20,8 @@ package com.microsoft.hdinsight.storm.examples;
 import java.util.Map;
 
 import backtype.storm.Config;
+import backtype.storm.Constants;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,29 +39,23 @@ public class DBGlobalCountBolt extends BaseBasicBolt {
   private static final Logger logger = LoggerFactory
       .getLogger(DBGlobalCountBolt.class);
 
-  private long curCountForDB = 0L;
+  private long partialCount = 0L;
   private long totalCount = 0L;
-  private long finalCount = 102400000L;
   
   private SqlDb db;
   private String connectionStr;
   
-  private long start;
-  
-  public DBGlobalCountBolt(String connectionStr, long finalCount) {
+  public DBGlobalCountBolt(String connectionStr) {
     this.connectionStr = connectionStr;
-    this.finalCount = finalCount;
   }
   
   @Override
   public void prepare(Map config, TopologyContext context) {
-    logger.info("finalCount: " + finalCount);
     db = new SqlDb(connectionStr);
     db.dropTable();
     db.createTable();
-    curCountForDB = 0L;
+    partialCount = 0L;
     totalCount = 0L;
-    start = System.currentTimeMillis();
   }
   
   @Override
@@ -69,24 +65,23 @@ public class DBGlobalCountBolt extends BaseBasicBolt {
 
   @Override
   public void execute(Tuple tuple, BasicOutputCollector collector) {
-    //Merge partialCount from all EventCountPartialCountBolt 
-    long partialCount = tuple.getLong(0);
-    curCountForDB += partialCount;
-    totalCount += partialCount;
-    
-    //Write the curCountForDB every second. 
-    //Specially handle the end of stream using finalCount so that this bolt flushes the count on last expected tuple
-    //Alternatively you can also use TickTuple to create this 1 second rolling window
-    //We chose not to use it to have a parity between the Java and SCP.Net for now
-    //TODO: In future when SCP.Net will support TickTuple, we should revisit and change this back to using TickTuple
-    if (((System.currentTimeMillis() - start) >= 1000L) || (totalCount >= finalCount)) {
-      logger.info("updating database" + 
-          ", curCountForDB: " + curCountForDB + 
-          ", totalCount: " + totalCount + 
-          ", finalCount: " + finalCount);
-      db.insertValue(System.currentTimeMillis(), curCountForDB);
-      curCountForDB = 0L;
-      start = System.currentTimeMillis();
+    //write the partialCount to SqlDb on each TickTuple.
+    if (isTickTuple(tuple)) {
+      //only emit if partialCount > 0
+      if(partialCount > 0) {
+        logger.info("updating database" + 
+            ", partialCount: " + partialCount + 
+            ", totalCount: " + totalCount);
+        db.insertValue(System.currentTimeMillis(), partialCount);
+        partialCount = 0L;
+      }
+    }
+    else
+    {
+      //Merge partialCount from all PartialCountBolt tasks
+      long incomingPartialCount = tuple.getLong(0);
+      partialCount += incomingPartialCount;
+      totalCount += incomingPartialCount;
     }
   }
 
@@ -97,6 +92,13 @@ public class DBGlobalCountBolt extends BaseBasicBolt {
   @Override
   public Map<String,Object>  getComponentConfiguration() {
     Config conf = new Config();
+    //set the TickTuple frequency to 1 second
+    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
     return conf;
+  }
+  
+  public static boolean isTickTuple(Tuple tuple) {
+    return tuple.getSourceComponent().equals(Constants.SYSTEM_COMPONENT_ID)
+        && tuple.getSourceStreamId().equals(Constants.SYSTEM_TICK_STREAM_ID);
   }
 }
