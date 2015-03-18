@@ -2,13 +2,26 @@
 This repository contains complete and easy to use examples that demonstrate the power of Apache Storm on Azure HDInsight.
 
 ## Getting Started
-Each of the examples folder contains a ```build.bat``` that you can use to get started. 
-It will first build all the required projects and then run the example (using ```run.bat```).
 
-Running an example includes:
-* Creation of required services (and resources) in Azure
-* Preparing your topologies for submission (using ```prepare.ps1```)
-* Submitting the topologies (using ```submit.ps1```) to the HDInsight Storm cluster
+### Running the examples
+Each of the examples folder contains a ```run.bat``` that does the following:
+
+1. Prepare (using ```prepare.ps1```)
+  1. Creation of required services (and resources) in Azure
+  2. Updating project properties and templates
+2. Build (using ```build.ps1```)
+  1. Building the source code and use the properties created in previous step
+3. Execute (using ```execute.ps1```)
+  1. Upload jars and create topology packages (as needed)
+  2. Submitting the topologies to the HDInsight Storm cluster
+
+An existing run configuration is first detected to provide idempotency in creation of Azure resources. This allows you to re-run the ```run.bat``` in case of some unexpected failure.
+
+### Building the examples
+If you just want to build the source code you can use the ```build.bat``` in each example folder to build that example.
+
+### Re-running the example
+If you modified some source and wish to re-deploy the topologies, you can build using ```build.bat``` and submit the topologies using ```execute.ps1```
 
 ## Examples
 There are multiple end-to-end examples included in this repository that showcase different topologies that you can build and run against HDInsight Storm.
@@ -20,7 +33,7 @@ The example showcases the reading of vehicle events from Event Hub, referencing 
 
 Read more about this example here: [IoT example using Azure EventHubs, Storm, Azure DocumentDB, Azure Storage/WASB](IotExample/README.md)
 
-### EventHubs Scalability Example (Java)
+### EventHubs Scalability Example (Java & SCP.Net)
 A scalability benchmark that demonstrates throughput from EventHub and stores the event counts in SQL Azure.
 
 Read more about this example here: [Event Count example using Azure EventHubs, Storm, SQL Azure](EventCountExample/README.md)
