@@ -1,8 +1,6 @@
 package com.microsoft.hdinsight.storm.examples;
 
 import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -20,16 +18,17 @@ import org.slf4j.LoggerFactory;
  * Note that if the spout crashed and restarted, it will lose count and generate another
  * <eventCount> messages.
  */
-public class RandomDataSpout extends BaseRichSpout {
-  private static final Logger logger = LoggerFactory.getLogger(RandomDataSpout.class);
+public class SimpleFixedDataSpout extends BaseRichSpout {
+  private static final Logger logger = LoggerFactory.getLogger(SimpleFixedDataSpout.class);
   
   private int eventSize;
   private long eventCount;
   private long curCount;
-  private Random random;
   private SpoutOutputCollector collector;
   
-  public RandomDataSpout(int eventSize, long eventCount) {
+  private String stringToSend;
+  
+  public SimpleFixedDataSpout(int eventSize, long eventCount) {
     this.eventSize = eventSize;
     this.eventCount = eventCount;
   }
@@ -40,24 +39,27 @@ public class RandomDataSpout extends BaseRichSpout {
     
     if(curCount > eventCount) {
       try {
+        if(curCount % 10 == 0) {
+          logger.info("Each bolt has been sent " + eventCount + " events by this spout task. It will not send any more events.");
+        }
         Thread.sleep(1000);
       }
       catch(Exception e) {}
       return;
     }
     
-    String str = getRandomString(random, eventSize);
-    collector.emit(new Values(str));
+    collector.emit(new Values(stringToSend));
     if(curCount == eventCount) {
-      logger.info("Finished generating events " + curCount);
+      logger.info("Finished sending events: " + curCount);
     }
   }
 
   @Override
   public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
-    random = new Random();
+    stringToSend = getStringToSend(eventSize);
     this.collector = collector;
     curCount = 0;
+    logger.info("Fixed data string that will be sent: " + stringToSend);
   }
 
   @Override
@@ -65,11 +67,14 @@ public class RandomDataSpout extends BaseRichSpout {
     declarer.declare(new Fields("data"));
   }
 
-  private String getRandomString(Random r, int size) {
+  private String getStringToSend(int size) {
+    String staticString = "abcdefghijklmnopqrstuvwxyz0123456789";
+    
     StringBuilder sb = new StringBuilder();
-    for(int i=0; i<size; ++i) {
-      sb.append((char)(r.nextInt(26)+97));
+    while (sb.length() < size) {
+      sb.append(staticString);
     }
-    return sb.toString();
+    
+    return sb.toString().substring(0, size);
   }
 }

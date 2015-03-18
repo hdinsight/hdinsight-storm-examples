@@ -47,7 +47,7 @@ Write-SpecialLog "Phase 1 - Preparation - End - Preparation complete for $Exampl
 ###########################################################
 # 2 - Build
 ###########################################################
-Write-SpecialLog "Phase 2 - Build - Start - Building the example in $ExampleDir"
+Write-SpecialLog "Phase 2 - Build - Start - Building $ExampleDir"
 
 if(-not (Test-Path "$ExampleDir\build.ps1"))
 {
@@ -62,7 +62,7 @@ if(-not $?)
     Write-ErrorLog "Build failed! Please check if the project built successfully before you can launch examples." (Get-ScriptName) (Get-ScriptLineNumber)
     throw "Build failed! Please check if the project built successfully before you can launch examples."
 }
-Write-SpecialLog "Building $ExampleDir"
+Write-SpecialLog "Build complete for $ExampleDir" (Get-ScriptName) (Get-ScriptLineNumber)
 
 ###########################################################
 # 3 - Execute

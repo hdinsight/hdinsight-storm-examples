@@ -6,4 +6,6 @@ eventhubs.entitypath = {EVENTHUBS_ENTITY_PATH}
 eventhubs.partitions.count = {EVENTHUBS_PARTITION_COUNT}
 
 eventhubs.event.size = 30
-eventhubs.event.count.perpartition = 6000000
+#If you change the below value do NOT forget to change the same values in the EventCountTopology and EventCountHybridTopology
+#It is also helpful to keep this number as a multiple of partition count to aide in allGrouping were each spout sends equal amount of tuples to each bolt
+eventhubs.event.count.perpartition = 3200000

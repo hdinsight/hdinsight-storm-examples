@@ -6,5 +6,5 @@ if [%1] == [] (
 )
 
 echo Calling cleanup for %1
-PowerShell.exe -ExecutionPolicy Bypass -File "%~dp0cleanup.ps1" %1
+PowerShell.exe -ExecutionPolicy Bypass -Command "& { $ErrorActionPreference = 'Stop'; & '%~dp0cleanup.ps1' %1; EXIT $LASTEXITCODE }"
 exit /b %ERRORLEVEL%

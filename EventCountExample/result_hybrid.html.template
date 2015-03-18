@@ -29,7 +29,7 @@ function getDbData(callback) {
 
 	arr = [];
 	arr.push(['Timestamp', 'Count', { role: 'style' }]);
-	rs.Open("Select (([timestamp] - mintimestamp)/1000) as [timestamp], eventcount from (select * from dbo.EHEventCount, (select min([timestamp]) as mintimestamp from dbo.EHEventCount) as EHEventCountMin) as T where eventcount > 0 order by timestamp desc;", connection);
+	rs.Open("Select (([timestamp] - mintimestamp)/1000) as [timestamp], eventcount from (select * from dbo.EHEventCountHybrid, (select min([timestamp]) as mintimestamp from dbo.EHEventCountHybrid) as EHEventCountHybridMin) as T where eventcount > 0 order by timestamp desc;", connection);
 	rand = Math.floor(Math.random() * colorArray.length);
 	
 	if (!rs.bof) {
@@ -51,7 +51,7 @@ function drawVisualization() {
 
 	var data = google.visualization.arrayToDataTable(arr);
     var options = {
-    title: 'EventHub Event Count',
+    title: 'EventHub Event Count Hybrid',
     hAxis: {title: 'Timestamp', titleTextStyle: {color: 'Black'}},
     vAxis: { viewWindow: {max:  1000000} }
   };

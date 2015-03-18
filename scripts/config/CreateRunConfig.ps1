@@ -54,4 +54,4 @@ Write-InfoLog "Updating Configurations with passed in values" (Get-ScriptName) (
 & "$scriptDir\ReplaceStringInFile.ps1" $configFile $configFile $defaultConfig
 
 $config = & "$scriptDir\ReadConfig.ps1" $configFile
-$config.Keys | sort | % { if(-not ($_.Contains("PASSWORD") -or $_.Contains("KEY"))) { Write-SpecialLog ("Key = " + $_ + ", Value = " + $config[$_]) (Get-ScriptName) (Get-ScriptLineNumber) } }
+$config.Keys | sort | % { if(-not ($_.Contains("PASSWORD") -or $_.Contains("KEY"))) { Write-InfoLog ("Key = " + $_ + ", Value = " + $config[$_]) (Get-ScriptName) (Get-ScriptLineNumber) } }

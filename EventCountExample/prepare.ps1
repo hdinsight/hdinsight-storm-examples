@@ -45,3 +45,20 @@ $config = & "$scriptDir\..\scripts\config\ReadConfig.ps1" $configFile
 
 & "$scriptDir\..\scripts\config\ReplaceStringInFile.ps1" "$scriptDir\EventGenTopology\myconfig.properties.template" "$scriptDir\EventGenTopology\src\main\resources\myconfig.properties" $config
 & "$scriptDir\..\scripts\config\ReplaceStringInFile.ps1" "$scriptDir\EventCountTopology\myconfig.properties.template" "$scriptDir\EventCountTopology\src\main\resources\myconfig.properties" $config
+
+$updateConfig = @{
+EventHubFqnAddress=$config["EVENTHUBS_FQDN_SUFFIX"]
+EventHubNamespace=$config["EVENTHUBS_NAMESPACE"]
+EventHubEntityPath=$config["EVENTHUBS_ENTITY_PATH"]
+EventHubUsername=$config["EVENTHUBS_USERNAME"]
+EventHubPassword=$config["EVENTHUBS_PASSWORD"]
+EventHubPartitions=$config["EVENTHUBS_PARTITION_COUNT"]
+SqlDbServerName=$config["SQLAZURE_SERVER_NAME"]
+SqlDbDatabaseName=$config["SQLAZURE_DB_NAME"]
+SqlDbUsername=$config["SQLAZURE_USER"]
+SqlDbPassword=$config["SQLAZURE_PASSWORD"]
+}
+
+$topologyDir = Join-Path $scriptDir "EventCountHybridTopology"
+
+& "$scriptDir\..\scripts\scpnet\UpdateScpHostConfig.ps1" "$topologyDir\SCPHost.exe.config" $updateConfig

@@ -30,7 +30,6 @@ public class EventHubsPartitionBolt extends BaseRichBolt {
   
   @Override
   public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-    //int totalTasks = context.getComponentTasks(context.getThisComponentId()).size();
     myPartitionId = context.getThisTaskIndex();
     
     //These configurations are mandatory, if not provided topology will die.

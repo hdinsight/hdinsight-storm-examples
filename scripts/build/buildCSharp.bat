@@ -17,19 +17,19 @@ goto ERROR
 
 :LOADVSTOOLS
 IF EXIST %VSTOOLS_PATH%vsvars32.bat (
-echo Loading Visual Studio build tools from %VSTOOLS_PATH%
-call %VSTOOLS_PATH%vsvars32.bat
-goto BUILD
+    echo Loading Visual Studio build tools from %VSTOOLS_PATH%
+    call %VSTOOLS_PATH%vsvars32.bat
+    goto BUILD
 )
 goto :eof
 
 :BUILD
 if [%1] NEQ [] (pushd %1)
 echo.
-PowerShell.exe -ExecutionPolicy Bypass -File "%~dp0buildCSharp.ps1"
+PowerShell.exe -ExecutionPolicy Bypass -Command "& { $ErrorActionPreference = 'Stop'; & '%~dp0buildCSharp.ps1'; EXIT $LASTEXITCODE }"
 IF %ERRORLEVEL% NEQ 0 (
-echo build.ps1 returned non-zero exit code: %ERRORLEVEL%. Please check if build completed successfully before you can launch examples through run.ps1
-goto ERROR
+    echo build.ps1 returned non-zero exit code: %ERRORLEVEL%. Please ensure build completes successfully before you can run the examples.
+    goto ERROR
 )
 
 goto DONE

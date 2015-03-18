@@ -19,6 +19,7 @@ if(-not $?)
 #Try to delete as much as we can
 $ErrorActionPreference = "SilentlyContinue"
 
+#Delete Project Resources
 Remove-Item "$scriptDir\EventHubAggregatorToHBaseTopology\bin" -Force -Recurse
 Remove-Item "$scriptDir\EventHubAggregatorToHBaseTopology\obj" -Force -Recurse
 Remove-Item "$scriptDir\EventHubAggregatorToHBaseTopology\packages" -Force -Recurse

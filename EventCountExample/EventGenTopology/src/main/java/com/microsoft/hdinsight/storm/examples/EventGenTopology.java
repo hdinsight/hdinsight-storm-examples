@@ -8,7 +8,6 @@ import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 
-import com.microsoft.eventhubs.spout.EventHubSpout;
 import com.microsoft.eventhubs.spout.EventHubSpoutConfig;
 
 public class EventGenTopology {
@@ -39,11 +38,11 @@ public class EventGenTopology {
   
   protected StormTopology buildTopology() {
     TopologyBuilder topologyBuilder = new TopologyBuilder();
-    RandomDataSpout randomDataSpout = new RandomDataSpout(eventSize, eventCount);
-    topologyBuilder.setSpout("RandomDataSpout", randomDataSpout, partitionCount)
+    SimpleFixedDataSpout simpleFixedDataSpout = new SimpleFixedDataSpout(eventSize, eventCount/partitionCount);
+    topologyBuilder.setSpout("SimpleFixedDataSpout", simpleFixedDataSpout, partitionCount)
       .setNumTasks(partitionCount);
     topologyBuilder.setBolt("EventHubsPartitionBolt", new EventHubsPartitionBolt(), partitionCount)
-      .localOrShuffleGrouping("RandomDataSpout").setNumTasks(partitionCount);
+      .allGrouping("SimpleFixedDataSpout").setNumTasks(partitionCount);
     return topologyBuilder.createTopology();
   }
   

@@ -34,6 +34,9 @@ if(-not (& "$scriptDir\CheckAzurePowershell.ps1"))
     throw "Check Azure Powershell Failed! You need to run this script from Azure Powershell."
 }
 
+###########################################################
+# Get Run Configuration
+###########################################################
 $configFile = Join-Path $ExampleDir "run\configurations.properties"
 # Make sure you run this in Microsoft Azure Powershell prompt
 if(-not (Test-Path $configFile))
@@ -41,6 +44,7 @@ if(-not (Test-Path $configFile))
     Write-ErrorLog "No run configuration file found at '$configFile'" (Get-ScriptName) (Get-ScriptLineNumber)
     throw "No run configuration file found at '$configFile'"
 }
+$config = & "$scriptDir\..\config\ReadConfig.ps1" $configFile
 
 ###########################################################
 # Add Azure Account
@@ -59,22 +63,23 @@ Write-SpecialLog ("Using Azure Account: " + $account.Name) (Get-ScriptName) (Get
 
 Switch-AzureMode -Name AzureServiceManagement
 
-$subNames = Get-AzureSubscription | % { "`r`n" + $_.SubscriptionName + " - " + $_.SubscriptionId}
-Write-InfoLog ("Available Subscription Names (Name - Id):" + $subNames) (Get-ScriptName) (Get-ScriptLineNumber)
+$subscriptions = Get-AzureSubscription
+$subName = ($subscriptions | ? { $_.SubscriptionName -eq $config["AZURE_SUBSCRIPTION_NAME"] } | Select-Object -First 1 ).SubscriptionName
+if($subName -eq $null)
+{
+    $subNames = $subscriptions | % { "`r`n" + $_.SubscriptionName + " - " + $_.SubscriptionId}
+    Write-InfoLog ("Available Subscription Names (Name - Id):" + $subNames) (Get-ScriptName) (Get-ScriptLineNumber)
 
-$subName = Read-Host "Enter subscription name"
+    $subName = Read-Host "Enter subscription name"
 
-$azureConfig=@{
-AZURE_SUBSCRIPTION_NAME=$subName
+    #Update the Azure Subscription Id in config
+    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{AZURE_SUBSCRIPTION_NAME=$subName}
+    
+    ###########################################################
+    # Refresh Run Configuration
+    ###########################################################
+    $config = & "$scriptDir\..\config\ReadConfig.ps1" $configFile
 }
-
-#Update the Azure Subscription Id in config
-& "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile $azureConfig
-
-###########################################################
-# Get Run Configuration
-###########################################################
-$config = & "$scriptDir\..\config\ReadConfig.ps1" $configFile
 
 Write-SpecialLog "Current run configuration:" (Get-ScriptName) (Get-ScriptLineNumber)
 $config.Keys | sort | % { if(-not ($_.Contains("PASSWORD") -or $_.Contains("KEY"))) { Write-SpecialLog ("Key = " + $_ + ", Value = " + $config[$_]) (Get-ScriptName) (Get-ScriptLineNumber) } }

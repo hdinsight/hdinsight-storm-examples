@@ -3,7 +3,6 @@
  */
 package com.microsoft.hdinsight.storm.examples;
 
-import java.io.Serializable;
 import java.sql.*;
 
 import org.slf4j.Logger;

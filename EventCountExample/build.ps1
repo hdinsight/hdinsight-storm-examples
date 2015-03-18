@@ -27,3 +27,15 @@ else
     Write-ErrorLog "Build returned non-zero exit code: $LASTEXITCODE. Please check if the project built successfully before you can launch examples." (Get-ScriptName) (Get-ScriptLineNumber)
     throw "Build returned non-zero exit code: $LASTEXITCODE. Please check if the project built successfully before you can launch examples."
 }
+
+& "$scriptDir\..\scripts\build\buildCSharp.bat" "$scriptDir"
+
+if($LASTEXITCODE -eq 0)
+{
+    Write-SpecialLog "Build Complete for '$scriptDir!'" (Get-ScriptName) (Get-ScriptLineNumber)
+}
+else
+{
+    Write-ErrorLog "Build returned non-zero exit code: $LASTEXITCODE. Please check if the project built successfully before you can launch examples." (Get-ScriptName) (Get-ScriptLineNumber)
+    throw "Build returned non-zero exit code: $LASTEXITCODE. Please check if the project built successfully before you can launch examples."
+}

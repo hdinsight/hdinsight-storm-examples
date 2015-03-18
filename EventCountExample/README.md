@@ -7,6 +7,13 @@ Partial count bolt count the number of events using a tumbling window and for ev
 
 We use an HTML page to connect to the same SQL Azure database and retrieve the data every 1 second, therefore we are viewing the real time count of received messages.
 
+The example also contains a EventCountHybridTopology that runs the same event count topology with the PartialCountBolt, DbGlobalCountBolt and SQL Azure bolts written in SCP.Net.
+
+```IMPORTANT NOTES:```
+* The example requires the user to change the "scale" of the service bus created for event hub to maximum throughput units (20). User will be prompted for the same during the example execution.
+* The example deploys three topologies: EventGenTopology, EventCountDbTopology and optionally EventCountHybridTopology
+* At any point in time, have only one topology running on the cluster to ensure that the subsequent topologies have enough worker slots to run on. The user will be prompted to kill the topologies during example execution.
+
 ## Prerequisites
 In order to build and run the example, you need to have:
 1. Java 1.7/1.8 SDK.
