@@ -7,6 +7,9 @@ Param(
 ###########################################################
 # Start - Initialization - Invocation, Logging etc
 ###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath
 
@@ -14,11 +17,8 @@ $scriptDir = Split-Path $scriptPath
 if(-not $?)
 {
     throw "Initialization failure."
-    exit /b -9999
+    exit -9999
 }
-
-$VerbosePreference = "SilentlyContinue"
-$ErrorActionPreference = "Stop"
 ###########################################################
 # End - Initialization - Invocation, Logging etc
 ###########################################################

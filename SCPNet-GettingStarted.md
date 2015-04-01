@@ -229,3 +229,53 @@ topologyBuilder.SetBolt(
 ```csharp
 this.context.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
 ```
+
+### Tick Tuples in SCP.Net
+Apache Storm provides Tick tuples to achieve micro batching. This is an effective technique that can be used in implementing different windowing or aggregation patterns in Storm bolts.
+
+* [Storm 0.8 Release - Tick Tuples](https://storm.apache.org/2012/08/02/storm080-released.html#tick-tuples)
+* [Apache Storm Design Pattern — Micro Batching](http://hortonworks.com/blog/apache-storm-design-pattern-micro-batching/)
+
+#### Configuring Tick tuples in your SCP.Net topology
+You will need to set the topology configuration ```topology.tick.tuple.freq.secs``` to receive tick tuples in your bolt tasks.
+
+From ```EventCountExample\EventCountHybridTopology\EventCountHybridTopology.cs```
+```csharp
+topologyBuilder.SetBolt(
+    typeof(DBGlobalCountBolt).Name,
+    DBGlobalCountBolt.Get,
+    new Dictionary<string, List<string>>(),
+    1).
+    globalGrouping(typeof(PartialCountBolt).Name).
+    addConfigurations(new Dictionary<string,string>()
+    {
+        {"topology.tick.tuple.freq.secs", "1"}
+    });
+```
+
+#### Declaring Tick tuples schema
+You need to add one more stream to the input streams in the component schema as this bolt now expects to receive tuples from SYSTEM_TICK_STREAM_ID.
+
+From ```EventCountExample\EventCountHybridTopology\PartialCountBolt.cs```
+```csharp
+ //Add the Tick tuple Stream in input streams - A tick tuple has only one field of type long
+ inputSchema.Add(Constants.SYSTEM_TICK_STREAM_ID, new List<Type>() { typeof(long) });
+```
+#### Capturing the Tick Tuples
+SCP.Net does not support getting source component id yet so we will just rely on the stream id of the incoming tuple.
+This does have a shortcoming if another task was re-using this stream to send tuples but that shortcoming can be easily eliminated during topology design.
+
+From ```EventCountExample\EventCountHybridTopology\DBGlobalCountBolt.cs```
+```csharp
+public void Execute(SCPTuple tuple)
+{
+  if (tuple.GetSourceStreamId().Equals(Constants.SYSTEM_TICK_STREAM_ID))
+  {
+  	//do something - like rolling the window or emitting the counts
+  }
+  else
+  {
+    //do something else - like incrementing count
+  }
+}
+```

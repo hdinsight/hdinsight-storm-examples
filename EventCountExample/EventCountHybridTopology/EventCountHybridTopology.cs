@@ -46,18 +46,6 @@ namespace EventCountHybridTopology
                                     "int"}
                 );
 
-            //For more advanced scenarios where you may wish to pass complex java objects
-            //You can use the CreateFromClojureExpr method to pass in a clojure expression
-            /*
-            JavaComponentConstructor constructor =
-                JavaComponentConstructor.CreateFromClojureExpr(
-                String.Format(@"(com.microsoft.eventhubs.spout.EventHubSpout. (com.microsoft.eventhubs.spout.EventHubSpoutConfig. " +
-                @"""{0}"" ""{1}"" ""{2}"" ""{3}"" {4} """"))",
-                appConfig.EventHubUsername, appConfig.EventHubPassword,
-                appConfig.EventHubNamespace, appConfig.EventHubEntityPath,
-                appConfig.EventHubPartitions));
-            */
-
             topologyBuilder.SetJavaSpout(
                 "com.microsoft.eventhubs.spout.EventHubSpout",
                 constructor,
@@ -78,14 +66,22 @@ namespace EventCountHybridTopology
                     true
                 ).
                 DeclareCustomizedJavaSerializer(javaSerializerInfo).
-                shuffleGrouping("com.microsoft.eventhubs.spout.EventHubSpout");
+                shuffleGrouping("com.microsoft.eventhubs.spout.EventHubSpout").
+                addConfigurations(new Dictionary<string, string>()
+                {
+                    {"topology.tick.tuple.freq.secs", "1"}
+                });
 
             topologyBuilder.SetBolt(
                 typeof(DBGlobalCountBolt).Name,
                 DBGlobalCountBolt.Get,
                 new Dictionary<string, List<string>>(),
                 1).
-                globalGrouping(typeof(PartialCountBolt).Name);
+                globalGrouping(typeof(PartialCountBolt).Name).
+                addConfigurations(new Dictionary<string,string>()
+                {
+                    {"topology.tick.tuple.freq.secs", "1"}
+                });
 
             topologyBuilder.SetTopologyConfig(new Dictionary<string, string>()
             {

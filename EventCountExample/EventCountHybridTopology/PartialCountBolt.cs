@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.SCP;
 using System.Diagnostics;
 
@@ -15,29 +16,30 @@ namespace EventCountHybridTopology
 
         long partialCount = 0L;
         long totalCount = 0L;
-        long finalCount = 0L;
-
-        Stopwatch stopwatch;
 
         public PartialCountBolt(Context ctx)
         {
             this.ctx = ctx;
             this.appConfig = new AppConfig();
 
-            // Declare Input schemas
+            // set input schemas
             Dictionary<string, List<Type>> inputSchema = new Dictionary<string, List<Type>>();
             inputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(string) });
+
+            //Add the Tick tuple Stream in input streams - A tick tuple has only one field of type long
+            inputSchema.Add(Constants.SYSTEM_TICK_STREAM_ID, new List<Type>() { typeof(long) });
+
+            // set output schemas
             Dictionary<string, List<Type>> ouputSchema = new Dictionary<string, List<Type>>();
             ouputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(long) });
+
+            // Declare input and output schemas
             this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, ouputSchema));
+
             this.ctx.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
 
             partialCount = 0L;
             totalCount = 0L;
-            finalCount = appConfig.EventCountPerPartition;
-
-            Context.Logger.Info("finalCount: " + finalCount);
-            stopwatch = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -46,22 +48,22 @@ namespace EventCountHybridTopology
         /// <param name="tuple"></param>
         public void Execute(SCPTuple tuple)
         {
-            partialCount++;
-            totalCount ++;
-
-            //emit the partialCount every second
-            //Specially handle the end of stream using finalCount so that this bolt flushes the count on last expected tuple
-            //TODO: In future when SCP.Net will support TickTuple, we should revisit this and use Tick tuple for windowing
-            if ((stopwatch.ElapsedMilliseconds >= 1000L) || (totalCount >= finalCount))
+            if (tuple.GetSourceStreamId().Equals(Constants.SYSTEM_TICK_STREAM_ID))
             {
-                Context.Logger.Info("emitting partialCount: " + partialCount + 
-                    ", totalCount: " + totalCount +
-                    ", finalCount: " + finalCount);
-                this.ctx.Emit(new Values(partialCount));
-                partialCount = 0L;
-                stopwatch.Restart();
+                if (partialCount > 0)
+                {
+                    Context.Logger.Info("emitting partialCount: " + partialCount +
+                        ", totalCount: " + totalCount);
+                    this.ctx.Emit(new Values(partialCount));
+                    partialCount = 0L;
+                }
             }
-            this.ctx.Ack(tuple);
+            else
+            {
+                partialCount++;
+                totalCount++;
+                this.ctx.Ack(tuple);
+            }
         }
 
         /// <summary>

@@ -39,9 +39,11 @@ namespace SCPNetTopologySubmitter
             try
             {
                 Console.WriteLine("SCPNetTopologySubmitter: Submitting topology");
-                Console.WriteLine("ClusterUrl: ".PadRight(15) + clusterUrl);
-                Console.WriteLine("SpecFile: ".PadRight(15) + specFile);
-                Console.WriteLine("PackageFile: ".PadRight(15) + packageFile);
+                Console.WriteLine("ClusterUrl: ".PadRight(20) + clusterUrl);
+                Console.WriteLine("ClusterUsername: ".PadRight(20) + clusterUsername);
+                Console.WriteLine("ClusterPassword: ".PadRight(20) + clusterPassword);
+                Console.WriteLine("SpecFile: ".PadRight(20) + specFile);
+                Console.WriteLine("PackageFile: ".PadRight(20) + packageFile);
                 Console.WriteLine();
 
                 var task = TopologySubmit(clusterUrl, clusterUsername, clusterPassword, specFile, packageFile);

@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading;
 using Microsoft.SCP;
-using Microsoft.SCP.Rpc.Generated;
 using System.Diagnostics;
 using System.Data.SqlClient;
 
@@ -24,9 +20,6 @@ namespace EventCountHybridTopology
 
         long partialCount = 0L;
         long totalCount = 0L;
-        long finalCount = 0L;
-
-        Stopwatch stopwatch;
 
         public DBGlobalCountBolt(Context ctx)
         {
@@ -36,6 +29,10 @@ namespace EventCountHybridTopology
             // Declare Input schemas
             Dictionary<string, List<Type>> inputSchema = new Dictionary<string, List<Type>>();
             inputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(long) });
+
+            //Add the Tick tuple Stream in input streams - A tick tuple has only one field of type long
+            inputSchema.Add(Constants.SYSTEM_TICK_STREAM_ID, new List<Type>() { typeof(long) });
+
             this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, null));
 
             sqlConnStringBuilder = new SqlConnectionStringBuilder();
@@ -50,11 +47,6 @@ namespace EventCountHybridTopology
 
             partialCount = 0L;
             totalCount = 0L;
-            //finalCount in this global both is across all the partitions
-            finalCount = appConfig.EventCountPerPartition * appConfig.EventHubPartitions;
-
-            Context.Logger.Info("finalCount: " + finalCount);
-            stopwatch = Stopwatch.StartNew();
         }
 
         private static readonly DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -70,23 +62,23 @@ namespace EventCountHybridTopology
         /// <param name="tuple"></param>
         public void Execute(SCPTuple tuple)
         {
-            //Merge partialCount from all EventCountPartialCountBolt 
-            var incomingPartialCount = tuple.GetLong(0);
-            partialCount += incomingPartialCount;
-            totalCount += incomingPartialCount;
-
-            //Write the partialCount to SqlDb every second. 
-            //Specially handle the end of stream using finalCount so that this bolt flushes the count on last expected tuple
-            //TODO: In future when SCP.Net will support TickTuple, we should revisit this and use Tick tuple for windowing
-            if ((stopwatch.ElapsedMilliseconds >= 1000L) || (totalCount >= finalCount))
+            if (tuple.GetSourceStreamId().Equals(Constants.SYSTEM_TICK_STREAM_ID))
             {
-                Context.Logger.Info("updating database" +
-                    ", partialCount: " + partialCount + 
-                    ", totalCount: " + totalCount +
-                    ", finalCount: " + finalCount);
-                db.insertValue(CurrentTimeMillis(), partialCount);
-                partialCount = 0L;
-                stopwatch.Restart();
+                if (partialCount > 0)
+                {
+                    Context.Logger.Info("updating database" +
+                        ", partialCount: " + partialCount +
+                        ", totalCount: " + totalCount);
+                    db.insertValue(CurrentTimeMillis(), partialCount);
+                    partialCount = 0L;
+                }
+            }
+            else
+            {
+                //Merge partialCount from all EventCountPartialCountBolt
+                var incomingPartialCount = tuple.GetLong(0);
+                partialCount += incomingPartialCount;
+                totalCount += incomingPartialCount;
             }
         }
 

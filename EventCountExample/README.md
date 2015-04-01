@@ -4,8 +4,8 @@ This is a scalability benchmark for HDInsight Storm clusters reading data from A
 The example contains three types of topologies:
 
 1. EventGenTopology - An event sender topology that fills each EventHub partition with equal data.
-2. EventCountTopology - A Java topology that reads the events from EventHub and stores the counts into SQL Azure database.
-3. EventCountHybridTopology - A SCP.Net variation of the Java based EventCountTopology 
+2. EventCountTopology - A Java topology that reads the events from EventHub and stores the counts into SQL Azure database (uses TickTuples).
+3. EventCountHybridTopology - A SCP.Net variation of the Java based EventCountTopology (uses TickTuples). 
 
 This is the EventCountTopology data flow:
 

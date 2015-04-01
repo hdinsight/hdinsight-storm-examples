@@ -17,8 +17,6 @@ namespace EventCountHybridTopology
         public string EventHubPassword { get; set; }
         public int EventHubPartitions { get; set; }
 
-        public long EventCountPerPartition { get; set; }
-
         public string SqlDbServerName { get; set; }
         public string SqlDbDatabaseName { get; set; }
         public string SqlDbUsername { get; set; }
@@ -58,17 +56,6 @@ namespace EventCountHybridTopology
             else
             {
                 EventHubPartitions = 32;
-            }
-
-            long finalCountPerPartition = 0;
-            parseResult = long.TryParse(config.AppSettings.Settings["EventCountPerPartition"].Value, out finalCountPerPartition);
-            if (parseResult)
-            {
-                EventCountPerPartition = finalCountPerPartition;
-            }
-            else
-            {
-                EventCountPerPartition = 3200000;
             }
 
             SqlDbServerName = config.AppSettings.Settings["SqlDbServerName"].Value;
