@@ -234,7 +234,7 @@ this.context.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer
 Apache Storm provides Tick tuples to achieve micro batching. This is an effective technique that can be used in implementing different windowing or aggregation patterns in Storm bolts.
 
 * [Storm 0.8 Release - Tick Tuples](https://storm.apache.org/2012/08/02/storm080-released.html#tick-tuples)
-* [Apache Storm Design Pattern — Micro Batching](http://hortonworks.com/blog/apache-storm-design-pattern-micro-batching/)
+* [Apache Storm Design Pattern - Micro Batching](http://hortonworks.com/blog/apache-storm-design-pattern-micro-batching/)
 
 #### Configuring Tick tuples in your SCP.Net topology
 You will need to set the topology configuration ```topology.tick.tuple.freq.secs``` to receive tick tuples in your bolt tasks.
