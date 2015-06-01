@@ -5,7 +5,7 @@ GETTING STARTED:
 ----------------
 * http://azure.microsoft.com/en-us/documentation/articles/hdinsight-storm-develop-csharp-visual-studio-topology/
 
-CHANGELOG 0.9.4.220:
+CHANGELOG 0.9.4.283:
 --------------------
 NEW FEATURES:
 
@@ -86,12 +86,31 @@ The change is also applicable to ScpC.exe, the compiler executable that takes ca
 
 5. A ScpWebApiClient tool has been included in the nuget package under the tools directory.
 It provides functionality to submit/activate/deactivate/rebalance/kill topologies easily using SCPAPI on HDInsight clusters.
-You need to set required values inside the ScpWebApiClient.exe.config to use it.
 
-For example:
+Here is the usage of ScpWebApiClient.exe:
+	Usage: ScpWebApiClient.exe <options> [-arg1 value1 -arg2 value2 ...] [general args]
+	Usage of options:
+	  ScpWebApiClient.exe submit -spec <spec file path> -packagefile <resource zip file path>
+	  ScpWebApiClient.exe activate/deactivate -id <topology id>
+	  ScpWebApiClient.exe activate/deactivate -name <topology name>
+	  ScpWebApiClient.exe rebalance/kill -id <topology id> -waitSeconds <optional, wait seconds for rebalance/kill, 30s by default>
+	  ScpWebApiClient.exe rebalance/kill -name <topology name> -waitSeconds <optional, wait seconds for rebalance/kill, 30s by default>
+
+	General args:
+	  -scpapiurl        Set the url of scpapi. For HDI cluster, it's "http://<HDI cluster address>/scpapi".
+	  -username         Set the username for accessing scpapi. For HDI cluster, normally it's the "admin" account.
+	  -password         Set the password for accessing scpapi to avoid using the password prompt when establishing connection to scpapi.
+	  -slient           To disable web repsonse file logging.
+	  -timeout          Set the timeout for HttpClient in miniutes, default value is 2.
+
+	Examples:
+	  ScpWebApiClient.exe submit -spec examples\HybridTopology\HybridTopology_javaSpout_csharpBolt.spec -packagefile HybridTopology.zip
+	  ScpWebApiClient.exe deactivate -id HelloWorld-1-1427097167
+	  ScpWebApiClient.exe kill -id HelloWorld-1-1427097167 -waitSeconds 10
+  
+For those general args, you can also set them in the config file, for example:
   <appSettings>
     <add key="SCPAPIURL" value="https://realtimeetl201503311303hbase.azurehdinsight.net/SCPAPI/"/>
-    <add key="UseCredential" value="true"/>
     <add key="Username" value="##CLUSTER_USERNAME##"/>
     <add key="Password" value="##CLUSTER_PASSWORD##"/>
     <add key="OutputResponse" value="true"/>

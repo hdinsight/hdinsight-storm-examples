@@ -52,7 +52,6 @@ namespace HDInsightStormExamples.Bolts
         /// <param name="context"></param>
         public DocumentDbLookupBolt(Context context)
         {
-            Context.Logger.Info(this.GetType().Name + " constructor called");
             //Set the context
             this.context = context;
 

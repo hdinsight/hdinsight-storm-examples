@@ -50,7 +50,6 @@ namespace HDInsightStormExamples.Bolts
 
         public EventHubBolt(Context context)
         {
-            Context.Logger.Info(this.GetType().Name + " constructor called");
             //Set context
             this.context = context;
 

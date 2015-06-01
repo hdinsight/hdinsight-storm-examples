@@ -33,7 +33,6 @@ namespace HDInsightStormExamples.Spouts
 
         public VehicleRecordGeneratorSpout(Context context, Dictionary<string, object> parms = null)
         {
-            Context.Logger.Info(this.GetType().Name + " constructor called");
             //Set the context
             this.context = context;
 

@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.props" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CAED091E-DAE4-4A91-8E2E-16EFFD8F1F4A}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TestStormApplicationTemplates</RootNamespace>
+    <AssemblyName>TestStormApplicationTemplates</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>ee42b044</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.SCPLogger">
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.283\lib\Microsoft.SCPLogger.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SCPNet">
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.283\lib\Microsoft.SCPNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Thrift">
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.283\lib\Thrift.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="LoggerBolt.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test_AzureHDInsightHBaseLookupStormApplication.cs" />
+    <Compile Include="Test_AzureHDInsightHBaseWriterStormApplication.cs" />
+    <Compile Include="Test_SqlAzureWriterStormApplication.cs" />
+    <Compile Include="Test_AzureEventHubsWriterStormApplication.cs" />
+    <Compile Include="Test_AzureDocumentDBWriterStormApplication.cs" />
+    <Compile Include="Test_AzureDocumentDBLookupStormApplication.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AzureDocumentDBLookupStormApplication\AzureDocumentDBLookupStormApplication.csproj">
+      <Project>{3fbc2164-8c10-4f85-885b-171aea0dbc0f}</Project>
+      <Name>AzureDocumentDBLookupStormApplication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureDocumentDBWriterStormApplication\AzureDocumentDBWriterStormApplication.csproj">
+      <Project>{97c1f8b4-2b2b-49f1-9926-84dde80b7082}</Project>
+      <Name>AzureDocumentDBWriterStormApplication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureEventHubsReaderStormApplication\AzureEventHubsReaderStormApplication.csproj">
+      <Project>{aab8d922-401c-48bb-800c-4a8ddd49e574}</Project>
+      <Name>AzureEventHubsReaderStormApplication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureEventHubsWriterStormApplication\AzureEventHubsWriterStormApplication.csproj">
+      <Project>{ecdacd73-90a0-4598-bbf4-d6422c74d8fd}</Project>
+      <Name>AzureEventHubsWriterStormApplication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureHDInsightHBaseLookupStormApplication\AzureHDInsightHBaseLookupStormApplication.csproj">
+      <Project>{4d9f7432-f535-4839-94ee-4132b371e2b4}</Project>
+      <Name>AzureHDInsightHBaseLookupStormApplication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureHDInsightHBaseWriterStormApplication\AzureHDInsightHBaseWriterStormApplication.csproj">
+      <Project>{4311aa31-5e07-44d2-a945-3a841b777960}</Project>
+      <Name>AzureHDInsightHBaseWriterStormApplication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SignalRWriterStormApplication\SignalRWriterStormApplication.csproj">
+      <Project>{851efdf7-b49f-4f09-afb7-936c25255dd7}</Project>
+      <Name>SignalRWriterStormApplication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SqlAzureWriterStormApplication\SqlAzureWriterStormApplication.csproj">
+      <Project>{17bd8f7c-708e-48f6-8c3a-a3743411b456}</Project>
+      <Name>SqlAzureWriterStormApplication</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.targets'))" />
+  </Target>
+  <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.targets" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

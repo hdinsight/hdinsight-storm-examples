@@ -22,7 +22,6 @@ namespace HDInsightStormExamples.Bolts
         //Constructor
         public LoggerBolt(Context context)
         {
-            Context.Logger.Info(this.GetType().Name + " constructor called");
             //Set the context
             this.context = context;
 

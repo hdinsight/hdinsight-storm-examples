@@ -45,6 +45,25 @@ And, the second topology reads from EventHub, calculates aggregations("count() g
 
 Read more about this example here: [Real Time ETL example using Azure EventHubs, Storm, HBase & SCP.Net](RealTimeETLExample/README.md)
 
+## More Examples
+The repository now also has additional examples for your reference.
+
+### Topology, Spout  Bolt templates
+Templates to connect to various Azure services:
+* EventHubs
+* SQL Azure
+* DocumentDB
+* HBase
+* Azure Websites (SignalR)
+
+[Templates for Azure services](templates\templates.md)
+
+### SCP.Net Examples
+Old SCP.Net examples that were on HDInsight clusters have now been moved to this GitHub repository.
+
+Please refer [More SCP.Net Examples](SCPNetExamples\SCPNetExamples.md)
+
+
 ## Additional Resources
 * Writing Storm applications in C# using [SCP.Net](SCPNet-GettingStarted.md)
 

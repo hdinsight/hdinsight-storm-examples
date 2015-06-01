@@ -5,7 +5,7 @@ Param(
     [ValidatePattern("^[a-z0-9-]*$")]
     [String]$AccountName,                    # required    needs to be alphanumeric or "-"
     [String]$Location = "West Europe",       # optional
-    [Int]$CapacityUnits = 2                  # optional    defaults to 2
+    [String]$OfferType = "Standard"          # optional    defaults to Standard
     )
 
 $VerbosePreference = "SilentlyContinue"
@@ -16,7 +16,7 @@ $result = Switch-AzureMode -Name AzureResourceManager
 
 $ResourceGroupName="{0}{1}" -f $AccountName,"Group"
 $ResourceType="Microsoft.DocumentDb/databaseAccounts"
-$ApiVersion="2014-07-10"
+$ApiVersion="2015-04-08"
 
 $startTime = Get-Date
 
@@ -24,7 +24,7 @@ $success = $false
 try
 {
     Write-InfoLog "Trying to find DocumentDB account: $ResourceGroupName" (Get-ScriptName) (Get-ScriptLineNumber)
-    $Resource = Get-AzureResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion
+    $Resource = Get-AzureResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -OutputObjectFormat New
     $success = $true
 }
 catch 
@@ -37,12 +37,14 @@ if($Resource -eq $null)
     Write-InfoLog "Creating DocumentDB account" (Get-ScriptName) (Get-ScriptLineNumber)
     try
     {
-        $Resource = New-AzureResource -Name $AccountName -Location "$Location" -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -PropertyObject @{"name" = "$AccountName"; "capacityUnits" = "$CapacityUnits"} -Force
+        $docDbProperties = @{"id" = "$AccountName"; "databaseAccountOfferType" = "$OfferType"; }
+        Write-InfoLog ($docDbProperties | Out-String) (Get-ScriptName) (Get-ScriptLineNumber)
+        $Resource = New-AzureResource -Name $AccountName -Location "$Location" -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -PropertyObject $docDbProperties -Force -OutputObjectFormat New
         $iterCount = 30
         $iter = 1
         while($iter -le $iterCount)
         {
-            $Resource = Get-AzureResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion
+            $Resource = Get-AzureResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -OutputObjectFormat New
             $CurrentState = $Resource.Properties['provisioningState']
             Write-InfoLog "DocumentDB current state: [$CurrentState]" (Get-ScriptName) (Get-ScriptLineNumber)
             if("succeeded" -eq $CurrentState) 
@@ -61,7 +63,7 @@ if($Resource -eq $null)
 
     #Later you can modify the account properties like this:
     #$DocumentDBProperties = @{capacityUnits="3", “consistencyPolicy={“defaultConsistencyLevel”=”0”}}
-    #Set-AzureResource -Name DocDBAccountName -ResourceGroupName MyResourceGroup -ResourceType "Microsoft.DocumentDb/databaseAccounts" -ApiVersion 2014-07-10 -PropertyObject $DocumentDBProperties
+    #Set-AzureResource -Name DocDBAccountName -ResourceGroupName MyResourceGroup -ResourceType "Microsoft.DocumentDb/databaseAccounts" -ApiVersion $ApiVersion -PropertyObject $DocumentDBProperties
 }
 else
 {

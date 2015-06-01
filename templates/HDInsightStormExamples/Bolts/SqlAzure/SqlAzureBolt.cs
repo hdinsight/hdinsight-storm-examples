@@ -61,7 +61,6 @@ namespace HDInsightStormExamples.Bolts
 
         public SqlAzureBolt(Context context, Dictionary<string, Object> parms)
         {
-            Context.Logger.Info(this.GetType().Name + " constructor called");
             //Set the context
             this.context = context;
 

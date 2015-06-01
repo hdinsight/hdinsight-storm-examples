@@ -43,7 +43,6 @@ namespace HDInsightStormExamples.Bolts
         //Constructor
         public SignalRBroadcastBolt(Context context)
         {
-            Context.Logger.Info(this.GetType().Name + " constructor called");
             //Set context
             this.context = context;
 

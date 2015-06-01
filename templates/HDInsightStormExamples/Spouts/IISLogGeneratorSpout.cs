@@ -29,7 +29,6 @@ namespace HDInsightStormExamples.Spouts
 
         public IISLogGeneratorSpout(Context context, Dictionary<string, object> parms = null)
         {
-            Context.Logger.Info(this.GetType().Name + " constructor called");
             //Set the context
             this.context = context;
 

@@ -1,0 +1,70 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestStormApplicationTemplates", "TestStormApplicationTemplates.csproj", "{CAED091E-DAE4-4A91-8E2E-16EFFD8F1F4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureDocumentDBLookupStormApplication", "..\AzureDocumentDBLookupStormApplication\AzureDocumentDBLookupStormApplication.csproj", "{3FBC2164-8C10-4F85-885B-171AEA0DBC0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureDocumentDBWriterStormApplication", "..\AzureDocumentDBWriterStormApplication\AzureDocumentDBWriterStormApplication.csproj", "{97C1F8B4-2B2B-49F1-9926-84DDE80B7082}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEventHubsWriterStormApplication", "..\AzureEventHubsWriterStormApplication\AzureEventHubsWriterStormApplication.csproj", "{ECDACD73-90A0-4598-BBF4-D6422C74D8FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureHDInsightHBaseLookupStormApplication", "..\AzureHDInsightHBaseLookupStormApplication\AzureHDInsightHBaseLookupStormApplication.csproj", "{4D9F7432-F535-4839-94EE-4132B371E2B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureHDInsightHBaseWriterStormApplication", "..\AzureHDInsightHBaseWriterStormApplication\AzureHDInsightHBaseWriterStormApplication.csproj", "{4311AA31-5E07-44D2-A945-3A841B777960}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlAzureWriterStormApplication", "..\SqlAzureWriterStormApplication\SqlAzureWriterStormApplication.csproj", "{17BD8F7C-708E-48F6-8C3A-A3743411B456}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureEventHubsReaderStormApplication", "..\AzureEventHubsReaderStormApplication\AzureEventHubsReaderStormApplication.csproj", "{AAB8D922-401C-48BB-800C-4A8DDD49E574}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRWriterStormApplication", "..\SignalRWriterStormApplication\SignalRWriterStormApplication.csproj", "{851EFDF7-B49F-4F09-AFB7-936C25255DD7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CAED091E-DAE4-4A91-8E2E-16EFFD8F1F4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAED091E-DAE4-4A91-8E2E-16EFFD8F1F4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAED091E-DAE4-4A91-8E2E-16EFFD8F1F4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAED091E-DAE4-4A91-8E2E-16EFFD8F1F4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FBC2164-8C10-4F85-885B-171AEA0DBC0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FBC2164-8C10-4F85-885B-171AEA0DBC0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FBC2164-8C10-4F85-885B-171AEA0DBC0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FBC2164-8C10-4F85-885B-171AEA0DBC0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97C1F8B4-2B2B-49F1-9926-84DDE80B7082}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97C1F8B4-2B2B-49F1-9926-84DDE80B7082}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97C1F8B4-2B2B-49F1-9926-84DDE80B7082}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97C1F8B4-2B2B-49F1-9926-84DDE80B7082}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECDACD73-90A0-4598-BBF4-D6422C74D8FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECDACD73-90A0-4598-BBF4-D6422C74D8FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECDACD73-90A0-4598-BBF4-D6422C74D8FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECDACD73-90A0-4598-BBF4-D6422C74D8FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D9F7432-F535-4839-94EE-4132B371E2B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D9F7432-F535-4839-94EE-4132B371E2B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D9F7432-F535-4839-94EE-4132B371E2B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D9F7432-F535-4839-94EE-4132B371E2B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4311AA31-5E07-44D2-A945-3A841B777960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4311AA31-5E07-44D2-A945-3A841B777960}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4311AA31-5E07-44D2-A945-3A841B777960}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4311AA31-5E07-44D2-A945-3A841B777960}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17BD8F7C-708E-48F6-8C3A-A3743411B456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17BD8F7C-708E-48F6-8C3A-A3743411B456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17BD8F7C-708E-48F6-8C3A-A3743411B456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17BD8F7C-708E-48F6-8C3A-A3743411B456}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAB8D922-401C-48BB-800C-4A8DDD49E574}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAB8D922-401C-48BB-800C-4A8DDD49E574}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAB8D922-401C-48BB-800C-4A8DDD49E574}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAB8D922-401C-48BB-800C-4A8DDD49E574}.Release|Any CPU.Build.0 = Release|Any CPU
+		{851EFDF7-B49F-4F09-AFB7-936C25255DD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{851EFDF7-B49F-4F09-AFB7-936C25255DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{851EFDF7-B49F-4F09-AFB7-936C25255DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{851EFDF7-B49F-4F09-AFB7-936C25255DD7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

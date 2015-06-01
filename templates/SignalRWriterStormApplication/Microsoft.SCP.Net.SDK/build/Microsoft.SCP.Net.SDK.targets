@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="GenerateScpHostConfig" AfterTargets="Build" Condition=" '$(OutputType)' == 'Library' ">
+    <Warning Condition="'%(None.Identity)' == 'SCPHost.exe.config'" Text="Please notice that the &quot;SCPHost.exe.config&quot; has been deprecated, please move all your configurations into your App.config, and SCPHost.exe will load your &quot;$(TargetFileName).config&quot; automatically in runtime." />
+  </Target>
+  <PropertyGroup>
+    <PublishDependsOn>
+      $(PublishDependsOn);
+      Build;
+      ScpCGenerateSpec;
+      ScpCPackage;
+    </PublishDependsOn>
+    <ScpCExePath>&quot;$(MSBuildThisFileDirectory)..\tools\ScpC.exe&quot;</ScpCExePath>
+    <ScpPackagePath>$(OutputPath)\ScpPackage</ScpPackagePath>
+    <AssemblyExtension Condition=" '$(OutputType)' == 'Library' ">.dll</AssemblyExtension>
+    <AssemblyExtension Condition=" '$(OutputType)' == 'Exe' ">.exe</AssemblyExtension>
+    <ScpProjectName>$([System.Text.RegularExpressions.Regex]::Replace($(MSBuildProjectName), "[- .]", "_"))</ScpProjectName>
+  </PropertyGroup>
+  <Target Name="ScpCGenerateSpec">
+    <Message Importance="High" Text="[ScpC] Phase generate-spec"/>
+    <Message Text="$(ScpCExePath) generate-spec -assembly $(OutputPath)\$(AssemblyName)$(AssemblyExtension) -spec $(ScpProjectName).spec -class $(ScpClassName)" />
+    <Exec Command="$(ScpCExePath) generate-spec -assembly $(OutputPath)\$(AssemblyName)$(AssemblyExtension) -spec $(ScpProjectName).spec -class $(ScpClassName)" />
+  </Target>
+  <Target Name="ScpCPackage">
+    <PropertyGroup>
+      <ScpJavaDependencies Condition=" '$(ScpJavaDependencies)' != '' ">&quot;$(ScpJavaDependencies)&quot;</ScpJavaDependencies>
+      <ScpJavaDependenciesTxt Condition=" '$(ScpJavaDependenciesTxt)' != '' ">&quot;$(ScpJavaDependenciesTxt)&quot;</ScpJavaDependenciesTxt>
+    </PropertyGroup>
+    <Message Importance="High" Text="[ScpC] Phase package"/>
+    <RemoveDir Directories="$(ScpPackagePath)" />
+    <Message Text="$(ScpCExePath) package -cSharpTarget $(OutputPath) -packageFile $(ScpPackagePath)\$(ScpProjectName).zip -javaDependencies $(ScpJavaDependencies) -javaDependenciesTxt $(ScpJavaDependenciesTxt)" />
+    <Exec Command="$(ScpCExePath) package -cSharpTarget $(OutputPath) -packageFile $(ScpPackagePath)\$(ScpProjectName).zip -javaDependencies $(ScpJavaDependencies) -javaDependenciesTxt $(ScpJavaDependenciesTxt)" />
+    <Copy SourceFiles="$(ScpProjectName).spec"
+             DestinationFolder="$(ScpPackagePath)"/>
+  </Target>
+</Project>

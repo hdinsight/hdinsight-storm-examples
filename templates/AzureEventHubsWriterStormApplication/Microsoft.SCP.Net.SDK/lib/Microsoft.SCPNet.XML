@@ -1,0 +1,1519 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.SCPNet</name>
+    </assembly>
+    <members>
+        <member name="P:Microsoft.SCP.Rpc.Generated.ProxyMessage.Evt">
+            <summary>
+            
+            <seealso cref="T:Microsoft.SCP.Rpc.Generated.ProxyEvent"/>
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.Rpc.Generated.StormTxAttempt">
+            <summary>
+            Just as the Java class TransactionAttempt, this class is used to store the transaction id and transaction attempt id.
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.Rpc.Generated.StormTxAttempt.TxId">
+            <summary>
+            The id of current transaction.
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.Rpc.Generated.StormTxAttempt.AttemptId">
+            <summary>
+            The attempt id of current transaction.
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.SCPRuntime">
+            <summary>
+            SCPRuntime is used to launch SCP plugin and run it in SCP runtime environment
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.SCPRuntime.Initialize">
+            <summary>
+            Initialize() is used to initialize the SCP runtime environment. 
+            In this method, the C# process will connect to the Java side, and gets configuration parameters and topology context.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.SCPRuntime.LaunchPlugin(Microsoft.SCP.newSCPPlugin,System.String)">
+            <summary>
+            LaunchPlugin() is used to kick off the message processing loop. 
+            In this loop, the C# plugin will receive messages form Java side (including tuples and control signals), 
+            and then process the messages, perhaps calling the interface method provide by the user code. 
+            </summary>
+            <param name="createDelegate">This is a delegate that can return an object that implement ISCPSpout/IScpBolt/ISCPTxSpout/ISCPBatchBolt interface.</param>
+            <param name="userConfigName">The name of user-customized configuration file.</param>
+        </member>
+        <member name="T:Microsoft.SCP.Config">
+            <summary>
+            This class is used to get configuration parameters from Java side. The parameters are passed from Java side when C# plugin is initialized. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Config.GetProcessKey">
+            <summary>
+            Get the processKey of current process, which generated in Java side when creating current process.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Microsoft.SCP.Config.stormConf">
+            <summary>
+            Parameters defined in storm.yaml
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.Config.pluginConf">
+            <summary>
+            Parameters for initializing the SCP plugin
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.Config.TaskInfo">
+            <summary>
+            Map of "TaskId -> Component Id", e.g. {"1":"__acker","2":"counter","3":"generator","4":"splitter"}
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.ComponentStreamSchema">
+            <summary>
+            Input and output stream schema for SCP component
+            The input/output stream schema is defined as a dictionary, the key is the StreamId and the value is the Types of the columns. 
+            A component can have multi-streams declared.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.ComponentStreamSchema.#ctor(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.Type}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.Type}})">
+            <summary>
+            Define input and output stream schema for SCP component
+            The input/output stream schema is defined as a dictionary, the key is the StreamId and the value is the Types of the columns. 
+            A component can have multi-streams declared.
+            </summary>
+            <param name="input"></param>
+            <param name="output"></param>
+        </member>
+        <member name="T:Microsoft.SCP.Context">
+            <summary>
+            Context provides a running environment to the application. 
+            Each ISCPPlugin instance (ISCPSpout/ISCPBolt/ISCPTxSpout/ISCPBatchBolt) has a corresponding Context instance. 
+            </summary>
+        </member>
+        <member name="F:Microsoft.SCP.Context.Logger">
+            <summary>
+             "Logger" is provided for log purpose.
+            </summary>
+        </member>
+        <member name="F:Microsoft.SCP.Context.pluginType">
+            <summary>
+            "pluginType" is used to indicate the plugin type of the C# process. If the C# process is run in local test mode (without Java), the plugin type is "SCP_NET_LOCAL".
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Context.Emit(System.Collections.Generic.List{System.Object})">
+            <summary>
+            Emit values to the default stream
+            </summary>
+            <param name="values"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Context.Emit(System.String,System.Collections.Generic.List{System.Object})">
+            <summary>
+            Emit values to specified stream
+            </summary>
+            <param name="values"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Context.Emit(System.String,System.Collections.Generic.List{System.Object},System.Int64)">
+            <summary>
+            For non-transactional Spout only which support Ack.
+            Emit values to specified stream, and ack is required to this tuple, by using the unique Sequence Id.
+            </summary>
+            <param name="streamId"></param>
+            <param name="values"></param>
+            <param name="seqId"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Context.Emit(System.String,System.Collections.Generic.IEnumerable{Microsoft.SCP.SCPTuple},System.Collections.Generic.List{System.Object})">
+            <summary>
+            For non-transactional Bolt only which support Ack.
+            Emit values to specified stream, and ack is required to this tuple, by using the input tuples as the anchors.
+            </summary>
+            <param name="streamId"></param>
+            <param name="anchors"></param>
+            <param name="values"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Context.Ack(Microsoft.SCP.SCPTuple)">
+            <summary>
+            Ack one SCP tuple
+            </summary>
+            <param name="tuple"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Context.Fail(Microsoft.SCP.SCPTuple)">
+            <summary>
+            Fail one SCP tuple
+            </summary>
+            <param name="tuple"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Context.DeclareComponentSchema(Microsoft.SCP.ComponentStreamSchema)">
+            <summary>
+            Declare input and output schema for current component. 
+            To support the serialization and deserialization, user code needs to declare the schema of the inputs and outputs.
+            User code must make sure the tuples emitted obey the schema defined for that stream, or the system will throw a runtime exception.
+            
+            User can emit tuple in C# process, the platform needs to serialize the tuple into byte[], transfer to Java side, 
+            and Storm will transfer this tuple to the targets. Meanwhile in downstream component, the C# process will receive tuple back from java side, 
+            and convert it to the original types by platform, all these operations are hidden by the Platform. 
+            </summary>
+            <param name="schema"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Context.DeclareCustomizedSerializer(Microsoft.SCP.ICustomizedInteropCSharpSerializer)">
+            <summary>
+            Note: this method is for HybridTopology only.
+            Declare the customized serializer for component, to serialize the tuple (to JSON string, byte array or something), then send to Java side. 
+            SCP provides a default implementation of ICustomizedInteropCSharpSerializer: Microsoft.SCP.CustomizedInteropCSharpSerializer,
+            which can handle most cases if the data type is not too complex. 
+            Users also can use their own serializer to handle some complex data type or get better performance. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Context.DeclareCustomizedDeserializer(Microsoft.SCP.ICustomizedInteropCSharpDeserializer)">
+            <summary>
+            Note: this method is for HybridTopology only.
+            Declare the customized deserializer for component, to deserialize the tuple (from JSON string, byte array or something), which serialized in Java side. 
+            SCP provides a default implementation of ICustomizedInteropCSharpDeserializer: Microsoft.SCP.CustomizedInteropCSharpDeserializer,
+            which can handle most cases if the data type is not too complex. 
+            Users also can use their own serializer to handle some complex data type or get better performance. 
+            </summary>
+            <param name="customizedDeserializer"></param>
+        </member>
+        <member name="P:Microsoft.SCP.Context.Config">
+            <summary>
+            "Config" is provided to get configuration parameters from Java side. The parameters are passed from Java side when C# plugin is initialized. 
+            </summary>
+        </member>
+        <member name="P:Microsoft.SCP.Context.TopologyContext">
+            <summary>
+            "TopologyContext" is provided to get the topology context, it is most useful for components with multiple parallelism. 
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.SerializationExtensions">
+            <summary>
+            Generic serialization helper
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.SerializationExtensions.DictionarySerializer``1(``0)">
+            <summary>
+            DictionarySerializer for inter-operate between java and C#
+            In order to make Java and C# inter-operate, they only can 
+            understand basic types of each other. so we write the serializer
+            method for Dictionary. this is used to StateStore as their
+            attributes store in dictionary, so they must can understand
+            what's in dictionay, use this can solve this problem.
+             </summary>
+        </member>
+        <member name="M:Microsoft.SCP.SerializationExtensions.DictionaryDeserializer``1(System.Byte[])">
+            <summary>
+            DictionaryDeserializer for inter-operate bettwen java and C#
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Serializer.ConvertToByteArray(System.Collections.Generic.List{System.Object},System.Collections.Generic.List{System.Type})">
+            <summary>
+            Convert a set of object to a set of byte array
+            </summary>
+            <param name="tuple">object collection to be serialized</param>
+            <param name="types">schema Types</param>
+            <returns>the byte array collection after serialization</returns>
+        </member>
+        <member name="M:Microsoft.SCP.Serializer.ConvertToObjectArray(System.Collections.Generic.List{System.Byte[]},System.Collections.Generic.List{System.Type})">
+            <summary>
+            Convert a set of byte array to a set of object
+            </summary>
+            <param name="raw">byte array collection to be deserialized</param>
+            <returns>object collection after deserialization</returns>
+        </member>
+        <member name="M:Microsoft.SCP.Serializer.CSharpBytesToObject(System.Byte[],System.Type)">
+            <summary>
+            Convert an object to bytes
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Serializer.CSharpObjectToBytes(System.Object,System.Type)">
+            <summary>
+            Convert bytes to an object
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.Registry">
+            <summary>
+            Helper class for manipulating distributed application metadata
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.#ctor(Microsoft.SCP.StateStore,System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="store">StateStore</param>
+            <param name="path">Registry Name</param>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.GetKeys">
+            <summary>
+            Get the Keys in the Registry
+            </summary>
+            <returns>Registry Keys</returns>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.CreateKeyReal(System.String)">
+            <summary>
+            Create key if not exists
+            </summary>
+            <param name="key">Registry Key</param>
+            <returns>Registry Path</returns>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.CreateKey(System.String,System.Boolean)">
+            <summary>
+            Create key if not exists
+            </summary>
+            <param name="key">Registry Key</param>
+            <param name="recordKey">Put the new Create Key to the Key List or not</param>
+            <returns>Key Path</returns>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.FormatRegistryPath(System.String)">
+            <summary>
+            Generate the inner Path of the Registry Key
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.SetKeyValue``1(System.String,``0)">
+            <summary>
+            Set value on key
+            </summary>
+            <typeparam name="T">Value Type</typeparam>
+            <param name="key">Registry Key</param>
+            <param name="value">Registry Value related to the key</param>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.GetKeyValue``1(System.String)">
+            <summary>
+            Get key value
+            </summary>
+            <typeparam name="T">Value Type</typeparam>
+            <param name="key">Registry Key</param>
+            <returns>Registry Value related to the key</returns>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.DeleteKey(System.String)">
+            <summary>
+            Delete key if exists
+            </summary>
+            <param name="key">Registry Key</param>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.WatchKey(System.String,Microsoft.SCP.IStoreEventHandler)">
+            <summary>
+            Watch given key
+            </summary>
+            <param name="key">Registry Key</param>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.ExistsKey(System.String)">
+            <summary>
+            Judge a key existing or not
+            </summary>
+            <param name="key">Registry Key</param>
+            <returns>Key Existing or not</returns>
+        </member>
+        <member name="M:Microsoft.SCP.Registry.ExistsKey(System.String,Microsoft.SCP.NodeStat@)">
+            <summary>
+            Judge a key existing or not, with the Stats
+            </summary>
+            <param name="key">Registry Key</param>
+            <param name="stat">Return the Registry Key Node Stats</param>
+            <returns>Key Existing or not</returns>
+        </member>
+        <member name="P:Microsoft.SCP.Registry.RegistryPath">
+            <summary>
+            Registry Path in the Store
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.StateMode">
+            <summary>
+            State object creation mode 
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.StateStatus">
+            <summary>
+            State object status
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.State">
+            <summary>
+            State is what to be stored in the StateStore, a state can assoicate with some Key/Value pairs, use to store the metadata
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.State.#ctor(Microsoft.SCP.StateStore,System.Int64,Microsoft.SCP.StateMode)">
+            <summary>
+            constructor for creating a state object with the given ID
+            </summary>
+            <param name="store">State Store</param>
+            <param name="ID">State ID</param>
+            <param name="mode">Sate Mode</param>
+        </member>
+        <member name="M:Microsoft.SCP.State.GetStatus">
+            <summary>
+            Get the status of the state object
+            </summary>
+            <returns>The State Status</returns>
+        </member>
+        <member name="M:Microsoft.SCP.State.PutAttribute``1(System.String,``0)">
+            <summary>
+            Put an attribute value under the give key
+            </summary>
+            <param name="key">Key</param>
+            <param name="attribute">State Attribute</param>
+        </member>
+        <member name="M:Microsoft.SCP.State.GetAttribute``1(System.String)">
+            <summary>
+            Get the attribute value associated with the given key
+            </summary>
+            <param name="key">Key</param>
+            <returns>State Attribute</returns>
+        </member>
+        <member name="M:Microsoft.SCP.State.Commit(System.Boolean)">
+            <summary>
+            Set the status of the state object to commit, how to handle the State not existing?
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.State.Abort">
+            <summary>
+            Set the status of the state object to abort,how to handle the State not existing?
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.State.Watch(Microsoft.SCP.IStoreEventHandler)">
+            <summary>
+            Watch state change
+            </summary>
+            <param name="watcher">A Watcher</param>
+        </member>
+        <member name="P:Microsoft.SCP.State.ID">
+            <summary>
+            Get the ID of the state
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.StateStore">
+            <summary>
+            StateStore is used to store the States. It is based on a reliable distributed store, like ZooKeeper
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.GetRoot">
+            <summary>
+            return store root path
+            </summary>
+            <returns>StateStore Root</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.GetSequencePath(System.Int64)">
+            <summary>
+            get fullpath from sequence id
+            </summary>
+            <param name="sequenceID">Sequece Id</param>
+            <returns>Path</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Create(System.String,System.Byte[])">
+            <summary>
+            Create a new path in the state store and attach data to it
+            </summary>
+            <param name="path">Path</param>
+            <param name="data">Data</param>
+            <returns>Path</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.SetData(System.String,System.Byte[])">
+            <summary>
+            Set data on path
+            </summary>
+            <param name="path">Path</param>
+            <param name="value">Value</param>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.GetData(System.String)">
+            <summary>
+            Get data from path
+            </summary>
+            <param name="path">Path</param>
+            <returns>Data</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Delete(System.String)">
+            <summary>
+            Delete path
+            </summary>
+            <param name="path">Path</param>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Delete(Microsoft.SCP.State)">
+            <summary>
+            Delete a state in the statestore
+            </summary>
+            <param name="state">state to delete</param>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.GetState(System.Int64)">
+            <summary>
+            Retrieve an existing state object from this state store instance
+            </summary>
+            <returns>State from StateStore</returns>
+            <typeparam name="T">stateId, id of the State</typeparam>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Exists(System.String)">
+            <summary>
+            Path existence check
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Exists(System.String,Microsoft.SCP.NodeStat@)">
+            <summary>
+            Path existence check with NodeStats return
+            </summary>
+            <param name="path"></param>
+            <param name="stat"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Watch(System.String,Microsoft.SCP.IStoreEventHandler)">
+            <summary>    
+            Get sequence id from given sequential path
+            </summary>
+            <param name="path"></param>
+            <param name="watcher"></param>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.GetSequenceID(System.String)">
+            <summary>
+            Get sequence id from given sequential path
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Get(System.String)">
+            <summary>
+            Static method to retrieve a state store of the given path
+            </summary>
+            <param name="storePath">StateStore Path</param>
+            <returns>Instance of StateStore</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Get(System.String,System.String)">
+            <summary>
+            Static method to retrieve a state store of the given path and connStr
+            </summary>
+            <param name="storePath">StateStore Path</param>
+            <param name="connStr">StateStore Address</param>
+            <param name="recycler">Call back to clean the StateStore</param>
+            <returns>Instance of StateStore</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.GetUnCommitted">
+            <summary>
+            Retrieve all states that were previously uncommitted, excluding all aborted states
+            </summary>
+            <returns>Uncommited States</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.States">
+            <summary>
+            Get all the States in the StateStore
+            </summary>
+            <returns>All the States</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Registries">
+            <summary>
+            List all the registries in the StateStore
+            </summary>
+            <returns>Registries in the StateStore</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Aborted">
+            <summary>
+            List all the Aborted State in the StateStore
+            </summary>
+            <returns>Registries contain the Aborted State</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Commited">
+            <summary>
+            List all the commited states
+            </summary>
+            <returns>Registries contain the Committed State </returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Create">
+            <summary>
+            Create a new state object in this state store instance
+            </summary>
+            <returns>State from StateStore</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Get``1(System.String)">
+            <summary>
+            Get state or registry object
+            </summary>
+            <param name="info">Registry Name(Registry only)</param>
+            <typeparam name="T">Type, Registry or State</typeparam>
+            <returns>Return Registry or State</returns>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Delete``1(``0)">
+            <summary>
+            Delete the State/Registry
+            </summary>
+            <typeparam name="T">Type</typeparam>
+            <param name="t">Value</param>
+        </member>
+        <member name="M:Microsoft.SCP.StateStore.Dispose">
+            <summary>
+            Dispose disposible resources
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.ZKClient.#ctor(System.String,System.String)">
+            <summary>
+            Create zookeeper client with rootpath, all the other operations is relative to this rootpath
+            </summary>
+            <param name="zkServers">Zookeeper servers list, format is "ip:port,ip:port..."</param>
+            <param name="rootPath"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZKClient.SetData(System.String,System.Byte[])">
+            <summary>
+            Set data to given path, with retry
+            </summary>
+            <param name="path"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZKClient.GetData(System.String)">
+            <summary>
+            Get data from given path, with retry
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.ZKClient.WaitForConnected(System.TimeSpan)">
+            <summary>
+            Wait for connected
+            </summary>
+            <param name="timeout"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZKClient.Delete(System.String)">
+            <summary>
+            Delete path if exist, with retry
+            </summary>
+            <param name="path"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZKClient.GetChildren(System.String)">
+            <summary>
+            Get Childern under given path, with retry
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.ZKClient.Create(System.String,System.Byte[],System.Collections.Generic.IEnumerable{Org.Apache.Zookeeper.Data.ACL},ZooKeeperNet.CreateMode,System.Boolean)">
+            <summary>
+            Create persistent path, with retry
+            </summary>
+            <param name="path"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.ZKClient.Exists(System.String)">
+            <summary>
+            Path existence check
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.SCP.StoreEvent">
+            <summary>
+            StateStore event type
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.IStoreEventHandler">
+            <summary>
+            StateStore event listener
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.NodeStat">
+            <summary>
+            Borrow some fields from the ZooKeeper Stat.
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.ILogServiceProvider">
+            <summary>
+            Log service provider interface 
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.ZooKeeperLogProvider">
+            <summary>
+            Zookeeper log provider
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Connect(System.String,System.Boolean)">
+            <summary>
+            Connect to zookeeper servers
+            </summary>
+            <param name="path"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Connect(System.String)">
+            <summary>
+            Connect to zookeeper servers
+            </summary>
+            <param name="path"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Connect(System.String,System.String)">
+            <summary>
+            Connect to zookeeper servers with not default Connection String
+            </summary>
+            <param name="path"></param>
+            <param name="connStr">ZooKeeper Connection String</param>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Connect(System.String,System.String,System.Boolean)">
+            <summary>
+            Connect to zookeeper servers with not default Connection String
+            </summary>
+            <param name="path"></param>
+            <param name="connStr">ZooKeeper Connection String</param>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.SetData(System.String,System.Byte[])">
+            <summary>
+            Set data to given path, with retry
+            </summary>
+            <param name="path"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.GetData(System.String)">
+            <summary>
+            Get data from given path, with retry
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Create(System.String,System.Byte[])">
+            <summary>
+            Create persistent path, with retry
+            </summary>
+            <param name="path"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.CreateSequence(System.String,System.Byte[])">
+            <summary>
+            Create persisten sequential path, with retry
+            </summary>
+            <param name="path"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Delete(System.String)">
+            <summary>
+            Delete path if exist, with retry
+            </summary>
+            <param name="path"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.GetChildren(System.String)">
+            <summary>
+            Get Childern under given path, with retry
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Exists(System.String)">
+            <summary>
+            Path existence check
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Watch(System.String,Microsoft.SCP.IStoreEventHandler)">
+            <summary>
+            Leave a watch on the node with the given path
+            </summary>
+            <param name="path"></param>
+            <param name="watcher"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ZooKeeperLogProvider.Dispose">
+            <summary>
+            Release zookeeper resource
+            </summary>
+        </member>
+        <member name="T:TopologyInitialStatus">
+             Autogenerated by Thrift Compiler (0.7.0)
+            
+             DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
+        </member>
+        <member name="M:Microsoft.SCP.Fields.FieldIndex(System.String)">
+            Returns the position of the specified field.
+        </member>
+        <member name="M:Microsoft.SCP.Fields.Contains(System.String)">
+            Returns true if this contains the specified name of the field.
+        </member>
+        <member name="T:Microsoft.SCP.OutputCollector">
+            This output collector exposes the API for emitting tuples from an IRichBolt.
+            This is the core API for emitting tuples. For a simpler API, and a more restricted
+            form of stream processing, see IBasicBolt and BasicOutputCollector.
+        </member>
+        <member name="M:Microsoft.SCP.IOutputCollector.Emit(System.String,System.Collections.Generic.IEnumerable{Microsoft.SCP.SCPTuple},System.Collections.Generic.List{System.Object})">
+            <summary>
+             Returns the task ids that received the tuples.
+            </summary>
+            <param name="streamId"></param>
+            <param name="anchors"></param>
+            <param name="tuple"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.Emit(System.String,Microsoft.SCP.SCPTuple,System.Collections.Generic.List{System.Object})">
+             Emits a new tuple to a specific stream with a single anchor. The emitted values must be 
+             immutable.
+            
+             @param streamId the stream to emit to
+             @param anchor the tuple to anchor to
+             @param tuple the new output tuple from this bolt
+             @return the list of task ids that this new tuple was sent to
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.Emit(System.String,System.Collections.Generic.List{System.Object})">
+            Emits a new unanchored tuple to the specified stream. Because it's unanchored,
+            if a failure happens downstream, this new tuple won't affect whether any
+            spout tuples are considered failed or not. The emitted values must be 
+            immutable.
+            
+            @param streamId the stream to emit to
+            @param tuple the new output tuple from this bolt
+            @return the list of task ids that this new tuple was sent to
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.Emit(System.Collections.Generic.IEnumerable{Microsoft.SCP.SCPTuple},System.Collections.Generic.List{System.Object})">
+            Emits a new tuple to the default stream anchored on a group of input tuples. The emitted
+            values must be immutable.
+            
+            @param anchors the tuples to anchor to
+            @param tuple the new output tuple from this bolt
+            @return the list of task ids that this new tuple was sent to
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.Emit(Microsoft.SCP.SCPTuple,System.Collections.Generic.List{System.Object})">
+            Emits a new tuple to the default stream anchored on a single tuple. The emitted values must be 
+            immutable.
+            
+            @param anchor the tuple to anchor to
+            @param tuple the new output tuple from this bolt
+            @return the list of task ids that this new tuple was sent to
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.Emit(System.Collections.Generic.List{System.Object})">
+             Emits a new unanchored tuple to the default stream. Beacuse it's unanchored,
+             if a failure happens downstream, this new tuple won't affect whether any
+             spout tuples are considered failed or not. The emitted values must be 
+             immutable.
+            
+             @param tuple the new output tuple from this bolt
+             @return the list of task ids that this new tuple was sent to
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.EmitDirect(System.Int32,System.String,Microsoft.SCP.SCPTuple,System.Collections.Generic.List{System.Object})">
+             Emits a tuple directly to the specified task id on the specified stream.
+             If the target bolt does not subscribe to this bolt using a direct grouping,
+             the tuple will not be sent. If the specified output stream is not declared
+             as direct, or the target bolt subscribes with a non-direct grouping,
+             an error will occur at runtime. The emitted values must be 
+             immutable.
+            
+             @param taskId the taskId to send the new tuple to
+             @param streamId the stream to send the tuple on. It must be declared as a direct stream in the topology definition.
+             @param anchor the tuple to anchor to
+             @param tuple the new output tuple from this bolt
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.EmitDirect(System.Int32,System.String,System.Collections.Generic.List{System.Object})">
+             Emits a tuple directly to the specified task id on the specified stream.
+             If the target bolt does not subscribe to this bolt using a direct grouping,
+             the tuple will not be sent. If the specified output stream is not declared
+             as direct, or the target bolt subscribes with a non-direct grouping,
+             an error will occur at runtime. Note that this method does not use anchors,
+             so downstream failures won't affect the failure status of any spout tuples.
+             The emitted values must be immutable.
+            
+             @param taskId the taskId to send the new tuple to
+             @param streamId the stream to send the tuple on. It must be declared as a direct stream in the topology definition.
+             @param tuple the new output tuple from this bolt
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.emitDirect(System.Int32,System.Collections.Generic.IEnumerable{Microsoft.SCP.SCPTuple},System.Collections.Generic.List{System.Object})">
+             Emits a tuple directly to the specified task id on the default stream.
+             If the target bolt does not subscribe to this bolt using a direct grouping,
+             the tuple will not be sent. If the specified output stream is not declared
+             as direct, or the target bolt subscribes with a non-direct grouping,
+             an error will occur at runtime. The emitted values must be 
+             immutable.
+            
+             <p>The default stream must be declared as direct in the topology definition.
+             See OutputDeclarer#declare for how this is done when defining topologies
+             in Java.</p>
+            
+             @param taskId the taskId to send the new tuple to
+             @param anchosr the tuples to anchor to
+             @param tuple the new output tuple from this bolt
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.EmitDirect(System.Int32,Microsoft.SCP.SCPTuple,System.Collections.Generic.List{System.Object})">
+             Emits a tuple directly to the specified task id on the default stream.
+             If the target bolt does not subscribe to this bolt using a direct grouping,
+             the tuple will not be sent. If the specified output stream is not declared
+             as direct, or the target bolt subscribes with a non-direct grouping,
+             an error will occur at runtime. The emitted values must be 
+             immutable.
+            
+             <p>The default stream must be declared as direct in the topology definition.
+             See OutputDeclarer#declare for how this is done when defining topologies
+             in Java.</p>
+            
+             @param taskId the taskId to send the new tuple to
+             @param anchor the tuple to anchor to
+             @param tuple the new output tuple from this bolt
+        </member>
+        <member name="M:Microsoft.SCP.OutputCollector.EmitDirect(System.Int32,System.Collections.Generic.List{System.Object})">
+             Emits a tuple directly to the specified task id on the default stream.
+             If the target bolt does not subscribe to this bolt using a direct grouping,
+             the tuple will not be sent. If the specified output stream is not declared
+             as direct, or the target bolt subscribes with a non-direct grouping,
+             an error will occur at runtime. The emitted values must be 
+             immutable.
+            
+             <p>The default stream must be declared as direct in the topology definition.
+             See OutputDeclarer#declare for how this is done when defining topologies
+             in Java.</p>
+            
+             <p>Note that this method does not use anchors, so downstream failures won't
+             affect the failure status of any spout tuples.</p>
+            
+             @param taskId the taskId to send the new tuple to
+             @param tuple the new output tuple from this bolt
+        </member>
+        <member name="T:Microsoft.SCP.ISCPPlugin">
+            <summary>
+            ISCPPlugin is the common interface for all kinds of plugins. 
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.ISCPSpout">
+            <summary>
+            ISCPSpout is the interface for non-transactional spout.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPSpout.NextTuple(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            This method is used to emit one or more tuples. If there is nothing to emit, this method should return without emitting anything. 
+            It should be noted that NextTuple(), Ack(), and Fail() are all called in a tight loop in a single thread in C# process. 
+            When there are no tuples to emit, it is courteous to have NextTuple sleep for a short amount of time (such as 10 milliseconds), so as not to waste too much CPU.
+            </summary>
+            <param name="parms">Reserved argument for passing addtional paramters. </param>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPSpout.Ack(System.Int64,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Ack() will be called only when ack mechanism is enabled in spec file.
+            If ack is not supported in non-transactional topology, the Ack() can be left as empty function. 
+            </summary>
+            <param name="seqId">Sequence Id of the tuple which is acked.</param>
+            <param name="parms">Reserved argument for passing addtional paramters. </param>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPSpout.Fail(System.Int64,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Fail() will be called only when ack mechanism is enabled in spec file. 
+            If ack is not supported in non-transactional topology, the Fail() can be left as empty function.
+            </summary>
+            <param name="seqId">Sequence Id of the tuple which is failed.</param>
+            <param name="parms">Reserved argument for passing addtional paramters. </param>
+        </member>
+        <member name="T:Microsoft.SCP.ISCPBolt">
+            <summary>
+            ISCPBolt is the interface for non-transactional bolt.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPBolt.Execute(Microsoft.SCP.SCPTuple)">
+            <summary>
+            The Execute() function will be called, when a new tuple is available.
+            </summary>
+            <param name="tuple">The new tuple received</param>
+        </member>
+        <member name="T:Microsoft.SCP.ISCPTxSpout">
+            <summary>
+            ISCPTxSpout is the interface for transactional spout.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPTxSpout.NextTx(System.Int64@,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            NextTx() is called to start a new transaction, the out parameter “seqId” is used to identify the transaction, 
+                which is also used in Ack() and Fail(). In NextTx(), user can emit data to Java side. 
+            The data will be stored in ZooKeeper to support replay. Because the capacity of ZooKeeper is very limited, 
+                user should only emit metadata, not bulk data in transactional spout.
+            
+            Just like their non-transactional counter-part, NextTx(), Ack(), and Fail() are all called in a tight loop in a single thread in C# process. 
+            When there are no data to emit, it is courteous to have NextTx sleep for a short amount of time (10 milliseconds) so as not to waste too much CPU.
+            </summary>
+            <param name="seqId">Sequence Id of the tuple</param>
+            <param name="parms"></param>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPTxSpout.Ack(System.Int64,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Ack() will be called when the transaction is committed.
+            </summary>
+            <param name="seqId">Sequence Id of the tuple which is acked.</param>
+            <param name="parms">Reserved argument for passing addtional paramters. </param>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPTxSpout.Fail(System.Int64,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Reserved method.
+            Storm will replay a transaction automatically if it fails, so Fail() should not be called in normal case. 
+            This method is reserved for add new features, such as metadata validataion or something else.
+            </summary>
+            <param name="seqId">Sequence Id of the tuple which is failed.</param>
+            <param name="parms">Reserved argument for passing addtional paramters. </param>
+        </member>
+        <member name="T:Microsoft.SCP.ISCPBatchBolt">
+            <summary>
+            ISCPBatchBolt is the interface for transactional bolt.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPBatchBolt.Execute(Microsoft.SCP.SCPTuple)">
+            <summary>
+            The Execute() function will be called, when a new tuple is available.
+            </summary>
+            <param name="tuple">The new tuple received</param>
+        </member>
+        <member name="M:Microsoft.SCP.ISCPBatchBolt.FinishBatch(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            FinishBatch() is called when this transaction is ended.
+            </summary>
+            <param name="parms">Reserved argument for passing addtional paramters. </param>
+        </member>
+        <member name="T:Microsoft.SCP.newSCPPlugin">
+            <summary>
+             This delegate s used to create a instance of this spout/bolt
+            </summary>
+            <param name="ctx">SCP Context instance</param>
+            <param name="parms">Parameters to initialize this spout/bolt. For ISCPBatchBolt, a Storm_Tx_Attempt object is required</param>
+            <returns>Return a instance of this spout/bolt</returns>
+        </member>
+        <member name="T:Microsoft.SCP.ILocalContext">
+            <summary>
+            SCP provides a local test mode, to run the SCP plugins (the C# user code) in Visual Studio during the development phase. 
+            "LocalContext" can be used in this mode, which provides method to serialize the emitted tuples to local files, and read them back to memory.
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.ICustomizedInteropCSharpSerializer">
+            <summary>
+            Note: this interface is for HybridTopology only.
+            Customized serializer for component, to serialize the tuple (to JSON string, byte array or something), then send to Java side. 
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.ICustomizedInteropCSharpDeserializer">
+            <summary>
+            Note: this interface is for HybridTopology only.
+            Customized deserializer for component, to deserialize the tuple (from JSON string, byte array or something), which serialized in Java side.
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.SCPTuple">
+            <summary>
+            The tuple is the main data structure in Storm. A tuple is a named list of values, 
+            where each value can be any type. Tuples have helper methods like getInteger and getString 
+            to get field values without having to cast the result.
+            
+            Storm needs to know how to serialize all the values in a tuple. By default, Storm 
+            knows how to serialize the primitive types, strings, and byte arrays. If you want to 
+            use another type, you'll need to implement and register a serializer for that type.
+            See {@link http://github.com/nathanmarz/storm/wiki/Serialization} for more info.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.Size">
+            <summary>
+            Returns the number of fields in this tuple.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetValue(System.Int32)">
+            <summary>
+            Gets the field at position i in the tuple. Returns object since tuples are dynamically typed.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetString(System.Int32)">
+            <summary>
+            Returns the String at position i in the tuple. If that field is not a String, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetInteger(System.Int32)">
+            <summary>
+            Returns the Integer at position i in the tuple. If that field is not an Integer, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetLong(System.Int32)">
+            <summary>
+            Returns the Long at position i in the tuple. If that field is not a Long, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetBoolean(System.Int32)">
+            <summary>
+            Returns the Boolean at position i in the tuple. If that field is not a Boolean, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetShort(System.Int32)">
+            <summary>
+            Returns the Short at position i in the tuple. If that field is not a Short, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetByte(System.Int32)">
+            <summary>
+            Returns the Byte at position i in the tuple. If that field is not a Byte, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetDouble(System.Int32)">
+            <summary>
+            Returns the Double at position i in the tuple. If that field is not a Double, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetFloat(System.Int32)">
+            <summary>
+            Returns the Float at position i in the tuple. If that field is not a Float, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetBinary(System.Int32)">
+            <summary>
+            Returns the byte array at position i in the tuple. If that field is not a byte array, 
+            you will get a runtime error.
+            </summary>
+            <param name="i"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetValues">
+            <summary>
+            Gets all the values in this tuple.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetSourceTask">
+            <summary>
+            Gets the id of the task that created this tuple.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetSourceStreamId">
+            <summary>
+            Gets the id of the stream that this tuple was emitted to.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.SCPTuple.GetMessageId">
+            <summary>
+            Gets the message id that associated with this tuple.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.SCP.Values">
+            <summary>
+            This is a convenience class for making tuple values using new Values("field1", 2, 3) syntax,
+            which extends from 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Values.#ctor">
+            <summary>
+            Create an empty Values object.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Values.#ctor(System.Object[])">
+            <summary>
+            Create a Values object from one object array
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.ComponentConfigurationDeclarer`1.addConfigurations(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Add specified configuration to component
+            </summary>
+            <param name="config"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.BoltDeclarer.addConfigurations(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Add specified configuration to component
+            </summary>
+            <param name="config"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.BoltDeclarer.addConfigurations(Microsoft.SCP.Topology.StormConfig)">
+            <summary>
+            Add specified configuration to component
+            </summary>
+            <param name="config"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.SCP.Topology.EventHubSpoutConfig">
+            <summary>
+            EventHubSpoutConfig is used to define configuration for Java EventHubSpout.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.EventHubSpoutConfig.#ctor(System.String,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Constructor for EventHubSpoutConfig.
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.Topology.JavaComponentConstructor">
+            <summary>
+            JavaComponentConstructor is used to define a Java constructor for Java Spout/Bolt in C# code.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.JavaComponentConstructor.#ctor(System.String,System.Collections.Generic.List{System.Object},System.Collections.Generic.List{System.String},Microsoft.SCP.ICustomizedInteropCSharpSerializer,System.String)">
+            <summary>
+            Define a Java Constructor with Java classname, parameters for Java Constructor, data types of parameters,
+            and customized Serializer/Deserializer for intercommunication between C# and Java.
+            </summary>
+            <param name="javaClassName">Class name of the Java Spout/Bolt</param>
+            <param name="paramters">Parameters for Java Constructor</param>
+            <param name="paramJavaTypes">Data types of Parameters</param>
+            <param name="paramSerializer">C# serializer object</param>
+            <param name="paramDeserializerJavaType">Java Deserializer data type string</param>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.JavaComponentConstructor.#ctor(System.String,System.Collections.Generic.List{System.Tuple{System.String,System.Object}},Microsoft.SCP.ICustomizedInteropCSharpSerializer,System.String)">
+            <summary>
+            Define a Java Constructor with Java classname, Java Constructor parameters
+            and customized Serializer/Deserializer for intercommunication between C# and Java.
+            </summary>
+            <param name="javaClassName">Class name of the Java Spout/Bolt</param>
+            <param name="constructorParameters">Parameters for Java Constructor, it includes both type and value info of parameters</param>
+            <param name="paramSerializer">C# serializer object</param>
+            <param name="paramDeserializerJavaType">Java Deserializer data type string</param>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.JavaComponentConstructor.#ctor(System.String)">
+            <summary>
+            Define a Java Constructor with Java classname.
+            </summary>
+            <param name="javaClassName">Class name of the Java Spout/Bolt</param>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.JavaComponentConstructor.#ctor(System.String,System.Collections.Generic.List{System.Object},System.Collections.Generic.List{System.String})">
+            <summary>
+            Define a Java Constructor with Java classname, parameters for Java Constructor, data types of parameters.
+            </summary>
+            <param name="javaClassName">Class name of the Java Spout/Bolt</param>
+            <param name="paramters">Parameters for Java Constructor</param>
+            <param name="paramJavaTypes">Data types of Parameters</param>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.JavaComponentConstructor.#ctor(System.String,System.Collections.Generic.List{System.Tuple{System.String,System.Object}})">
+            <summary>
+            Define a Java Constructor with Java classname, parameters for Java Constructor, data types of parameters.
+            </summary>
+            <param name="javaClassName">Class name of the Java Spout/Bolt</param>
+            <param name="constructorParameters">Parameters for Java Constructor, it includes both type and value info of parameters</param>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.JavaComponentConstructor.CreateFromClojureExpr(System.String)">
+            <summary>
+            Create a Java Constructor from clojure code
+            </summary>
+            <param name="clojureExpr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.JavaComponentConstructor.CreateFromClojureFile(System.String)">
+            <summary>
+            Create a Java Constructor from clojure code (in file)
+            </summary>
+            <param name="filePath"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.SpoutDeclarer.addConfigurations(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Add specified configuration to component
+            </summary>
+            <param name="config"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.SpoutDeclarer.addConfigurations(Microsoft.SCP.Topology.StormConfig)">
+            <summary>
+            Add specified configuration to component
+            </summary>
+            <param name="config"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.SCP.Topology.TopologyBuilder">
+            <summary>
+            TopologyBuilder exposes the C# API for specifying a Non-Transactional topology for Storm to execute.  
+            The pattern for TopologyBuilder is to map component ids to components using the setSpout and setBolt methods. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.#ctor(System.String)">
+            <summary>
+            Create a Non-Transactional topology builder by name
+            </summary>
+            <param name="topologyName"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetKafkaSpout(System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.Boolean)">
+            <summary>
+            Define a new Kafka spout to topology with kafka Configuration for specifying kafka topic and broker list, etc. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetSpout(System.String,Microsoft.SCP.newSCPPlugin,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.Boolean)">
+            <summary>
+            Define a new C# spout to topology by specifying a createDelegate which is used to create this component
+            This method only works with SCP Hosted mode (using SCPHost.exe)
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetBolt(System.String,Microsoft.SCP.newSCPPlugin,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.Boolean)">
+            <summary>
+            Define a new C# bolt to topology by specifying a createDelegate which is used to create this component
+            This method only works with SCP Hosted mode (using SCPHost.exe)
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetSpout(System.String,Microsoft.SCP.newSCPPlugin,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.String,System.Boolean)">
+            <summary>
+            Define a new C# spout to topology by specifying a createDelegate which is used to create this component
+                with user customized configuration file 
+            This method only works with SCP Hosted mode (using SCPHost.exe)
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetBolt(System.String,Microsoft.SCP.newSCPPlugin,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.String,System.Boolean)">
+            Define a new C# bolt to topology by specifying a createDelegate which is used to create this component
+                with user customized configuration file 
+            This method only works with SCP Hosted mode (using SCPHost.exe)
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetSpout(System.String,System.String,System.Collections.Generic.List{System.String},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.Boolean)">
+            <summary>
+            Define a new C# spout to topology by specifying a pluginName and pluginArgs
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetJavaSpout(System.String,Microsoft.SCP.Topology.JavaComponentConstructor,System.Int32)">
+            <summary>
+            Define a new Java spout to topology by specifying a spoutName and Java Component Constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetEventHubSpout(System.String,Microsoft.SCP.Topology.EventHubSpoutConfig,System.Int32)">
+            <summary>
+            Define a Java EventHubSpout by specifying a spoutName and eventHubSpoutConfig
+            EventHubSpout is for non-transactional topology, and requires acks, so should set "enableAck = true" in the downstream bolts.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetBolt(System.String,System.String,System.Collections.Generic.List{System.String},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.Boolean)">
+            <summary>
+            Define a new C# bolt to topology by specifying a pluginName and pluginArgs
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetJavaBolt(System.String,Microsoft.SCP.Topology.JavaComponentConstructor,System.Int32)">
+            <summary>
+            Define a new Java bolt to topology by specifying a boltName and Java Component Constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetTopologyConfig(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Define a specified configuration to this topology
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TopologyBuilder.SetTopologyConfig(Microsoft.SCP.Topology.StormConfig)">
+            <summary>
+            Define a specified configuration to this topology
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.Topology.TransactionalTopologyBuilder">
+            <summary>
+            TransactionalTopologyBuilder exposes the C# API for specifying a Transactional topology for Storm to execute.  
+            The pattern for TransactionalTopologyBuilder is to map component ids to components using the setSpout and setBolt methods. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.#ctor(System.String)">
+            <summary>
+            Create a Transactional topology builder by name
+            </summary>
+            <param name="topologyName"></param>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetKafkaSpout(System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32)">
+            <summary>
+            Define a new Kafka spout to topology with kafka Configuration for specifying kafka topic and broker list, etc. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetKafkaSpout(System.String,Microsoft.SCP.newSCPPlugin,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.String)">
+            <summary>
+            Define a new professional Kafka spout to topology with kafka Configuration which is for specifying kafka topic and broker list, etc;
+                and a createDelegate which is used to create a C# component
+            This method only works with SCP Hosted mode (using SCPHost.exe)
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetKafkaSpout(System.String,System.String,System.Collections.Generic.List{System.String},System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32)">
+            <summary>
+            Define a new professional Kafka spout to topology with kafka Configuration which is for specifying kafka topic and broker list, etc;
+                and a pluginName and pluginArgs
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetSpout(System.String,Microsoft.SCP.newSCPPlugin,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.String)">
+            <summary>
+            Define a new C# spout to topology by specifying a createDelegate which is used to create this component
+                with user customized configuration file 
+            This method only works with SCP Hosted mode (using SCPHost.exe)
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetBolt(System.String,Microsoft.SCP.Topology.SCPTxBolt,Microsoft.SCP.newSCPPlugin,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32,System.String)">
+            <summary>
+            Define a new C# bolt to topology by specifying a createDelegate which is used to create this component
+                with user customized configuration file 
+            This method only works with SCP Hosted mode (using SCPHost.exe)
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetSpout(System.String,System.String,System.Collections.Generic.List{System.String},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32)">
+            <summary>
+            Define a new C# spout to topology by specifying a pluginName and pluginArgs
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetJavaSpout(System.String,Microsoft.SCP.Topology.JavaComponentConstructor,System.Int32)">
+            <summary>
+            Define a new Java spout to topology by specifying a spoutName and Java Component Constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetBolt(System.String,Microsoft.SCP.Topology.SCPTxBolt,System.String,System.Collections.Generic.List{System.String},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{System.String}},System.Int32)">
+            <summary>
+            Define a new C# bolt to topology by specifying a pluginName and pluginArgs
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetJavaBolt(System.String,Microsoft.SCP.Topology.JavaComponentConstructor,System.Int32)">
+            <summary>
+            Define a new Java bolt to topology by specifying a boltName and Java Component Constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetTopologyConfig(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Define a specified configuration to this topology
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.TransactionalTopologyBuilder.SetTopologyConfig(Microsoft.SCP.Topology.StormConfig)">
+            <summary>
+            Define a specified configuration to this topology
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.Topology.StormConfig">
+            <summary>
+            This class provides a convenient way to create storm configuration.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.#ctor">
+            <summary>
+            Create an empty StormConfig.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.setDebug(System.Boolean)">
+            <summary>
+            Set "topology.debug" parameter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.setNumWorkers(System.Int32)">
+            <summary>
+            Set "topology.workers" parameter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.setNumAckers(System.Int32)">
+            <summary>
+            Set "topology.acker.executors" parameter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.setMessageTimeoutSecs(System.Int32)">
+            <summary>
+            Set "topology.message.timeout.secs" parameter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.setMaxSpoutPending(System.Int32)">
+            <summary>
+            Set "topology.max.spout.pending" parameter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.setStatsSampleRate(System.Double)">
+            <summary>
+            Set "topology.stats.sample.rate" parameter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.setWorkerChildOps(System.String)">
+            <summary>
+            Set "worker.childopts" parameter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.Topology.StormConfig.Set(System.String,System.String)">
+            <summary>
+            This method provides a general way to set various configuration item.
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.Topology.TopologyDescriptor">
+            <summary>
+            Interface to describe a topology by return a TopologyBuilder
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.Topology.ActiveAttribute">
+            <summary>
+            Attribute to indicate if this TopologyDescriptor is Active
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.Constants">
+            <summary>
+            SCP Constants
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.CustomizedInteropJSONDeserializer">
+            <summary>
+            Customized deserializer to deserialize the tuple from JSON string, which serialized in Java side. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.CustomizedInteropJSONDeserializer.#ctor">
+            <summary>
+            Customized deserializer to deserialize the tuple from JSON string, which serialized in Java side. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.CustomizedInteropJSONDeserializer.Deserialize(System.Collections.Generic.List{System.Byte[]},System.Collections.Generic.List{System.Type})">
+            <summary>
+            Deserialize objects from JSON string format to target data types, then return these objects
+            </summary>
+            <param name="dataList">Serialized JSON string in byte array type</param>
+            <param name="targetTypes">Target data type for each objects</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.SCP.CustomizedInteropJSONSerializer">
+            <summary>
+            Customized serializer to serialize the tuple to JSON string, then send to Java side.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.CustomizedInteropJSONSerializer.#ctor">
+            <summary>
+            Customized serializer to serialize the tuple to JSON string, then send to Java side.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.CustomizedInteropJSONSerializer.Serialize(System.Collections.Generic.List{System.Object})">
+            <summary>
+            Serialize objects to JSON strings, and return them as byte array.
+            </summary>
+            <param name="objectList"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.SCP.ProcessHelper">
+            <summary>
+            this class is used to detect if the process's parent process still alive
+            </summary>
+        </member>
+        <member name="T:Microsoft.SCP.TopologyContext">
+            <summary>
+            As the TopologContext class in Java, this class provides information about the component's place within the topology, such as task ids, inputs and outputs, etc.
+            </summary>
+        </member>
+        <member name="M:Microsoft.SCP.TopologyContext.GetThisTaskId">
+            <summary>
+            Get the task id of current C# worker. 
+            This task id is a unique identifier in current topology in storm.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.TopologyContext.GetThisTaskIndex">
+            <summary>
+            Get the index of current task id in the task list of current component 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.TopologyContext.GetComponentId(System.Int32)">
+            <summary>
+            Get the component Id for the specified task
+            </summary>
+            <param name="taskId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.TopologyContext.GetThisComponentId">
+            <summary>
+            Get the current component Id
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.SCP.TopologyContext.GetComponentTasks(System.String)">
+            <summary>
+            Get the task list of the specified component
+            </summary>
+            <param name="componentId"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
