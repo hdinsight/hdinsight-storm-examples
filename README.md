@@ -56,12 +56,12 @@ Templates to connect to various Azure services:
 * HBase
 * Azure Websites (SignalR)
 
-[Templates for Azure services](templates\templates.md)
+[Templates for Azure services](templates/readme.md)
 
 ### SCP.Net Examples
 Old SCP.Net examples that were on HDInsight clusters have now been moved to this GitHub repository.
 
-Please refer [More SCP.Net Examples](SCPNetExamples\SCPNetExamples.md)
+Please refer [More SCP.Net Examples](SCPNetExamples/readme.md)
 
 
 ## Additional Resources
