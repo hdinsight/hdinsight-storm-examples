@@ -44,22 +44,22 @@ namespace EventHubsReaderTopology
             // Here, full name of the Java JSON Serializer class is required
             List<string> javaSerializerInfo = new List<string>() { "microsoft.scp.storm.multilang.CustomizedInteropJSONSerializer" };
 
+            var boltConfig = new StormConfig();
+            boltConfig.Set("topology.tick.tuple.freq.secs", "1");
+
             topologyBuilder.SetBolt(
-                    typeof(PartialCountBolt).Name,
-                    PartialCountBolt.Get,
-                    new Dictionary<string, List<string>>()
-                    {
-                        {Constants.DEFAULT_STREAM_ID, new List<string>(){ "partialCount" } }
-                    },
-                    eventHubPartitions,
-                    true
+                typeof(PartialCountBolt).Name,
+                PartialCountBolt.Get,
+                new Dictionary<string, List<string>>()
+                {
+                    {Constants.DEFAULT_STREAM_ID, new List<string>(){ "partialCount" } }
+                },
+                eventHubPartitions,
+                true
                 ).
                 DeclareCustomizedJavaSerializer(javaSerializerInfo).
                 shuffleGrouping("com.microsoft.eventhubs.spout.EventHubSpout").
-                addConfigurations(new Dictionary<string, string>()
-                {
-                    {"topology.tick.tuple.freq.secs", "1"}
-                });
+                addConfigurations(boltConfig);
 
             topologyBuilder.SetBolt(
                 typeof(GlobalCountBolt).Name,
@@ -68,16 +68,15 @@ namespace EventHubsReaderTopology
                 {
                     {Constants.DEFAULT_STREAM_ID, new List<string>(){ "timestamp", "totalCount" } }
                 },
-                1).
+                1, 
+                true).
                 globalGrouping(typeof(PartialCountBolt).Name).
-                addConfigurations(new Dictionary<string,string>()
-                {
-                    {"topology.tick.tuple.freq.secs", "1"}
-                });
+                addConfigurations(boltConfig);
 
             var topologyConfig = new StormConfig();
-            topologyConfig.setMaxSpoutPending(512);
+            topologyConfig.setMaxSpoutPending(8192);
             topologyConfig.setNumWorkers(eventHubPartitions);
+
             topologyBuilder.SetTopologyConfig(topologyConfig);
             return topologyBuilder;
         }

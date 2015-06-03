@@ -23,13 +23,14 @@ namespace EventCountHybridTopology
         {
             this.ctx = ctx;
 
-            // Declare Input schemas
+            // set input schemas
             Dictionary<string, List<Type>> inputSchema = new Dictionary<string, List<Type>>();
             inputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(long) });
 
             //Add the Tick tuple Stream in input streams - A tick tuple has only one field of type long
             inputSchema.Add(Constants.SYSTEM_TICK_STREAM_ID, new List<Type>() { typeof(long) });
 
+            // Declare input and output schemas
             this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, null));
 
             sqlConnStringBuilder = new SqlConnectionStringBuilder();
@@ -72,7 +73,7 @@ namespace EventCountHybridTopology
             }
             else
             {
-                //Merge partialCount from all EventCountPartialCountBolt
+                //Merge partialCount from all PartialCountBolt tasks
                 var incomingPartialCount = tuple.GetLong(0);
                 partialCount += incomingPartialCount;
                 totalCount += incomingPartialCount;

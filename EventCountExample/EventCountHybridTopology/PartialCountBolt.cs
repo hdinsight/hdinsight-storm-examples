@@ -27,11 +27,11 @@ namespace EventCountHybridTopology
             inputSchema.Add(Constants.SYSTEM_TICK_STREAM_ID, new List<Type>() { typeof(long) });
 
             // set output schemas
-            Dictionary<string, List<Type>> ouputSchema = new Dictionary<string, List<Type>>();
-            ouputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(long) });
+            Dictionary<string, List<Type>> outputSchema = new Dictionary<string, List<Type>>();
+            outputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(long) });
 
             // Declare input and output schemas
-            this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, ouputSchema));
+            this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, outputSchema));
 
             this.ctx.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
 

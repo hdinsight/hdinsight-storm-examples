@@ -30,7 +30,6 @@ namespace EventCountHybridTopology
                 new TopologyBuilder(typeof(EventCountHybridTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             var eventHubPartitions = int.Parse(ConfigurationManager.AppSettings["EventHubPartitions"]);
-
             topologyBuilder.SetEventHubSpout(
                 "com.microsoft.eventhubs.spout.EventHubSpout", 
                 new EventHubSpoutConfig(
@@ -72,7 +71,6 @@ namespace EventCountHybridTopology
                 addConfigurations(taskConfig);
 
             var topologyConfig = new StormConfig();
-            topologyConfig.setMaxSpoutPending(512);
             topologyConfig.setNumWorkers(eventHubPartitions);
             topologyBuilder.SetTopologyConfig(topologyConfig);
             return topologyBuilder;
