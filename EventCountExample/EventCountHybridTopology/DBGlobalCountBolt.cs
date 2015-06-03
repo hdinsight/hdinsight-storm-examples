@@ -1,8 +1,7 @@
+using Microsoft.SCP;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.SCP;
-using System.Diagnostics;
+using System.Configuration;
 using System.Data.SqlClient;
 
 namespace EventCountHybridTopology
@@ -13,7 +12,6 @@ namespace EventCountHybridTopology
     public class DBGlobalCountBolt : ISCPBolt
     {
         Context ctx;
-        AppConfig appConfig;
 
         SqlDb db;
         SqlConnectionStringBuilder sqlConnStringBuilder;
@@ -24,7 +22,6 @@ namespace EventCountHybridTopology
         public DBGlobalCountBolt(Context ctx)
         {
             this.ctx = ctx;
-            this.appConfig = new AppConfig();
 
             // Declare Input schemas
             Dictionary<string, List<Type>> inputSchema = new Dictionary<string, List<Type>>();
@@ -36,10 +33,10 @@ namespace EventCountHybridTopology
             this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, null));
 
             sqlConnStringBuilder = new SqlConnectionStringBuilder();
-            sqlConnStringBuilder.DataSource = appConfig.SqlDbServerName + ".database.windows.net";
-            sqlConnStringBuilder.InitialCatalog = appConfig.SqlDbDatabaseName;
-            sqlConnStringBuilder.UserID = appConfig.SqlDbUsername;
-            sqlConnStringBuilder.Password = appConfig.SqlDbPassword;
+            sqlConnStringBuilder.DataSource = ConfigurationManager.AppSettings["SqlDbServerName"] + ".database.windows.net";
+            sqlConnStringBuilder.InitialCatalog = ConfigurationManager.AppSettings["SqlDbDatabaseName"];
+            sqlConnStringBuilder.UserID = ConfigurationManager.AppSettings["SqlDbUsername"];
+            sqlConnStringBuilder.Password = ConfigurationManager.AppSettings["SqlDbPassword"];
 
             db = new SqlDb(sqlConnStringBuilder.ConnectionString);
             db.dropTable();

@@ -8,8 +8,6 @@ namespace EventHubAggregatorToHBaseTopology.Common
 {
     public class AppConfig
     {
-        public const string UserConfig = "UserConfig";
-
         public string TimestampField { get; set; }
 
         public TimeSpan AggregationWindow { get; set; }
@@ -22,8 +20,8 @@ namespace EventHubAggregatorToHBaseTopology.Common
         public string EventHubFqnAddress { get; set; }
         public string EventHubNamespace { get; set; }
         public string EventHubEntityPath { get; set; }
-        public string EventHubUsername { get; set; }
-        public string EventHubPassword { get; set; }
+        public string EventHubSharedAccessKeyName { get; set; }
+        public string EventHubSharedAccessKey { get; set; }
         public int EventHubPartitions { get; set; }
 
         public string HBaseClusterUrl { get; set; }
@@ -38,29 +36,17 @@ namespace EventHubAggregatorToHBaseTopology.Common
         public string PrimaryKey { get; set; }
         public string SecondaryKey { get; set; }
 
-        public AppConfig(string configPath = "SCPHost.exe.config")
+        public AppConfig()
         {
-            if (!File.Exists(configPath))
-            {
-                //Try to find the config in current assembly directory
-                configPath = Path.Combine(Directory.GetParent(Assembly.GetAssembly(this.GetType()).Location).FullName, configPath);
-            }
-            var map = new ExeConfigurationFileMap { ExeConfigFilename = configPath };
-            
-            ReadValues(ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None));
+            ReadValues();
         }
 
-        public AppConfig(Configuration config)
+        private void ReadValues()
         {
-            ReadValues(config);
-        }
-
-        private void ReadValues(Configuration config)
-        {
-            TimestampField = config.AppSettings.Settings["TimestampField"].Value;
+            TimestampField = ConfigurationManager.AppSettings["TimestampField"];
 
             int window = 1;
-            var result = int.TryParse(config.AppSettings.Settings["AggregationWindow"].Value, out window);
+            var result = int.TryParse(ConfigurationManager.AppSettings["AggregationWindow"], out window);
             if (result)
             {
                 AggregationWindow = TimeSpan.FromMinutes(window);
@@ -71,7 +57,7 @@ namespace EventHubAggregatorToHBaseTopology.Common
             }
 
             window = 1;
-            result = int.TryParse(config.AppSettings.Settings["EmitWindow"].Value, out window);
+            result = int.TryParse(ConfigurationManager.AppSettings["EmitWindow"], out window);
             if (result)
             {
                 EmitWindow = TimeSpan.FromMinutes(window);
@@ -82,7 +68,7 @@ namespace EventHubAggregatorToHBaseTopology.Common
             }
 
             int count = 100;
-            result = int.TryParse(config.AppSettings.Settings["AggregationRankerTopNCount"].Value, out count);
+            result = int.TryParse(ConfigurationManager.AppSettings["AggregationRankerTopNCount"], out count);
             if (result)
             {
                 AggregationRankerTopNCount = count;
@@ -92,14 +78,14 @@ namespace EventHubAggregatorToHBaseTopology.Common
                 AggregationRankerTopNCount = 100;
             }
 
-            EventHubEntityPath = config.AppSettings.Settings["EventHubEntityPath"].Value;
-            EventHubFqnAddress = config.AppSettings.Settings["EventHubFqnAddress"].Value;
-            EventHubNamespace = config.AppSettings.Settings["EventHubNamespace"].Value;
-            EventHubPassword = config.AppSettings.Settings["EventHubPassword"].Value;
-            EventHubUsername = config.AppSettings.Settings["EventHubUsername"].Value;
+            EventHubEntityPath = ConfigurationManager.AppSettings["EventHubEntityPath"];
+            EventHubFqnAddress = ConfigurationManager.AppSettings["EventHubFqnAddress"];
+            EventHubNamespace = ConfigurationManager.AppSettings["EventHubNamespace"];
+            EventHubSharedAccessKey = ConfigurationManager.AppSettings["EventHubPassword"];
+            EventHubSharedAccessKeyName = ConfigurationManager.AppSettings["EventHubUsername"];
 
             var partitions = 0;
-            var parseResult = int.TryParse(config.AppSettings.Settings["EventHubPartitions"].Value, out partitions);
+            var parseResult = int.TryParse(ConfigurationManager.AppSettings["EventHubPartitions"], out partitions);
             if (parseResult)
             {
                 EventHubPartitions = partitions;
@@ -109,15 +95,15 @@ namespace EventHubAggregatorToHBaseTopology.Common
                 EventHubPartitions = 16;
             }
 
-            HBaseClusterUrl = config.AppSettings.Settings["HBaseClusterUrl"].Value;
-            HBaseClusterUserName = config.AppSettings.Settings["HBaseClusterUserName"].Value;
-            HBaseClusterUserPassword = config.AppSettings.Settings["HBaseClusterUserPassword"].Value;
+            HBaseClusterUrl = ConfigurationManager.AppSettings["HBaseClusterUrl"];
+            HBaseClusterUserName = ConfigurationManager.AppSettings["HBaseClusterUserName"];
+            HBaseClusterUserPassword = ConfigurationManager.AppSettings["HBaseClusterUserPassword"];
 
-            HBaseTableNamePrefix = config.AppSettings.Settings["HBaseTableNamePrefix"].Value;
-            HBaseTableNameSuffix = config.AppSettings.Settings["HBaseTableNameSuffix"].Value;
+            HBaseTableNamePrefix = ConfigurationManager.AppSettings["HBaseTableNamePrefix"];
+            HBaseTableNameSuffix = ConfigurationManager.AppSettings["HBaseTableNameSuffix"];
 
             var hbaseoverwrite = true;
-            result = bool.TryParse(config.AppSettings.Settings["HBaseOverwrite"].Value, out hbaseoverwrite);
+            result = bool.TryParse(ConfigurationManager.AppSettings["HBaseOverwrite"], out hbaseoverwrite);
             if (result)
             {
                 HBaseOverwrite = hbaseoverwrite;
@@ -127,8 +113,8 @@ namespace EventHubAggregatorToHBaseTopology.Common
                 HBaseOverwrite = true;
             }
 
-            PrimaryKey = config.AppSettings.Settings["PrimaryKey"].Value;
-            SecondaryKey = config.AppSettings.Settings["SecondaryKey"].Value;
+            PrimaryKey = ConfigurationManager.AppSettings["PrimaryKey"];
+            SecondaryKey = ConfigurationManager.AppSettings["SecondaryKey"];
         }
     }
 }

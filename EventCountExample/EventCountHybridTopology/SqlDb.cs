@@ -31,7 +31,7 @@ namespace EventCountHybridTopology
         public void createTable()
         {
             Context.Logger.Info("createTable");
-            String SQL = "CREATE TABLE EHEventCountHybrid(timestamp bigint PRIMARY KEY, eventCount bigint)";
+            String SQL = "CREATE TABLE EventCountHybridTopology(timestamp bigint PRIMARY KEY, eventCount bigint)";
 
             // Create and execute an SQL statement that returns some data.
             try
@@ -49,7 +49,7 @@ namespace EventCountHybridTopology
         public void dropTable()
         {
             Context.Logger.Info("dropTable");
-            String SQL = "IF OBJECT_ID (N'dbo.EHEventCountHybrid', N'U') IS NOT NULL DROP TABLE dbo.EHEventCountHybrid";
+            String SQL = "IF OBJECT_ID (N'dbo.EventCountHybridTopology', N'U') IS NOT NULL DROP TABLE dbo.EventCountHybridTopology";
             try
             {
                 comm = con.CreateCommand();
@@ -64,7 +64,7 @@ namespace EventCountHybridTopology
 
         public void insertValue(long timestamp, long count)
         {
-            String SQL = "INSERT INTO EHEventCountHybrid "
+            String SQL = "INSERT INTO EventCountHybridTopology "
                 + "VALUES (" + timestamp + "," + count + ");";
             try
             {
@@ -81,7 +81,7 @@ namespace EventCountHybridTopology
         public void resetTable()
         {
             Context.Logger.Info("resetTable");
-            String SQL = "Truncate Table EHEventCountHybrid";
+            String SQL = "Truncate Table EventCountHybridTopology";
             try
             {
                 comm = con.CreateCommand();

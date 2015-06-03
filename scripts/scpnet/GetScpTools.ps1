@@ -2,9 +2,11 @@
 $scriptDir = Split-Path $scriptPath
 
 $nugetExe = Join-Path $scriptDir "..\..\tools\nuget\nuget.exe"
-$install = & "$nugetExe" install Microsoft.SCP.Net.SDK -version 0.9.4.203 -OutputDirectory "$scriptDir\..\..\packages"
 
-$scpNuget = (gci "$scriptDir\..\..\packages\Microsoft.SCP.Net.SDK.*")[0].FullName
+$scpNetVersion = "0.9.4.283"
+$install = & "$nugetExe" install Microsoft.SCP.Net.SDK -version $scpNetVersion -OutputDirectory "$scriptDir\..\..\packages"
+
+$scpNuget = "$scriptDir\..\..\packages\Microsoft.SCP.Net.SDK.$scpNetVersion"
 $scpTools = Join-Path $scpNuget "tools"
 
 #Workaround to get ScpC.exe to work without invoking MSBuild

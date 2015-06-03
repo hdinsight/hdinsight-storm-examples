@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SCP;
 using Microsoft.SCP.Topology;
+using System.Configuration;
 
 /// <summary>
 /// This program shows the ability to create a SCP.NET topology consuming JAVA Spouts
@@ -23,37 +24,30 @@ namespace EventCountHybridTopology
     [Active(true)]
     public class EventCountHybridTopology : TopologyDescriptor
     {
-        AppConfig appConfig;
         public ITopologyBuilder GetTopologyBuilder()
         {
-            appConfig = new AppConfig();
+            TopologyBuilder topologyBuilder = 
+                new TopologyBuilder(typeof(EventCountHybridTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
 
-            TopologyBuilder topologyBuilder = new TopologyBuilder(typeof(EventCountHybridTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
+            var eventHubPartitions = int.Parse(ConfigurationManager.AppSettings["EventHubPartitions"]);
 
-            JavaComponentConstructor constructor =
-                new JavaComponentConstructor("com.microsoft.eventhubs.spout.EventHubSpout",
-                    new List<object>() { 
-                                    appConfig.EventHubUsername, 
-                                    appConfig.EventHubPassword,
-                                    appConfig.EventHubNamespace, 
-                                    appConfig.EventHubEntityPath,
-                                    appConfig.EventHubPartitions},
-                    new List<string>() { 
-                                    "java.lang.String",
-                                    "java.lang.String",
-                                    "java.lang.String",
-                                    "java.lang.String",
-                                    "int"}
-                );
-
-            topologyBuilder.SetJavaSpout(
-                "com.microsoft.eventhubs.spout.EventHubSpout",
-                constructor,
-                appConfig.EventHubPartitions);
+            topologyBuilder.SetEventHubSpout(
+                "com.microsoft.eventhubs.spout.EventHubSpout", 
+                new EventHubSpoutConfig(
+                    ConfigurationManager.AppSettings["EventHubSharedAccessKeyName"],
+                    ConfigurationManager.AppSettings["EventHubSharedAccessKey"],
+                    ConfigurationManager.AppSettings["EventHubNamespace"], 
+                    ConfigurationManager.AppSettings["EventHubEntityPath"],
+                    eventHubPartitions),
+                eventHubPartitions);
 
             // Set a customized JSON Serializer to serialize a Java object (emitted by Java Spout) into JSON string
             // Here, full name of the Java JSON Serializer class is required
-            List<string> javaSerializerInfo = new List<string>() { "microsoft.scp.storm.multilang.CustomizedInteropJSONSerializer" };
+            List<string> javaSerializerInfo = new List<string>() { 
+                "microsoft.scp.storm.multilang.CustomizedInteropJSONSerializer" };
+
+            var taskConfig = new StormConfig();
+            taskConfig.Set("topology.tick.tuple.freq.secs", "1");
 
             topologyBuilder.SetBolt(
                     typeof(PartialCountBolt).Name,
@@ -62,15 +56,12 @@ namespace EventCountHybridTopology
                     {
                         {Constants.DEFAULT_STREAM_ID, new List<string>(){ "partialCount" } }
                     },
-                    appConfig.EventHubPartitions,
+                    eventHubPartitions,
                     true
                 ).
                 DeclareCustomizedJavaSerializer(javaSerializerInfo).
                 shuffleGrouping("com.microsoft.eventhubs.spout.EventHubSpout").
-                addConfigurations(new Dictionary<string, string>()
-                {
-                    {"topology.tick.tuple.freq.secs", "1"}
-                });
+                addConfigurations(taskConfig);
 
             topologyBuilder.SetBolt(
                 typeof(DBGlobalCountBolt).Name,
@@ -78,17 +69,12 @@ namespace EventCountHybridTopology
                 new Dictionary<string, List<string>>(),
                 1).
                 globalGrouping(typeof(PartialCountBolt).Name).
-                addConfigurations(new Dictionary<string,string>()
-                {
-                    {"topology.tick.tuple.freq.secs", "1"}
-                });
+                addConfigurations(taskConfig);
 
-            topologyBuilder.SetTopologyConfig(new Dictionary<string, string>()
-            {
-                {"topology.workers", appConfig.EventHubPartitions.ToString()},
-                {"topology.max.spout.pending", "512"}
-            });
-
+            var topologyConfig = new StormConfig();
+            topologyConfig.setMaxSpoutPending(512);
+            topologyConfig.setNumWorkers(eventHubPartitions);
+            topologyBuilder.SetTopologyConfig(topologyConfig);
             return topologyBuilder;
         }
     }

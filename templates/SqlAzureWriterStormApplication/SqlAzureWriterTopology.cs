@@ -12,7 +12,7 @@ namespace SqlAzureWriterStormApplication
     /// A topology example of reading data from spout and writing into Sql Azure
     /// Uncomment Active attribute to deploy this topology and comment out Active attribute of any other topologies in this project.
     /// </summary>
-    //[Active(true)]
+    [Active(true)]
     class SqlAzureWriterTopology : TopologyDescriptor
     {
         public ITopologyBuilder GetTopologyBuilder()
@@ -23,7 +23,9 @@ namespace SqlAzureWriterStormApplication
             topologyBuilder.SetSpout(
                 typeof(IISLogGeneratorSpout).Name, //Set task name
                 IISLogGeneratorSpout.Get, //Set task constructor delegate
-                new Dictionary<string, List<string>>() { {Constants.DEFAULT_STREAM_ID, IISLogGeneratorSpout.OutputFields} },
+                new Dictionary<string, List<string>>() { 
+                    {Constants.DEFAULT_STREAM_ID, IISLogGeneratorSpout.OutputFields} 
+                },
                 1, //Set number of tasks
                 true //Set enableAck
                 );

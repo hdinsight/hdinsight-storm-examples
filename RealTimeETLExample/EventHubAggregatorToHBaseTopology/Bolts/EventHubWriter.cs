@@ -81,8 +81,8 @@ namespace EventHubAggregatorToHBaseTopology.Bolts
             var builder = new ServiceBusConnectionStringBuilder();
             builder.Endpoints.Add(new Uri("sb://" + this.appConfig.EventHubNamespace + "." + this.appConfig.EventHubFqnAddress));
             builder.EntityPath = this.appConfig.EventHubEntityPath;
-            builder.SharedAccessKeyName = this.appConfig.EventHubUsername;
-            builder.SharedAccessKey = this.appConfig.EventHubPassword;
+            builder.SharedAccessKeyName = this.appConfig.EventHubSharedAccessKeyName;
+            builder.SharedAccessKey = this.appConfig.EventHubSharedAccessKey;
             builder.TransportType = TransportType.Amqp;
 
             Context.Logger.Info("EventHubWriter: ConnectionString = {0} ParitionId = {1}",

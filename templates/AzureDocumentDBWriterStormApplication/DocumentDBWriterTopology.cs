@@ -15,7 +15,9 @@ namespace AzureDocumentDBWriterStormApplication
             topologyBuilder.SetSpout(
                 typeof(VehicleRecordGeneratorSpoutForDocumentDB).Name, //Set task name
                 VehicleRecordGeneratorSpoutForDocumentDB.Get, //Set task constructor delegate
-                new Dictionary<string, List<string>>() { { Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForDocumentDB.OutputFields } },
+                new Dictionary<string, List<string>>() { 
+                    { Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForDocumentDB.OutputFields } 
+                },
                 1, //Set number of tasks
                 true //Set enableAck
                 );

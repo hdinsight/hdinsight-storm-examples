@@ -35,6 +35,7 @@ $projects | % {
 	Remove-Item "$scriptDir\$_\*.zip" -Force
 	Remove-Item "$scriptDir\$_\*.suo" -Force
 	Remove-Item "$scriptDir\$_\*.user" -Force
+	Remove-Item "$scriptDir\$_\SubmitConfig.xml" -Force
 }
 
 #Run Azure Cleanup

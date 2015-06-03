@@ -33,8 +33,8 @@ namespace EventHubsReaderTopology
             topologyBuilder.SetEventHubSpout(
                 "com.microsoft.eventhubs.spout.EventHubSpout", 
                 new EventHubSpoutConfig(
-                    ConfigurationManager.AppSettings["EventHubUsername"],
-                    ConfigurationManager.AppSettings["EventHubPassword"],
+                    ConfigurationManager.AppSettings["EventHubSharedAccessKeyName"],
+                    ConfigurationManager.AppSettings["EventHubSharedAccessKey"],
                     ConfigurationManager.AppSettings["EventHubNamespace"], 
                     ConfigurationManager.AppSettings["EventHubEntityPath"],
                     eventHubPartitions),
@@ -66,7 +66,7 @@ namespace EventHubsReaderTopology
                 GlobalCountBolt.Get,
                 new Dictionary<string, List<string>>()
                 {
-                    {Constants.DEFAULT_STREAM_ID, new List<string>(){ "totalCount" } }
+                    {Constants.DEFAULT_STREAM_ID, new List<string>(){ "timestamp", "totalCount" } }
                 },
                 1).
                 globalGrouping(typeof(PartialCountBolt).Name).

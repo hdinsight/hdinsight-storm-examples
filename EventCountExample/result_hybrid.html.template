@@ -29,7 +29,7 @@ function getDbData(callback) {
 
 	arr = [];
 	arr.push(['Timestamp', 'Count', { role: 'style' }]);
-	rs.Open("Select (([timestamp] - mintimestamp)/1000) as [timestamp], eventcount from (select * from dbo.EHEventCountHybrid, (select min([timestamp]) as mintimestamp from dbo.EHEventCountHybrid) as EHEventCountHybridMin) as T where eventcount > 0 order by timestamp desc;", connection);
+	rs.Open("Select (([timestamp] - mintimestamp)/1000) as [timestamp], eventcount from (select * from dbo.EventCountHybridTopology, (select min([timestamp]) as mintimestamp from dbo.EventCountHybridTopology) as EventCountHybridTopologyMin) as T where eventcount > 0 order by timestamp desc;", connection);
 	rand = Math.floor(Math.random() * colorArray.length);
 	
 	if (!rs.bof) {

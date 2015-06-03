@@ -29,7 +29,7 @@ namespace EventHubsReaderTopology
             inputSchema.Add(Constants.SYSTEM_TICK_STREAM_ID, new List<Type>() { typeof(long) });
 
             Dictionary<string, List<Type>> outputSchema = new Dictionary<string, List<Type>>();
-            inputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(long), typeof(long) });
+            outputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(long), typeof(long) });
 
             this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, outputSchema));
 
@@ -50,6 +50,12 @@ namespace EventHubsReaderTopology
         /// <param name="tuple"></param>
         public void Execute(SCPTuple tuple)
         {
+            Context.Logger.Info("got a tuple");
+            Context.Logger.Warn("warned the tuple");
+            Context.Logger.Error("errored the tuple");
+            Context.Logger.Fatal("fatality");
+            Context.Logger.Debug("debug the tuple");
+
             if (tuple.GetSourceStreamId().Equals(Constants.SYSTEM_TICK_STREAM_ID))
             {
                 if (partialCount > 0)

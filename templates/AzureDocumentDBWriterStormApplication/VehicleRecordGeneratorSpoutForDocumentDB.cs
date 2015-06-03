@@ -15,7 +15,7 @@ namespace AzureDocumentDBWriterStormApplication
         Context context;
         long seqId = 0;
 
-        Dictionary<long, object> cachedTuples = new Dictionary<long, object>();
+        Dictionary<long, Vehicle> cachedTuples = new Dictionary<long, Vehicle>();
         bool enableAck = false;
 
         long emitCount = 0;
@@ -39,6 +39,7 @@ namespace AzureDocumentDBWriterStormApplication
             {
                 enableAck = (bool)(Context.Config.pluginConf[Constants.NONTRANSACTIONAL_ENABLE_ACK]);
             }
+            
             Context.Logger.Info("enableAck: {0}", enableAck);
         }
 
@@ -70,18 +71,18 @@ namespace AzureDocumentDBWriterStormApplication
         {
             if (emitCount <= FINAL_EMIT_COUNT)
             {
-                List<object> emitValue = new Values(Vehicle.GetRandomVehicle(emitCount));
+                var emitValue = Vehicle.GetRandomVehicle(emitCount);
 
                 if (enableAck)
                 {
                     //Add to the spout cache so that the tuple can be re-emitted on fail
                     cachedTuples.Add(seqId, emitValue);
-                    this.context.Emit(Constants.DEFAULT_STREAM_ID, emitValue, seqId);
+                    this.context.Emit(Constants.DEFAULT_STREAM_ID, new Values(emitValue), seqId);
                     seqId++;
                 }
                 else
                 {
-                    this.context.Emit(Constants.DEFAULT_STREAM_ID, emitValue);
+                    this.context.Emit(Constants.DEFAULT_STREAM_ID, new Values(emitValue));
                 }
                 emitCount++;
                 Context.Logger.Info("Tuples emitted: {0}, last emitted tuple: {1}", emitCount, emitValue);

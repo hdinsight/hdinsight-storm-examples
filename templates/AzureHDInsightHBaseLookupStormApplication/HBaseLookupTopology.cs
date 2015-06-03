@@ -13,7 +13,7 @@ namespace AzureHDInsightHBaseLookupStormApplication
     /// A topology example of reading data from spout and writing into HBase
     /// Uncomment Active attribute to deploy this topology and comment out Active attribute of any other topologies in this project.
     /// </summary>
-    //[Active(true)]
+    [Active(true)]
     class HBaseLookupTopology : TopologyDescriptor
     {
         public ITopologyBuilder GetTopologyBuilder()
@@ -23,7 +23,8 @@ namespace AzureHDInsightHBaseLookupStormApplication
             topologyBuilder.SetSpout(
                 typeof(VehicleRecordGeneratorSpoutForHBase).Name, //Set task name
                 VehicleRecordGeneratorSpoutForHBase.Get, //Set task constructor delegate
-                new Dictionary<string, List<string>>() { { Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForHBase.OutputFields } },
+                new Dictionary<string, List<string>>() { 
+                    { Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForHBase.OutputFields } },
                 1, //Set number of tasks
                 true //Set enableAck
                 );
@@ -31,7 +32,8 @@ namespace AzureHDInsightHBaseLookupStormApplication
             topologyBuilder.SetBolt(
                 typeof(HBaseLookupBolt).Name, //Set task name
                 HBaseLookupBolt.Get, //Set task constructor delegate
-                new Dictionary<string, List<string>>() { { Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForHBase.OutputFields } },
+                new Dictionary<string, List<string>>() { 
+                    { Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForHBase.OutputFields } },
                 1, //Set number of tasks
                 true //Set enableAck
                 ).

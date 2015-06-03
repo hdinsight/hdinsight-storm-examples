@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.SCP;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,11 +12,11 @@ namespace AzureHDInsightHBaseLookupStormApplication
     public class Vehicle
     {
         public string VIN { get; set; }
-        public DateTime Timestamp { get; set; }
+        public string Timestamp { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }
-        public int Year { get; set; }
-        public int Odometer { get; set; }
+        public string Year { get; set; }
+        public string Odometer { get; set; }
         public string Status { get; set; }
 
         static List<string> VehicleMakes = new List<string>() { "AUDI", "BMW", "HONDA", "NISSAN", "TOYOTA" };
@@ -53,12 +54,12 @@ namespace AzureHDInsightHBaseLookupStormApplication
 
             var vehicle = new Vehicle()
             {
-                Timestamp = DateTime.UtcNow,
+                Timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
                 VIN = vin,
                 Make = VehicleMakes[make],
                 Model = VehicleModels[model],
-                Year = year,
-                Odometer = odometer,
+                Year = year.ToString(),
+                Odometer = odometer.ToString(),
                 Status = VehicleStatuses[status]
             };
             return vehicle;
@@ -68,17 +69,16 @@ namespace AzureHDInsightHBaseLookupStormApplication
         /// Handy method to return the fields in Vehicle as a list
         /// </summary>
         /// <returns></returns>
-        public List<object> GetValues()
+        public Values GetValues()
         {
-            return new List<object>()
-            {
+            return new Values(
                 this.VIN, //Keep VIN as the first item in list to be used as ID in upstream bolts like HBase
                 this.Timestamp,
                 this.Make,
                 this.Model,
                 this.Year,
-                this.Status
-            };
+                this.Odometer,
+                this.Status);
         }
 
         /// <summary>
@@ -92,11 +92,12 @@ namespace AzureHDInsightHBaseLookupStormApplication
             return new Vehicle()
             {
                 VIN = (string)values[0], //Keep VIN as the first item in list to be used as ID in upstream bolts like HBase
-                Timestamp = (DateTime)values[1],
+                Timestamp = (string)values[1],
                 Make = (string)values[2],
                 Model = (string)values[3],
-                Year = (int)values[4],
-                Status = (string)values[5]
+                Year = (string)values[4],
+                Odometer = (string)values[5],
+                Status = (string)values[6]
             };
         }
 

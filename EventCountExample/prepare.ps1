@@ -19,6 +19,8 @@ if(-not $?)
 $inputConfig = @{
 EVENTHUBS="true"
 SQLAZURE="true"
+HBASE="true"
+DOCUMENTDB="true"
 EVENTHUBS_PARTITION_COUNT=32
 STORM_CLUSTER_SIZE=32
 }
@@ -61,4 +63,4 @@ SqlDbPassword=$config["SQLAZURE_PASSWORD"]
 
 $topologyDir = Join-Path $scriptDir "EventCountHybridTopology"
 
-& "$scriptDir\..\scripts\scpnet\UpdateScpHostConfig.ps1" "$topologyDir\SCPHost.exe.config" $updateConfig
+& "$scriptDir\..\scripts\scpnet\UpdateScpHostConfig.ps1" "$topologyDir\App.config" $updateConfig

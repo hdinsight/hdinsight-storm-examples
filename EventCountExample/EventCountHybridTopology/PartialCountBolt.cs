@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.SCP;
 using System.Diagnostics;
 
@@ -12,7 +11,6 @@ namespace EventCountHybridTopology
     public class PartialCountBolt : ISCPBolt
     {
         Context ctx;
-        AppConfig appConfig;
 
         long partialCount = 0L;
         long totalCount = 0L;
@@ -20,7 +18,6 @@ namespace EventCountHybridTopology
         public PartialCountBolt(Context ctx)
         {
             this.ctx = ctx;
-            this.appConfig = new AppConfig();
 
             // set input schemas
             Dictionary<string, List<Type>> inputSchema = new Dictionary<string, List<Type>>();

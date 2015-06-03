@@ -23,7 +23,8 @@ namespace AzureHDInsightHBaseWriterStormApplication
             topologyBuilder.SetSpout(
                 typeof(VehicleRecordGeneratorSpoutForHBase).Name, //Set task name
                 VehicleRecordGeneratorSpoutForHBase.Get, //Set task constructor delegate
-                new Dictionary<string, List<string>>() { { Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForHBase.OutputFields } },
+                new Dictionary<string, List<string>>() { 
+                { Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForHBase.OutputFields } },
                 1, //Set number of tasks
                 true //Set enableAck
                 );

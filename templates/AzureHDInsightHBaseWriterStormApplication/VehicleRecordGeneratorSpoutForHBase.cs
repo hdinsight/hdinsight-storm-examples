@@ -15,7 +15,7 @@ namespace AzureHDInsightHBaseWriterStormApplication
         Context context;
         long seqId = 0;
 
-        Dictionary<long, object> cachedTuples = new Dictionary<long, object>();
+        Dictionary<long, Vehicle> cachedTuples = new Dictionary<long, Vehicle>();
         bool enableAck = false;
 
         long emitCount = 0;
@@ -61,7 +61,7 @@ namespace AzureHDInsightHBaseWriterStormApplication
         //NOTE: Make sure the class is marked with Serializable attribute 
         //      if you wish to emit objects of non-primitive types like Vehilce in this case
         public static List<Type> OutputFieldTypes = new List<Type>() { 
-            typeof(string), typeof(DateTime), typeof(string), typeof(string), typeof(int), typeof(int), typeof(string) };
+            typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string) };
 
         /// <summary>
         /// The NextTuple method of a spout
@@ -71,18 +71,18 @@ namespace AzureHDInsightHBaseWriterStormApplication
         {
             if (emitCount <= FINAL_EMIT_COUNT)
             {
-                var emitValue = Vehicle.GetRandomVehicle(emitCount).GetValues();
+                var emitValue = Vehicle.GetRandomVehicle(emitCount);
 
                 if (enableAck)
                 {
                     //Add to the spout cache so that the tuple can be re-emitted on fail
                     cachedTuples.Add(seqId, emitValue);
-                    this.context.Emit(Constants.DEFAULT_STREAM_ID, emitValue, seqId);
+                    this.context.Emit(Constants.DEFAULT_STREAM_ID, emitValue.GetValues(), seqId);
                     seqId++;
                 }
                 else
                 {
-                    this.context.Emit(Constants.DEFAULT_STREAM_ID, emitValue);
+                    this.context.Emit(Constants.DEFAULT_STREAM_ID, emitValue.GetValues());
                 }
                 emitCount++;
                 Context.Logger.Info("Tuples emitted: {0}, last emitted tuple: {1}", emitCount, emitValue);
@@ -119,7 +119,7 @@ namespace AzureHDInsightHBaseWriterStormApplication
                 //Re-emit the failed tuple again - only if it exists
                 if (cachedTuples.ContainsKey(seqId))
                 {
-                    this.context.Emit(Constants.DEFAULT_STREAM_ID, new Values(cachedTuples[seqId]), seqId);
+                    this.context.Emit(Constants.DEFAULT_STREAM_ID, cachedTuples[seqId].GetValues(), seqId);
                 }
             }
         }

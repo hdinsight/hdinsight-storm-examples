@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.SCP;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -68,17 +69,16 @@ namespace AzureDocumentDBLookupStormApplication
         /// Handy method to return the fields in Vehicle as a list
         /// </summary>
         /// <returns></returns>
-        public List<object> GetValues()
+        public Values GetValues()
         {
-            return new List<object>()
-            {
+            return new Values(
                 this.VIN, //Keep VIN as the first item in list to be used as ID in upstream bolts like HBase
                 this.Timestamp,
                 this.Make,
                 this.Model,
                 this.Year,
-                this.Status
-            };
+                this.Odometer,
+                this.Status);
         }
 
         /// <summary>
@@ -96,7 +96,8 @@ namespace AzureDocumentDBLookupStormApplication
                 Make = (string)values[2],
                 Model = (string)values[3],
                 Year = (int)values[4],
-                Status = (string)values[5]
+                Odometer = (int)values[5],
+                Status = (string)values[6]
             };
         }
 

@@ -54,7 +54,7 @@ namespace EventHubAggregatorToHBaseTopology
                 JavaComponentConstructor.CreateFromClojureExpr(
                 String.Format(@"(com.microsoft.eventhubs.bolt.EventHubBolt. (com.microsoft.eventhubs.bolt.EventHubBoltConfig. " +
                 @"""{0}"" ""{1}"" ""{2}"" ""{3}"" ""{4}"" {5}))",
-                appConfig.EventHubUsername, appConfig.EventHubPassword,
+                appConfig.EventHubSharedAccessKeyName, appConfig.EventHubSharedAccessKey,
                 appConfig.EventHubNamespace, appConfig.EventHubFqnAddress,
                 appConfig.EventHubEntityPath, "true"));
 
@@ -70,7 +70,7 @@ namespace EventHubAggregatorToHBaseTopology
             topologyBuilder.SetTopologyConfig(new Dictionary<string, string>()
             {
                 {"topology.workers","8"},
-                {"topology.max.spout.pending","16000"}
+                {"topology.max.spout.pending","1600"}
             });
 
             return topologyBuilder;
@@ -107,11 +107,10 @@ namespace EventHubAggregatorToHBaseTopology
                 ).
                 shuffleGrouping(typeof(EventGenerator).Name);
 
-            topologyBuilder.SetTopologyConfig(new Dictionary<string, string>()
-            {
-                {"topology.workers","8"},
-                {"topology.max.spout.pending","16000"}
-            });
+            var topologyConfig = new StormConfig();
+            topologyConfig.setNumWorkers(8);
+            topologyConfig.setMaxSpoutPending(1600);
+            topologyBuilder.SetTopologyConfig(topologyConfig);
 
             return topologyBuilder;
         }
@@ -132,18 +131,14 @@ namespace EventHubAggregatorToHBaseTopology
             appConfig = new AppConfig();
 
             TopologyBuilder topologyBuilder = new TopologyBuilder(this.GetType().Name);
-
-            JavaComponentConstructor constructor = 
-                JavaComponentConstructor.CreateFromClojureExpr(
-                String.Format(@"(com.microsoft.eventhubs.spout.EventHubSpout. (com.microsoft.eventhubs.spout.EventHubSpoutConfig. " +
-                @"""{0}"" ""{1}"" ""{2}"" ""{3}"" {4} """"))",
-                appConfig.EventHubUsername, appConfig.EventHubPassword, 
-                appConfig.EventHubNamespace, appConfig.EventHubEntityPath, 
-                appConfig.EventHubPartitions));
-
-            topologyBuilder.SetJavaSpout(
+            topologyBuilder.SetEventHubSpout(
                 "EventHubSpout",
-                constructor,
+                new EventHubSpoutConfig(
+                appConfig.EventHubSharedAccessKeyName, 
+                appConfig.EventHubSharedAccessKey, 
+                appConfig.EventHubNamespace, 
+                appConfig.EventHubEntityPath, 
+                appConfig.EventHubPartitions),
                 appConfig.EventHubPartitions);
 
             // Set a customized JSON Serializer to serialize a Java object (emitted by Java Spout) into JSON string
@@ -187,12 +182,12 @@ namespace EventHubAggregatorToHBaseTopology
             //Assuming a 4 'Large' node cluster we will use half of the worker slots for this topology
             //The default JVM heap size for workers is 768m, we also increase that to 1024m
             //That helps the java spout have additional heap size at disposal.
-            topologyBuilder.SetTopologyConfig(new Dictionary<string, string>()
-            {
-                {"topology.workers","8"},
-                {"topology.max.spout.pending","1000"},
-                {"topology.worker.childopts",@"""-Xmx1024m"""}
-            });
+            var topologyConfig = new StormConfig();
+            topologyConfig.setNumWorkers(8);
+            topologyConfig.setMaxSpoutPending(1000);
+            topologyConfig.setWorkerChildOps("-Xmx1024m");
+
+            topologyBuilder.SetTopologyConfig(topologyConfig);
 
             return topologyBuilder;
         }

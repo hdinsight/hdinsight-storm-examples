@@ -61,14 +61,13 @@ namespace AzureHDInsightHBaseLookupStormApplication
             //If there are no outgoing tuples, you can set outputSchema to null in ComponentStreamSchema
             Dictionary<string, List<Type>> inputSchema = new Dictionary<string, List<Type>>();
 
-            inputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(string) });
-            //Another way is to have the OutputFieldTypes list exposed from Spout or Bolt to make it easy to tie with bolts that will consume it
-            //inputSchema.Add(Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpout.OutputFieldTypes);
+            inputSchema.Add(Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForHBase.OutputFieldTypes);
 
             var outputSchema = new Dictionary<string, List<Type>>();
+            //SCP.Net Limitation: You cannot emit byte[] as the type conversion from C# to Java or vice versa fails due to no type information
+            outputSchema.Add(Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForHBase.OutputFieldTypes);
             //Set as many columns you are expecting to lookup and emit from the HBase table
-            outputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string) });
-            //outputSchema.Add(Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpout.OutputFieldTypes);
+            //outputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string) });
 
             //Declare both input and output schemas
             this.context.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, outputSchema));
@@ -186,11 +185,16 @@ namespace AzureHDInsightHBaseLookupStormApplication
 
                         //Add the values from the readSet
                         //TODO: The byte[] from HBase can be any type, make sure you type cast it correctly before emitting
-                        //The code below only handles strings
+                        //The code below only handles strings because we want to log the values received
+                        //WARNING: Haveing any other data type will fail your bolt with type cast exception
+                        //You cannot output byte[] due to type conversion restrictions
                         emitValues.AddRange(row.values.Select(v => Encoding.UTF8.GetString(v.data)));
                         Context.Logger.Info("Rowkey: {0}, Values: {1}",
-                            Encoding.UTF8.GetString(row.key), String.Join(", ", row.values.Select(v => Encoding.UTF8.GetString(v.data))));
+                            Encoding.UTF8.GetString(row.key), String.Join(", ", 
+                            row.values.Select(v => Encoding.UTF8.GetString(v.column) + "=" + Encoding.UTF8.GetString(v.data))));
 
+                        //IMPORTANT NOTE: The order of the column in returning columns may not be the same as you inserted
+                        //Make sure you cross check the names and order of the columns in the row
                         if (enableAck)
                         {
                             this.context.Emit(Constants.DEFAULT_STREAM_ID, new List<SCPTuple>() { tuple }, emitValues);

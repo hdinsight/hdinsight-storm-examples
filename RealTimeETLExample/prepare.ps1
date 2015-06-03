@@ -56,4 +56,4 @@ HBaseClusterUserPassword=$config["HBASE_CLUSTER_PASSWORD"]
 
 $topologyDir = Join-Path $scriptDir "EventHubAggregatorToHBaseTopology"
 
-& "$scriptDir\..\scripts\scpnet\UpdateScpHostConfig.ps1" "$topologyDir\SCPHost.exe.config" $updateConfig
+& "$scriptDir\..\scripts\scpnet\UpdateScpHostConfig.ps1" "$topologyDir\App.config" $updateConfig

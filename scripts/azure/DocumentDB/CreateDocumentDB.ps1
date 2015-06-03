@@ -20,16 +20,44 @@ $ApiVersion="2015-04-08"
 
 $startTime = Get-Date
 
-$success = $false
+$resourceGroupStatus = $false
+$resourceStatus = $false
+
 try
 {
-    Write-InfoLog "Trying to find DocumentDB account: $ResourceGroupName" (Get-ScriptName) (Get-ScriptLineNumber)
-    $Resource = Get-AzureResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -OutputObjectFormat New
-    $success = $true
+    Write-InfoLog "Trying to find AzureResourceGroup: $ResourceGroupName" (Get-ScriptName) (Get-ScriptLineNumber)
+    $ResourceGroup = Get-AzureResourceGroup -Name $ResourceGroupName
+    $resourceGroupStatus = $true
 }
 catch 
 {
-    Write-WarnLog "Could not find DocumentDB account: $ResourceGroupName. Will attempt to create a new one." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-WarnLog "Could not find ResourceGroup account: $ResourceGroupName. Will attempt to create a new one." (Get-ScriptName) (Get-ScriptLineNumber)
+}
+
+if($ResourceGroup -eq $null)
+{
+    try
+    {
+        $ResourceGroup = New-AzureResourceGroup -Name $ResourceGroupName -Location "$Location" -Force
+    }
+    catch
+    {
+        Write-ErrorLog "Failed to create AzureResourceGroup." (Get-ScriptName) (Get-ScriptLineNumber) $_
+        throw
+    }
+}
+
+Write-InfoLog ("AzureResourceGroup Information:`r`n" + ($ResourceGroup | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
+        
+try
+{
+    Write-InfoLog "Trying to find DocumentDB account: $AccountName in ResourceGroup: $ResourceGroupName" (Get-ScriptName) (Get-ScriptLineNumber)
+    $Resource = Get-AzureResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -OutputObjectFormat New
+    $resourceStatus = $true
+}
+catch 
+{
+    Write-WarnLog "Could not find DocumentDB account: $AccountName. Will attempt to create a new one." (Get-ScriptName) (Get-ScriptLineNumber)
 }
 
 if($Resource -eq $null)
@@ -37,8 +65,9 @@ if($Resource -eq $null)
     Write-InfoLog "Creating DocumentDB account" (Get-ScriptName) (Get-ScriptLineNumber)
     try
     {
-        $docDbProperties = @{"id" = "$AccountName"; "databaseAccountOfferType" = "$OfferType"; }
-        Write-InfoLog ($docDbProperties | Out-String) (Get-ScriptName) (Get-ScriptLineNumber)
+        $docDbProperties = @{name = "$AccountName"; "id" = "$AccountName"; "databaseAccountOfferType" = "$OfferType"; }
+        Write-InfoLog ("DocumentDB Properties:`r`n" + ($docDbProperties | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
+        
         $Resource = New-AzureResource -Name $AccountName -Location "$Location" -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -PropertyObject $docDbProperties -Force -OutputObjectFormat New
         $iterCount = 30
         $iter = 1
@@ -49,7 +78,7 @@ if($Resource -eq $null)
             Write-InfoLog "DocumentDB current state: [$CurrentState]" (Get-ScriptName) (Get-ScriptLineNumber)
             if("succeeded" -eq $CurrentState) 
             {
-                $success = $true
+                $resourceStatus = $true
                 break
             }
             Start-Sleep -s 30
@@ -65,12 +94,10 @@ if($Resource -eq $null)
     #$DocumentDBProperties = @{capacityUnits="3", “consistencyPolicy={“defaultConsistencyLevel”=”0”}}
     #Set-AzureResource -Name DocDBAccountName -ResourceGroupName MyResourceGroup -ResourceType "Microsoft.DocumentDb/databaseAccounts" -ApiVersion $ApiVersion -PropertyObject $DocumentDBProperties
 }
-else
-{
-    Write-InfoLog ("DocDb Information:`r`n" + ($Resource | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
-}
 
-if($success)
+Write-InfoLog ("DocumentDB Information:`r`n" + ($Resource | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
+
+if($resourceStatus)
 {
     Write-InfoLog "Found DocumentDB account information" (Get-ScriptName) (Get-ScriptLineNumber)
     Write-InfoLog "Getting account key" (Get-ScriptName) (Get-ScriptLineNumber)
@@ -85,7 +112,7 @@ if($success)
     $header = $authresult.CreateAuthorizationHeader()
 
     $sub = Get-AzureSubscription -Current
-    $keysurl = [System.String]::Format("https://management.azure.com/subscriptions/{0}/resourcegroups/{1}/providers/Microsoft.DocumentDB/databaseAccounts/{2}/listKeys?api-version=2014-04-01", $sub.SubscriptionId, $ResourceGroupName, $AccountName)
+    $keysurl = [System.String]::Format("https://management.azure.com/subscriptions/{0}/resourcegroups/{1}/providers/Microsoft.DocumentDB/databaseAccounts/{2}/listKeys?api-version=$ApiVersion", $sub.SubscriptionId, $ResourceGroupName, $AccountName)
     $keys = Invoke-RestMethod -Method POST -Uri $keysurl -Headers @{"Authorization"=$header} -ContentType "application/json"
     $keys.primaryMasterKey
     
@@ -96,7 +123,7 @@ if($success)
 
 $result = Switch-AzureMode -Name AzureServiceManagement
 
-if(-not $success)
+if(-not $resourceStatus)
 {
     Write-ErrorLog "Failed to create DocumentDB account" (Get-ScriptName) (Get-ScriptLineNumber)
     throw "Failed to create DocumentDB account"

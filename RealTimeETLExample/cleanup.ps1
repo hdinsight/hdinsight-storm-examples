@@ -34,7 +34,7 @@ cmd /c "git checkout -- ""$scriptDir\EventHubAggregatorToHBaseTopology\SCPHost.e
 if($LASTEXITCODE -ne 0)
 {
     Write-WarnLog "Failed to revert '$scriptDir\EventHubAggregatorToHBaseTopology\SCPHost.exe.config'." (Get-ScriptName) (Get-ScriptLineNumber)
-    Write-WarnLog "Please revert the file manually from Git Shell using 'git checkout -- ""$scriptDir\EventHubAggregatorToHBaseTopology\SCPHost.exe.config""" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-WarnLog "Please revert the file manually from Git Shell using 'git checkout -- ""$scriptDir\EventHubAggregatorToHBaseTopology\App.config""" (Get-ScriptName) (Get-ScriptLineNumber)
 }
 
 #Run Azure Cleanup

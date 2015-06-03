@@ -59,13 +59,9 @@ namespace AzureDocumentDBLookupStormApplication
             //If there are no outgoing tuples, you can set outputSchema to null in ComponentStreamSchema
             Dictionary<string, List<Type>> inputSchema = new Dictionary<string, List<Type>>();
 
-            inputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(string) });
+            inputSchema.Add(Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpoutForDocumentDB.OutputFieldTypes);
             //Or, something like this if you have multiple fields
             //inputSchema.Add(Constants.DEFAULT_STREAM_ID, new List<Type>() { typeof(int), typeof(DateTime), typeof(string) });
-
-            //Another way is to have the OutputFieldTypes list exposed from downstream Spout or Bolt to make it easy to tie with upstream Bolts that will consume it
-            //inputSchema.Add(Constants.DEFAULT_STREAM_ID, IISLogGeneratorSpout.OutputFieldTypes);
-            //inputSchema.Add(Constants.DEFAULT_STREAM_ID, VehicleRecordGeneratorSpout.OutputFieldTypes);
 
             //As this is a lookup bolt we will also set the outputSchema which in this case is a JSON string
             Dictionary<string, List<Type>> outputSchema = new Dictionary<string, List<Type>>();
