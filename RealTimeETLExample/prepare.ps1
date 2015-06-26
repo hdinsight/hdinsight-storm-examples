@@ -1,6 +1,9 @@
 ###########################################################
 # Start - Initialization - Invocation, Logging etc
 ###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath
 
@@ -8,17 +11,16 @@ $scriptDir = Split-Path $scriptPath
 if(-not $?)
 {
     throw "Initialization failure."
-    exit /b -9999
+    exit -9999
 }
-
-$VerbosePreference = "SilentlyContinue"
-$ErrorActionPreference = "Stop"
 ###########################################################
 # End - Initialization - Invocation, Logging etc
 ###########################################################
+
 $inputConfig = @{
 EVENTHUBS="true"
 HBASE="true"
+KAFKA="true"
 EVENTHUBS_PARTITION_COUNT=16
 }
 
@@ -56,4 +58,4 @@ HBaseClusterUserPassword=$config["HBASE_CLUSTER_PASSWORD"]
 
 $topologyDir = Join-Path $scriptDir "EventHubAggregatorToHBaseTopology"
 
-& "$scriptDir\..\scripts\scpnet\UpdateScpHostConfig.ps1" "$topologyDir\App.config" $updateConfig
+& "$scriptDir\..\scripts\scpnet\UpdateScpAppConfig.ps1" "$topologyDir\App.config" $updateConfig

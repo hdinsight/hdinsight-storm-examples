@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.props" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.props')" />
+  <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -68,39 +68,39 @@
       <HintPath>packages\Microsoft.Data.Services.Client.5.6.4\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Hadoop.Client">
-      <HintPath>packages\Microsoft.Hadoop.Client.1.5.8\lib\net45\Microsoft.Hadoop.Client.dll</HintPath>
+      <HintPath>packages\Microsoft.Hadoop.Client.1.5.9\lib\net45\Microsoft.Hadoop.Client.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.HBase.Client">
       <HintPath>packages\Microsoft.HBase.Client.0.2.2\lib\net45\Microsoft.HBase.Client.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.HDInsight.Net.Http.Formatting">
-      <HintPath>packages\Microsoft.Hadoop.Client.1.5.8\lib\net45\Microsoft.HDInsight.Net.Http.Formatting.dll</HintPath>
+      <HintPath>packages\Microsoft.Hadoop.Client.1.5.9\lib\net45\Microsoft.HDInsight.Net.Http.Formatting.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.SCPLogger">
-      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.283\lib\Microsoft.SCPLogger.dll</HintPath>
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.346\lib\Microsoft.SCPLogger.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.SCPNet">
-      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.283\lib\Microsoft.SCPNet.dll</HintPath>
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.346\lib\Microsoft.SCPNet.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.ServiceBus, Version=2.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.ServiceBus, Version=2.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\WindowsAzure.ServiceBus.2.6.7\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
+      <HintPath>packages\WindowsAzure.ServiceBus.2.7.2\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>packages\Microsoft.WindowsAzure.ConfigurationManager.3.1.0\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Management.HDInsight">
-      <HintPath>packages\Microsoft.WindowsAzure.Management.HDInsight.1.5.8\lib\net45\Microsoft.WindowsAzure.Management.HDInsight.dll</HintPath>
+      <HintPath>packages\Microsoft.WindowsAzure.Management.HDInsight.1.5.9\lib\net45\Microsoft.WindowsAzure.Management.HDInsight.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Management.HDInsight.Contracts">
-      <HintPath>packages\Microsoft.WindowsAzure.Management.HDInsight.1.5.8\lib\net45\Microsoft.WindowsAzure.Management.HDInsight.Contracts.dll</HintPath>
+      <HintPath>packages\Microsoft.WindowsAzure.Management.HDInsight.1.5.9\lib\net45\Microsoft.WindowsAzure.Management.HDInsight.Contracts.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Management.HDInsight.Framework">
-      <HintPath>packages\Microsoft.Hadoop.Client.1.5.8\lib\net45\Microsoft.WindowsAzure.Management.HDInsight.Framework.dll</HintPath>
+      <HintPath>packages\Microsoft.Hadoop.Client.1.5.9\lib\net45\Microsoft.WindowsAzure.Management.HDInsight.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Management.HDInsight.Framework.Core">
-      <HintPath>packages\Microsoft.Hadoop.Client.1.5.8\lib\net45\Microsoft.WindowsAzure.Management.HDInsight.Framework.Core.dll</HintPath>
+      <HintPath>packages\Microsoft.Hadoop.Client.1.5.9\lib\net45\Microsoft.WindowsAzure.Management.HDInsight.Framework.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Storage, Version=4.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -132,7 +132,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Thrift">
-      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.283\lib\Thrift.dll</HintPath>
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.346\lib\Thrift.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -182,10 +182,10 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.props'))" />
-    <Error Condition="!Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.targets'))" />
   </Target>
-  <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.targets" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.283\build\Microsoft.SCP.Net.SDK.targets')" />
+  <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.targets" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

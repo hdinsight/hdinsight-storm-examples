@@ -81,8 +81,8 @@ namespace EventHubAggregatorToHBaseTopology.Common
             EventHubEntityPath = ConfigurationManager.AppSettings["EventHubEntityPath"];
             EventHubFqnAddress = ConfigurationManager.AppSettings["EventHubFqnAddress"];
             EventHubNamespace = ConfigurationManager.AppSettings["EventHubNamespace"];
-            EventHubSharedAccessKey = ConfigurationManager.AppSettings["EventHubPassword"];
-            EventHubSharedAccessKeyName = ConfigurationManager.AppSettings["EventHubUsername"];
+            EventHubSharedAccessKeyName = ConfigurationManager.AppSettings["EventHubSharedAccessKeyName"];
+            EventHubSharedAccessKey = ConfigurationManager.AppSettings["EventHubSharedAccessKey"];
 
             var partitions = 0;
             var parseResult = int.TryParse(ConfigurationManager.AppSettings["EventHubPartitions"], out partitions);
