@@ -19,4 +19,7 @@ if(-not $?)
 #Try to delete as much as we can
 $ErrorActionPreference = "SilentlyContinue"
 
-& "$scriptDir\..\scripts\cleanup.ps1" "$scriptDir"
+$exclusions = @("*.spec")
+& "$scriptDir\..\scripts\cleanup.ps1" "$scriptDir" -Exclusions (, $exclusions)
+
+Remove-Item -Path "$scriptDir\sdk" -Recurse -Force -ErrorActionPreference "SilentlyContinue"

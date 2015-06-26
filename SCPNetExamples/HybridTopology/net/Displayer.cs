@@ -16,6 +16,7 @@ namespace Scp.App.HybridTopology
     public class Displayer : ISCPBolt
     {
         private Context ctx;
+        private int taskIndex = -1;
 
         public Displayer(Context ctx)
         {
@@ -28,6 +29,13 @@ namespace Scp.App.HybridTopology
             inputSchema.Add("default", new List<Type>() { typeof(Person) });
             this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, null));
             this.ctx.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
+
+            //Demo how to get TopologyContext info
+            if (Context.pluginType != SCPPluginType.SCP_NET_LOCAL)
+            {
+                taskIndex = Context.TopologyContext.GetThisTaskIndex();
+                Context.Logger.Info("taskIndex: {0}", taskIndex);
+            }
         }
 
         /// <summary>
@@ -40,6 +48,18 @@ namespace Scp.App.HybridTopology
 
             Person person = (Person)tuple.GetValue(0);
             Context.Logger.Info("person: {0}", person.ToString());
+
+            // log some info to out file for bvt test validataion
+            if (taskIndex == 0) // For component with multiple parallism, only one of them need to log info 
+            {
+                string fileName = @"..\..\..\..\..\HybridTopologyOutput" + Process.GetCurrentProcess().Id + ".txt";
+                FileStream fs = new FileStream(fileName, FileMode.Append);
+                using (StreamWriter writer = new StreamWriter(fs))
+                {
+                    writer.WriteLine("person: {0}", person.ToString());
+                }
+            }
+
             Context.Logger.Info("Execute exit");
 
         }
@@ -65,6 +85,7 @@ namespace Scp.App.HybridTopology
 
         private Context ctx;
         private StormTxAttempt txAttempt;
+        private int taskIndex = -1;
 
         public TxDisplayer(Context ctx, StormTxAttempt txAttempt)
         {
@@ -79,6 +100,13 @@ namespace Scp.App.HybridTopology
             inputSchema.Add("default", new List<Type>() { typeof(Person) });
             this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, null));
             this.ctx.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
+
+            //Demo how to get TopologyContext info
+            if (Context.pluginType != SCPPluginType.SCP_NET_LOCAL)
+            {
+                taskIndex = Context.TopologyContext.GetThisTaskIndex();
+                Context.Logger.Info("taskIndex: {0}", taskIndex);
+            }
         }
 
         /// <summary>
@@ -90,6 +118,18 @@ namespace Scp.App.HybridTopology
             Context.Logger.Info("Execute enter");
             Person person = (Person)tuple.GetValue(0);
             Context.Logger.Info("person: {0}", person.ToString());
+
+            // log some info to out file for bvt test validataion
+            if (taskIndex == 0) // For component with multiple parallism, only one of them need to log info 
+            {
+                string fileName = @"..\..\..\..\..\HybridTopologyOutput" + Process.GetCurrentProcess().Id + ".txt";
+                FileStream fs = new FileStream(fileName, FileMode.Append);
+                using (StreamWriter writer = new StreamWriter(fs))
+                {
+                    writer.WriteLine("person: {0}", person.ToString());
+                }
+            }
+
             Context.Logger.Info("Execute exit");
         }
 

@@ -45,6 +45,12 @@ public class Generator extends BaseRichSpout {
         }
     }
 
+    // input parameters are only used to test serialization/deserialization of constructor parameters between C# and Java
+    public Generator(GeneratorConfig conf) {
+        LOG.info("Generator's constructor is called");
+        LOG.info("conf: " + conf);
+    }
+
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
         _collector = spoutOutputCollector;

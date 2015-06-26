@@ -5,10 +5,12 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using Microsoft.SCP;
+using Microsoft.SCP.Topology;
 
 namespace Scp.App.HelloWorld
 {
-    class HelloWorld
+    [Active(true)]
+    class HelloWorld : TopologyDescriptor
     {
         /// <summary>
         /// Start this process as a "Generator/Splitter/Counter", by specify the component name in commandline
@@ -60,6 +62,49 @@ namespace Scp.App.HelloWorld
                 LocalTest localTest = new LocalTest();
                 localTest.RunTestCase();
             }
+        }
+
+        public ITopologyBuilder GetTopologyBuilder()
+        {
+            string pluginName = string.Format("{0}.exe", GetType().Assembly.GetName().Name);
+
+            TopologyBuilder topologyBuilder = new TopologyBuilder("HelloWorld");
+            topologyBuilder.SetSpout(
+                "generator",
+                pluginName,
+                new List<string>() { "generator" },
+                new Dictionary<string, List<string>>()
+                {
+                    {Constants.DEFAULT_STREAM_ID, new List<string>(){"sentence"}}
+                },
+                1);
+
+            topologyBuilder.SetBolt(
+                "splitter",
+                pluginName,
+                new List<string>() { "splitter" },
+                new Dictionary<string, List<string>>()
+                {
+                    {Constants.DEFAULT_STREAM_ID, new List<string>(){"word", "firstLetterOfWord"}}
+                },
+                1).shuffleGrouping("generator");
+
+            topologyBuilder.SetBolt(
+                "counter",
+                pluginName,
+                new List<string>() { "counter" },
+                new Dictionary<string, List<string>>()
+                {
+                    {Constants.DEFAULT_STREAM_ID, new List<string>(){"word", "count"}}
+                },
+                1).fieldsGrouping("splitter", new List<int>() { 1 });
+
+            topologyBuilder.SetTopologyConfig(new Dictionary<string, string>()
+            {
+                {"topology.kryo.register","[\"[B\"]"}
+            });
+
+            return topologyBuilder;
         }
     }
 }

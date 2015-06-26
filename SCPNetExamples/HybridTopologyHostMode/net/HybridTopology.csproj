@@ -58,9 +58,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HybridTopology_csharpSpout_javaBolt.cs" />
+    <Compile Include="HybridTopologyTx_csharpSpout_javaBolt.cs" />
     <Compile Include="Displayer.cs" />
     <Compile Include="Generator.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="HybridTopology_csharpSpout_javaCsharpBolt.cs" />
+    <Compile Include="HybridTopology_javaSpout_csharpBolt.cs" />
+    <Compile Include="HybridTopologyTx_javaSpout_csharpBolt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

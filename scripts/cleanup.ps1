@@ -1,7 +1,9 @@
 ﻿[CmdletBinding(PositionalBinding=$True)]
 Param(
     [parameter(Mandatory=$true)]
-    [string]$ExampleDir
+    [string]$ExampleDir,
+	[parameter(Mandatory=$false)]
+    [string[]]$Exclusions
     )
     
 ###########################################################
@@ -23,23 +25,53 @@ if(-not $?)
 # End - Initialization - Invocation, Logging etc
 ###########################################################
 
-gci -Directory (Join-Path $scriptDir "..\tools") | % {
-Remove-Item (Join-Path $_.FullName "bin") -Force -Recurse -ErrorAction SilentlyContinue
-Remove-Item (Join-Path $_.FullName "obj") -Force -Recurse -ErrorAction SilentlyContinue
-Remove-Item (Join-Path $_.FullName "run") -Force -Recurse -ErrorAction SilentlyContinue
-Remove-Item (Join-Path $_.FullName "*.log") -Force -Recurse -ErrorAction SilentlyContinue
-}
-
-$ExampleDir = $ExampleDir.Replace("""","")
-& "$scriptDir\azure\DeleteAzureResources.ps1" "$ExampleDir"
-
-if(Test-Path "$ExampleDir\run")
+function Clean-ExampleFolder($cleanupDir)
 {
-    Remove-Item "$ExampleDir\run" -Force -Recurse
+	if(-not (Test-Path $cleanupDir))
+	{
+		return;
+	}
+	
+	Write-InfoLog "Cleaning $cleanupDir" (Get-ScriptName) (Get-ScriptLineNumber)
+	
+	Get-ChildItem -Directory -Recurse -Path $cleanupDir -Include "bin", "obj", "packages", "target" -Exclude $Exclusions | % `
+	{ 
+		Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+		Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue 
+	}
+	
+	Get-ChildItem -Recurse -Path $cleanupDir -Include "SubmitConfig.xml", "*.spec", "*.zip", "*suo", "*.user", "*.out", "*.log" -Exclude $Exclusions | % `
+	{
+		Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+		Remove-Item -Path $_ -Force -ErrorAction SilentlyContinue
+	}
 }
 
-Remove-Item "$ExampleDir\*.log" -Force
+#Try to delete as much as we can
+$ErrorActionPreference = "SilentlyContinue"
+	
+$ExampleDir = $ExampleDir.Replace("""","")
+if(Test-Path "$ExampleDir\run\configuration.properties")
+{
+	Write-SpecialLog "===== Azure Resources clean-up =====" (Get-ScriptName) (Get-ScriptLineNumber)
+	& "$scriptDir\azure\DeleteAzureResources.ps1" "$ExampleDir"
+}
 
+if($Exclusions)
+{
+	Write-SpecialLog "===== File and folder clean-up =====" (Get-ScriptName) (Get-ScriptLineNumber)
+	Write-SpecialLog "Exclusions: $Exclusions" (Get-ScriptName) (Get-ScriptLineNumber)
+}
+
+Clean-ExampleFolder "$scriptDir\..\tools"
+Clean-ExampleFolder "$ExampleDir"
+
+Get-ChildItem -Directory -Recurse -Path $ExampleDir -Include "run" -Exclude $Exclusions | % `
+{ 
+	Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+	Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue 
+}
+	
 if(Test-Path "$scriptDir\..\packages")
 {
     Remove-Item "$scriptDir\..\packages" -Force -Recurse -ErrorAction SilentlyContinue
