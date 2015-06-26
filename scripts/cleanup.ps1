@@ -38,6 +38,8 @@ if(Test-Path "$ExampleDir\run")
     Remove-Item "$ExampleDir\run" -Force -Recurse
 }
 
+Remove-Item "$ExampleDir\*.log" -Force
+
 if(Test-Path "$scriptDir\..\packages")
 {
     Remove-Item "$scriptDir\..\packages" -Force -Recurse -ErrorAction SilentlyContinue

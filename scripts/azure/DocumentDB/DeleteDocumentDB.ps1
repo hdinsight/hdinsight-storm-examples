@@ -25,7 +25,7 @@ if(-not $?)
 ###########################################################
 
 $ResourceGroupName="{0}{1}" -f $AccountName,"Group"
-#Remove-AzureResource -ApiVersion 2014-07-10 -Name shanyutestauto -ResourceGroupName ShanyuResourceGroup -ResourceType "Microsoft.DocumentDb/databaseAccounts" -Force
+#Remove-AzureResource -ApiVersion <api_version> -Name <resource_name> -ResourceGroupName <resource_group_name> -ResourceType "Microsoft.DocumentDb/databaseAccounts" -Force
 
 Write-InfoLog "Deleting DocumentDB resources, it may take a while..." (Get-ScriptName) (Get-ScriptLineNumber)
 try

@@ -1,7 +1,9 @@
 [CmdletBinding(PositionalBinding=$True)]
 Param(
-    [Parameter(Mandatory = $false)]
-    [String]$VNetConfigFilePath
+    [Parameter(Mandatory = $true)]
+    [String]$VNetConfigFilePath,
+    [Parameter(Mandatory = $true)]
+    [String]$VNetName
     )
     
 ###########################################################
@@ -23,12 +25,8 @@ if(-not $?)
 # End - Initialization - Invocation, Logging etc
 ###########################################################
 
-if([String]::IsNullOrWhitespace($VNetConfigFilePath))
-{
-    $VNetConfigFilePath = Join-Path $scriptDir "hdinsightstormexamples.netcfg"
-}
 
-Write-InfoLog "Deleting Azure VNet Config for hdinsightstormexamples" (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "Deleting Azure VNet Config for $VNetName" (Get-ScriptName) (Get-ScriptLineNumber)
 
 $VNetConfig = Get-AzureVNetConfig 
 if($VNetConfig -ne $null)
@@ -36,18 +34,18 @@ if($VNetConfig -ne $null)
     Write-SpecialLog "Found an existing Azure Virtual Network Configuration:" (Get-ScriptName) (Get-ScriptLineNumber)
     Write-InfoLog $VNetConfig.XMLConfiguration (Get-ScriptName) (Get-ScriptLineNumber)
     [xml] $VNetConfigXml = $VNetConfig.XMLConfiguration
-    Write-InfoLog "Checking if it has hdinsightstormexamples VNet" (Get-ScriptName) (Get-ScriptLineNumber)
-    if(@($VNetConfigXml.NetworkConfiguration.VirtualNetworkConfiguration.VirtualNetworkSites | % {$_.VirtualNetworkSite} | ? { $_.name -eq "hdinsightstormexamples" }).Count -gt 0)
+    Write-InfoLog "Checking if it has $VNetName VNet" (Get-ScriptName) (Get-ScriptLineNumber)
+    if(@($VNetConfigXml.NetworkConfiguration.VirtualNetworkConfiguration.VirtualNetworkSites | % {$_.VirtualNetworkSite} | ? { $_.name -eq $VNetName }).Count -gt 0)
     {
-        Write-SpecialLog "hdinsightstormexamples VNet was found, removing it from the VNet config" (Get-ScriptName) (Get-ScriptLineNumber)
-        $VNetConfigXml.NetworkConfiguration.VirtualNetworkConfiguration.VirtualNetworkSites | % {$_.VirtualNetworkSite} | ? { $_.name -eq "hdinsightstormexamples" } | % { $VNetConfigXml.NetworkConfiguration.VirtualNetworkConfiguration.VirtualNetworkSites.RemoveChild($_) }
+        Write-SpecialLog "$VNetName VNet was found, removing it from the VNet config" (Get-ScriptName) (Get-ScriptLineNumber)
+        $VNetConfigXml.NetworkConfiguration.VirtualNetworkConfiguration.VirtualNetworkSites | % {$_.VirtualNetworkSite} | ? { $_.name -eq $VNetName } | % { $VNetConfigXml.NetworkConfiguration.VirtualNetworkConfiguration.VirtualNetworkSites.RemoveChild($_) }
         $VNetConfigXml.Save($VNetConfigFilePath)
         Write-InfoLog ("Updated VNetConfig saved at: {0}" -f $VNetConfigFilePath) (Get-ScriptName) (Get-ScriptLineNumber)
         $VNetConfig = $null
     }
     else
     {
-        Write-SpecialLog "hdinsightstormexamples VNet was not found, no action required." (Get-ScriptName) (Get-ScriptLineNumber)
+        Write-SpecialLog "$VNetName VNet was not found, no action required." (Get-ScriptName) (Get-ScriptLineNumber)
     }
 }
 

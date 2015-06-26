@@ -27,6 +27,7 @@ WASB_CONTAINER = {RANDOM_RESOURCE_NAME}
 
 #Azure Virtual Network configurations
 #VNet Id will be filled in after we created the virtual network
+VNET = {VNET}
 VNET_NAME = {RANDOM_RESOURCE_NAME}
 VNET_ID = {VNET_ID}
 

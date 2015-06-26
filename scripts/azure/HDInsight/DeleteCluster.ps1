@@ -26,4 +26,8 @@ if(-not $?)
 ###########################################################
 
 Write-InfoLog "Deleting Azure HDInsight cluster: $ClusterName" (Get-ScriptName) (Get-ScriptLineNumber)
-Remove-AzureHDInsightCluster -Name $ClusterName
+$cluster = Get-AzureHDInsightCLuster -Name $ClusterName 
+if($cluster)
+{
+	Remove-AzureHDInsightCluster -Name $ClusterName
+}

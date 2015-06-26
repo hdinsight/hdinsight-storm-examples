@@ -51,6 +51,12 @@ Select-AzureSubscription -SubscriptionName $subName
 #Changing Error Action to Continue here onwards to have maximum resource deletion
 $ErrorActionPreference = "Continue"
 
+$vnet = $false
+if($config["VNET"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
+{
+    $vnet = $true
+}
+
 $eventhub = $false
 if($config["EVENTHUBS"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
 {
@@ -126,9 +132,13 @@ Write-InfoLog "Deleting Storage Account" (Get-ScriptName) (Get-ScriptLineNumber)
 & "$scriptDir\Storage\DeleteStorageAccount.ps1" $config["WASB_ACCOUNT_NAME"]
 $success = $success -and $?
 
-Write-SpecialLog "Deleting Azure Virtual Network" (Get-ScriptName) (Get-ScriptLineNumber)
-$VNetConfig = & "$scriptDir\VirtualNetwork\DeleteVNet.ps1"
-$success = $success -and $?
+if($vnet)
+{
+	Write-SpecialLog "Deleting Azure Virtual Network" (Get-ScriptName) (Get-ScriptLineNumber)
+	$VNetConfigFilePath = Join-Path $ExampleDir ("run\" + $config["VNET_NAME"] + ".netcfg")
+	$VNetConfig = & "$scriptDir\VirtualNetwork\DeleteVNet.ps1" $VNetConfigFilePath $config["VNET_NAME"]
+	$success = $success -and $?
+}
 
 if($success)
 {

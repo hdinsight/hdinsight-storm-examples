@@ -70,8 +70,17 @@ else
     $StorageKey = Get-AzureStorageKey $StorageAccount  | %{ $_.Primary }
     $Location = Get-AzureStorageAccount $StorageAccount | %{ $_.Location }
 
-    Write-InfoLog "Creating HDInsight Cluster Configuration - Type: $ClusterType, Size: $ClusterSize, VNet: $VNetId, Subnet: $SubnetName" (Get-ScriptName) (Get-ScriptLineNumber)
-    $Config = New-AzureHDInsightClusterConfig -ClusterSizeInNodes $ClusterSize -ClusterType $ClusterType -VirtualNetworkId $VNetId -SubnetName $SubnetName
+    if([String]::IsNullOrWhitespace($VNetId) -or [String]::IsNullOrWhitespace($SubnetName))
+    {
+        Write-InfoLog "Creating HDInsight Cluster Configuration - Type: $ClusterType, Size: $ClusterSize, VNet: N/A" (Get-ScriptName) (Get-ScriptLineNumber)
+        $Config = New-AzureHDInsightClusterConfig -ClusterSizeInNodes $ClusterSize -ClusterType $ClusterType
+    }
+    else
+    {
+        Write-InfoLog "Creating HDInsight Cluster Configuration - Type: $ClusterType, Size: $ClusterSize, VNet: $VNetId, Subnet: $SubnetName" (Get-ScriptName) (Get-ScriptLineNumber)
+        $Config = New-AzureHDInsightClusterConfig -ClusterSizeInNodes $ClusterSize -ClusterType $ClusterType -VirtualNetworkId $VNetId -SubnetName $SubnetName
+    }
+	
     $Config = $Config | Set-AzureHDInsightDefaultStorage -StorageAccountName $StorageUrl -StorageAccountKey $StorageKey -StorageContainerName $ContainerName
     
     if($ClusterType.Equals("Storm", [System.StringComparison]::OrdinalIgnoreCase))

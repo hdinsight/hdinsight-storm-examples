@@ -94,6 +94,12 @@ Select-AzureSubscription -SubscriptionName $config["AZURE_SUBSCRIPTION_NAME"]
 
 $startTime = Get-Date
 
+$vnet = $false
+if($config["VNET"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
+{
+    $vnet = $true
+}
+
 $eventhub = $false
 if($config["EVENTHUBS"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
 {
@@ -128,16 +134,19 @@ if($config["KAFKA"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase)
 # Create Azure Resources
 ###########################################################
 
-Write-SpecialLog "Step 0: Creating Azure Virtual Network" (Get-ScriptName) (Get-ScriptLineNumber)
-$VNetConfigFilePath = Join-Path $ExampleDir ("run\" + $config["VNET_NAME"] + ".netcfg")
-$vnetId = & "$scriptDir\VirtualNetwork\CreateVNet.ps1" $VNetConfigFilePath $config["VNET_NAME"] $config["AZURE_LOCATION"]
-if([String]::IsNullOrWhiteSpace($vnetId))
+if($vnet)
 {
-    throw "Cannot get VNet Id"
-}
-else
-{
-    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{VNET_ID=$vnetId}
+	Write-SpecialLog "Step 0: Creating Azure Virtual Network" (Get-ScriptName) (Get-ScriptLineNumber)
+	$VNetConfigFilePath = Join-Path $ExampleDir ("run\" + $config["VNET_NAME"] + ".netcfg")
+	$vnetId = & "$scriptDir\VirtualNetwork\CreateVNet.ps1" $VNetConfigFilePath $config["VNET_NAME"] $config["AZURE_LOCATION"]
+	if([String]::IsNullOrWhiteSpace($vnetId))
+	{
+		throw "Cannot get VNet Id"
+	}
+	else
+	{
+		& "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{VNET_ID=$vnetId}
+	}
 }
 
 Write-SpecialLog "Step 1: Creating storage account and updating key in configurations.properties" (Get-ScriptName) (Get-ScriptLineNumber)
@@ -206,7 +215,16 @@ $scriptCreateStorm = {
     param($subName,$scriptDir,$configFile,$config)
     Select-AzureSubscription -SubscriptionName $subName
     & "$scriptDir\..\init.ps1"
-    $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1"
+	
+    if($config["VNET"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
+    {
+        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1"
+    }
+    else
+    {
+        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_SIZE"]
+	}
+	
     if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
     {
         & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{STORM_CLUSTER_URL=$cluster.ConnectionUrl}
@@ -220,7 +238,14 @@ if($hbase)
         param($subName,$scriptDir,$configFile,$config)
         Select-AzureSubscription -SubscriptionName $subName
         & "$scriptDir\..\init.ps1"
-        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1"
+        if($config["VNET"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
+        {
+            $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1"
+        }
+        else
+        {
+            $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_SIZE"]
+        }
         if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
         {
             & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HBASE_CLUSTER_URL=$cluster.ConnectionUrl}
@@ -244,7 +269,14 @@ if($kafka)
         Write-InfoLog "ScriptActionUri: $ScriptActionUri" (Get-ScriptName) (Get-ScriptLineNumber)
         $ScriptActionParameters = "-KafkaBinaryZipLocation $kafkaUri -KafkaHomeName $kafkaVersion -UnzipExeLocation $unzipUri -RemoteAdminUsername remote{0} -RemoteAdminPassword {1}" -f $config["KAFKA_CLUSTER_USERNAME"], $config["KAFKA_CLUSTER_PASSWORD"]
         Write-InfoLog "ScriptActionParameters: $ScriptActionParameters" (Get-ScriptName) (Get-ScriptLineNumber)
-        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["KAFKA_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1" $ScriptActionUri $ScriptActionParameters
+        if($config["VNET"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
+        {
+            $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["KAFKA_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1" $ScriptActionUri $ScriptActionParameters
+        }
+        else
+        {
+            $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["KAFKA_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_SIZE"] "" "" $ScriptActionUri $ScriptActionParameters
+        }
         if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
         {
             & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{KAFKA_CLUSTER_URL=$cluster.ConnectionUrl}
