@@ -36,7 +36,9 @@ Remove-Item "$scriptDir\EventCountHybridTopology\*.zip" -Force
 Remove-Item "$scriptDir\EventCountHybridTopology\*.suo" -Force
 Remove-Item "$scriptDir\EventCountHybridTopology\*.user" -Force
 
-cmd /c "git checkout -- ""$scriptDir\EventCountHybridTopology\SCPHost.exe.config"" 2>&1" | Out-Null
+Remove-Item "$scriptDir\*.log" -Force
+
+cmd /c "git checkout -- ""$scriptDir\EventCountHybridTopology\App.config"" 2>&1" | Out-Null
 if($LASTEXITCODE -ne 0)
 {
     Write-WarnLog "Failed to revert '$scriptDir\EventCountHybridTopology\SCPHost.exe.config'." (Get-ScriptName) (Get-ScriptLineNumber)

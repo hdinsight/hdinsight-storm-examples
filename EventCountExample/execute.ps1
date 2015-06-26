@@ -108,4 +108,17 @@ if(($runHybrid -like "y") -or ($runHybrid -like "yes"))
     $resultFile = "$scriptDir\run\result_hybrid.html"
     & "$scriptDir\..\scripts\config\ReplaceStringInFile.ps1" $resultTemplateFile $resultFile $config
     Invoke-Item $resultFile
+ 
+    <#
+    sleep -s 60
+    
+    Write-SpecialLog "Please enter 'y' if you wish to kill the EventCountHybridTopology." (Get-ScriptName) (Get-ScriptLineNumber)
+    $killTopology = Read-Host "Kill the EventCountHybridTopology?"
+    if(($killTopology -like "y") -or ($killTopology -like "yes"))
+    {
+        $TopologySpecContent = Get-Content "$topologyDir\EventCountHybridTopology.spec"
+        $TopologyName = $TopologySpecContent[0].Split() | Select-Object -Last 1
+        & "$scriptDir\..\scripts\scpnet\ManageSCPNetTopology.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] $TopologyName "kill"
+    }
+    #>
 }

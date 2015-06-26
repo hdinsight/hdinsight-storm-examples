@@ -63,4 +63,4 @@ SqlDbPassword=$config["SQLAZURE_PASSWORD"]
 
 $topologyDir = Join-Path $scriptDir "EventCountHybridTopology"
 
-& "$scriptDir\..\scripts\scpnet\UpdateScpHostConfig.ps1" "$topologyDir\App.config" $updateConfig
+& "$scriptDir\..\scripts\scpnet\UpdateScpAppConfig.ps1" "$topologyDir\App.config" $updateConfig

@@ -30,23 +30,41 @@ namespace EventCountHybridTopology
                 new TopologyBuilder(typeof(EventCountHybridTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             var eventHubPartitions = int.Parse(ConfigurationManager.AppSettings["EventHubPartitions"]);
-            topologyBuilder.SetEventHubSpout(
-                "com.microsoft.eventhubs.spout.EventHubSpout", 
-                new EventHubSpoutConfig(
-                    ConfigurationManager.AppSettings["EventHubSharedAccessKeyName"],
-                    ConfigurationManager.AppSettings["EventHubSharedAccessKey"],
-                    ConfigurationManager.AppSettings["EventHubNamespace"], 
-                    ConfigurationManager.AppSettings["EventHubEntityPath"],
-                    eventHubPartitions),
-                eventHubPartitions);
+
+            var eventHubSpoutConfig = new JavaComponentConstructor(
+                "com.microsoft.eventhubs.spout.EventHubSpoutConfig",
+                new List<Tuple<string, object>>() 
+                { 
+                    Tuple.Create<string, object>(JavaComponentConstructor.JAVA_LANG_STRING, ConfigurationManager.AppSettings["EventHubSharedAccessKeyName"]),
+                    Tuple.Create<string, object>(JavaComponentConstructor.JAVA_LANG_STRING, ConfigurationManager.AppSettings["EventHubSharedAccessKey"]),
+                    Tuple.Create<string, object>(JavaComponentConstructor.JAVA_LANG_STRING, ConfigurationManager.AppSettings["EventHubNamespace"]),
+                    Tuple.Create<string, object>(JavaComponentConstructor.JAVA_LANG_STRING, ConfigurationManager.AppSettings["EventHubEntityPath"]),
+                    Tuple.Create<string, object>("int", eventHubPartitions),
+                    Tuple.Create<string, object>(JavaComponentConstructor.JAVA_LANG_STRING, ""),
+                    Tuple.Create<string, object>("int", 10),
+                    Tuple.Create<string, object>("int", 1024),
+                    Tuple.Create<string, object>("int", 1024*eventHubPartitions),
+                    Tuple.Create<string, object>("long", 0),
+                }
+               );
+
+            var eventHubSpout = new JavaComponentConstructor(
+                "com.microsoft.eventhubs.spout.EventHubSpout",
+                new List<Tuple<string, object>>() 
+                { 
+                    Tuple.Create<string, object>("com.microsoft.eventhubs.spout.EventHubSpoutConfig", eventHubSpoutConfig)
+                }
+               );
+
+            topologyBuilder.SetJavaSpout("com.microsoft.eventhubs.spout.EventHubSpout", eventHubSpout, eventHubPartitions);
 
             // Set a customized JSON Serializer to serialize a Java object (emitted by Java Spout) into JSON string
             // Here, full name of the Java JSON Serializer class is required
             List<string> javaSerializerInfo = new List<string>() { 
                 "microsoft.scp.storm.multilang.CustomizedInteropJSONSerializer" };
 
-            var taskConfig = new StormConfig();
-            taskConfig.Set("topology.tick.tuple.freq.secs", "1");
+            var boltConfig = new StormConfig();
+            boltConfig.Set("topology.tick.tuple.freq.secs", "1");
 
             topologyBuilder.SetBolt(
                     typeof(PartialCountBolt).Name,
@@ -60,7 +78,7 @@ namespace EventCountHybridTopology
                 ).
                 DeclareCustomizedJavaSerializer(javaSerializerInfo).
                 shuffleGrouping("com.microsoft.eventhubs.spout.EventHubSpout").
-                addConfigurations(taskConfig);
+                addConfigurations(boltConfig);
 
             topologyBuilder.SetBolt(
                 typeof(DBGlobalCountBolt).Name,
@@ -68,10 +86,11 @@ namespace EventCountHybridTopology
                 new Dictionary<string, List<string>>(),
                 1).
                 globalGrouping(typeof(PartialCountBolt).Name).
-                addConfigurations(taskConfig);
+                addConfigurations(boltConfig);
 
             var topologyConfig = new StormConfig();
             topologyConfig.setNumWorkers(eventHubPartitions);
+
             topologyBuilder.SetTopologyConfig(topologyConfig);
             return topologyBuilder;
         }
