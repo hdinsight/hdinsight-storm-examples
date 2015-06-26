@@ -38,5 +38,8 @@ $projects | % {
 	Remove-Item "$scriptDir\$_\SubmitConfig.xml" -Force
 }
 
+Remove-Item "$scriptDir\*.log" -Recurse -Force
+Remove-Item "$scriptDir\*.out" -Recurse -Force
+    
 #Run Azure Cleanup
 #& "$scriptDir\..\scripts\cleanup.ps1" "$scriptDir"

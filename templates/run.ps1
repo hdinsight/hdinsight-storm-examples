@@ -16,4 +16,5 @@ if(-not $?)
 # End - Initialization - Invocation, Logging etc
 ###########################################################
 
+& "$scriptDir\build.ps1"
 & "$scriptDir\TestStormApplicationTemplates\bin\debug\TestStormApplicationTemplates.exe"
