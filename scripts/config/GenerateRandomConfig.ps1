@@ -5,6 +5,25 @@ param(
     [String]$ResourcePrefix
 )
 
+###########################################################
+# Start - Initialization - Invocation, Logging etc
+###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
+$scriptPath = $MyInvocation.MyCommand.Path
+$scriptDir = Split-Path $scriptPath
+
+& "$scriptDir\..\init.ps1"
+if(-not $?)
+{
+    throw "Initialization failure."
+    exit -9999
+}
+###########################################################
+# End - Initialization - Invocation, Logging etc
+###########################################################
+
 function GetRandomPassword(
     [ValidateRange(8,128)] 
     [Int]$length

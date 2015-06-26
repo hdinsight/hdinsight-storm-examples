@@ -3,10 +3,13 @@ Param(
     [parameter(Mandatory=$true)]
     [string]$ExampleDir
     )
-    
+
 ###########################################################
 # Start - Initialization - Invocation, Logging etc
 ###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath
 
@@ -14,13 +17,14 @@ $scriptDir = Split-Path $scriptPath
 if(-not $?)
 {
     throw "Initialization failure."
-    exit /b -9999
+    exit -9999
 }
-
-$VerbosePreference = "SilentlyContinue"
-$ErrorActionPreference = "Stop"
 ###########################################################
 # End - Initialization - Invocation, Logging etc
+###########################################################
+
+###########################################################
+# Main Script
 ###########################################################
 
 # Make sure you run this in Microsoft Azure Powershell prompt
@@ -71,54 +75,71 @@ if($config["HBASE"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase)
     $hbase = $true
 }
 
-$failure = $false
+$kafka = $false
+if($config["KAFKA"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
+{
+    $kafka = $true
+}
+
+$success = $true
 
 Write-InfoLog "Deleting HDInsight Storm Cluster" (Get-ScriptName) (Get-ScriptLineNumber)
 & "$scriptDir\HDInsight\DeleteCluster.ps1" $config["STORM_CLUSTER_NAME"]
-$failure = -not $?
+$success = $success -and $?
 
 if($hbase)
 {
     Write-InfoLog "Deleting HDInsight HBase Cluster" (Get-ScriptName) (Get-ScriptLineNumber)
     & "$scriptDir\HDInsight\DeleteCluster.ps1" $config["HBASE_CLUSTER_NAME"]
-    $failure = -not $?
+    $success = $success -and $?
+}
+
+if($kafka)
+{
+    Write-InfoLog "Deleting HDInsight Kafka on Storm Cluster" (Get-ScriptName) (Get-ScriptLineNumber)
+    & "$scriptDir\HDInsight\DeleteCluster.ps1" $config["KAFKA_CLUSTER_NAME"]
+    $success = $success -and $?
 }
 
 if($eventhub)
 {
     Write-InfoLog "Deleting EventHubs" (Get-ScriptName) (Get-ScriptLineNumber)
     & "$scriptDir\EventHubs\DeleteEventHubs.ps1" $config["EVENTHUBS_NAMESPACE"] $config["EVENTHUBS_ENTITY_PATH"]
-    $failure = -not $?
+    $success = $success -and $?
 }
 
 if($docdb)
 {
     Write-InfoLog "Deleting DocumentDB" (Get-ScriptName) (Get-ScriptLineNumber)
     & "$scriptDir\DocumentDB\DeleteDocumentDB.ps1" $config["DOCUMENTDB_ACCOUNT"]
-    $failure = -not $?
+    $success = $success -and $?
 }
 
 if($sqlAzure)
 {
     Write-InfoLog "Deleting SQL Azure" (Get-ScriptName) (Get-ScriptLineNumber)
     & "$scriptDir\SqlAzure\DeleteSqlAzure.ps1" $config["SQLAZURE_SERVER_NAME"]
-    $failure = -not $?
+    $success = $success -and $?
 }
 
 Write-InfoLog "Deleting Storage Account" (Get-ScriptName) (Get-ScriptLineNumber)
 & "$scriptDir\Storage\DeleteStorageAccount.ps1" $config["WASB_ACCOUNT_NAME"]
-$failure = -not $?
+$success = $success -and $?
 
-if($failure)
-{
-    Write-ErrorLog "One or more errors occurred during Azure resource deletion. Please check logs for error information." (Get-ScriptName) (Get-ScriptLineNumber)
-    Write-ErrorLog "Please retry and delete your configuration file manually from: $configFile" (Get-ScriptName) (Get-ScriptLineNumber)
-    throw "One or more errors occurred during Azure resource deletion. Please check logs for error information."
-}
-else
+Write-SpecialLog "Deleting Azure Virtual Network" (Get-ScriptName) (Get-ScriptLineNumber)
+$VNetConfig = & "$scriptDir\VirtualNetwork\DeleteVNet.ps1"
+$success = $success -and $?
+
+if($success)
 {
     Write-SpecialLog "Deleting configuration.properties file" (Get-ScriptName) (Get-ScriptLineNumber)
     Remove-Item $configFile
     $totalSeconds = ((Get-Date) - $startTime).TotalSeconds
     Write-SpecialLog "Deleted Azure resources, completed in $totalSeconds seconds" (Get-ScriptName) (Get-ScriptLineNumber)
+}
+else
+{
+    Write-ErrorLog "One or more errors occurred during Azure resource deletion. Please check logs for error information." (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-ErrorLog "Please retry and delete your configuration file manually from: $configFile" (Get-ScriptName) (Get-ScriptLineNumber)
+    throw "One or more errors occurred during Azure resource deletion. Please check logs for error information."
 }

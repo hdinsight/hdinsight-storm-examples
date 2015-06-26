@@ -8,6 +8,25 @@ Param(
     [String]$ClusterPassword
 )
 
+###########################################################
+# Start - Initialization - Invocation, Logging etc
+###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
+$scriptPath = $MyInvocation.MyCommand.Path
+$scriptDir = Split-Path $scriptPath
+
+& "$scriptDir\..\init.ps1"
+if(-not $?)
+{
+    throw "Initialization failure."
+    exit -9999
+}
+###########################################################
+# End - Initialization - Invocation, Logging etc
+###########################################################
+
 $secureClusterPassword = ConvertTo-SecureString $ClusterPassword -AsPlainText -Force
 $clusterCreds = New-Object System.Management.Automation.PSCredential ($ClusterUsername, $secureClusterPassword)
 

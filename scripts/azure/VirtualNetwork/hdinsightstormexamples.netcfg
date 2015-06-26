@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NetworkConfiguration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/ServiceHosting/2011/07/NetworkConfiguration">
+  <VirtualNetworkConfiguration>
+    <Dns />
+    <VirtualNetworkSites>
+      <VirtualNetworkSite name="hdinsightstormexamples" Location="West Europe">
+        <AddressSpace>
+          <AddressPrefix>10.0.0.0/20</AddressPrefix>
+        </AddressSpace>
+        <Subnets>
+          <Subnet name="Subnet-1">
+            <AddressPrefix>10.0.0.0/20</AddressPrefix>
+          </Subnet>
+        </Subnets>
+      </VirtualNetworkSite>
+    </VirtualNetworkSites>
+  </VirtualNetworkConfiguration>
+</NetworkConfiguration>

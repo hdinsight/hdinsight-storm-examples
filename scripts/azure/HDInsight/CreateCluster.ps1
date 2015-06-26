@@ -3,19 +3,46 @@ Param(
     [Parameter(Mandatory = $true)]
     [ValidatePattern("^[a-zA-Z0-9-]*$")]
     [ValidateLength(8,64)]
-    [String]$ClusterName,                    # required    needs to be alphanumeric or "-"
+    [String]$ClusterName,                   # required    needs to be alphanumeric or "-"
     [Parameter(Mandatory = $true)]
-    [String]$StorageAccount,                 # required
+    [String]$StorageAccount,                # required
     [Parameter(Mandatory = $true)]
     [String]$ContainerName,                 # required
     [Parameter(Mandatory = $true)]
-    [String]$ClusterUsername,                # required
+    [String]$ClusterUsername,               # required
     [Parameter(Mandatory = $true)]
-    [String]$ClusterPassword,                # required
-    [Parameter(Mandatory = $true)]           # required
+    [String]$ClusterPassword,               # required
+    [Parameter(Mandatory = $true)]          # required
     [String]$ClusterType,
-    [Int]$ClusterSize = 4                    # optional
+    [Int]$ClusterSize = 4,                  # optional
+    [Parameter(Mandatory = $false)]         # optional
+    [String]$VNetId,
+    [Parameter(Mandatory = $false)]         # optional
+    [String]$SubnetName,
+    [Parameter(Mandatory = $false)]         # optional
+    [String]$ScriptActionUri,
+    [Parameter(Mandatory = $false)]         # optional
+    [String]$ScriptActionParameters
     )
+
+###########################################################
+# Start - Initialization - Invocation, Logging etc
+###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
+$scriptPath = $MyInvocation.MyCommand.Path
+$scriptDir = Split-Path $scriptPath
+
+& "$scriptDir\..\..\init.ps1"
+if(-not $?)
+{
+    throw "Initialization failure."
+    exit -9999
+}
+###########################################################
+# End - Initialization - Invocation, Logging etc
+###########################################################
 
 Write-SpecialLog "Create HDInsight cluster of type: $ClusterType with name: $ClusterName" (Get-ScriptName) (Get-ScriptLineNumber)
     
@@ -43,15 +70,21 @@ else
     $StorageKey = Get-AzureStorageKey $StorageAccount  | %{ $_.Primary }
     $Location = Get-AzureStorageAccount $StorageAccount | %{ $_.Location }
 
-    Write-InfoLog "Creating HDInsight Cluster Configuration" (Get-ScriptName) (Get-ScriptLineNumber)
-    $Config = New-AzureHDInsightClusterConfig -ClusterSizeInNodes $ClusterSize -ClusterType $ClusterType
+    Write-InfoLog "Creating HDInsight Cluster Configuration - Type: $ClusterType, Size: $ClusterSize, VNet: $VNetId, Subnet: $SubnetName" (Get-ScriptName) (Get-ScriptLineNumber)
+    $Config = New-AzureHDInsightClusterConfig -ClusterSizeInNodes $ClusterSize -ClusterType $ClusterType -VirtualNetworkId $VNetId -SubnetName $SubnetName
     $Config = $Config | Set-AzureHDInsightDefaultStorage -StorageAccountName $StorageUrl -StorageAccountKey $StorageKey -StorageContainerName $ContainerName
-
+    
     if($ClusterType.Equals("Storm", [System.StringComparison]::OrdinalIgnoreCase))
     {
         $Config = $Config | Add-AzureHDInsightConfigValues -Storm @{"supervisor.worker.timeout.secs"="45"}
     }
 
+    if(-not ([String]::IsNullOrWhitespace($ScriptActionUri)))
+    {
+        Write-InfoLog "Adding Script Action: $ScriptActionUri" (Get-ScriptName) (Get-ScriptLineNumber)
+        $Config = Add-AzureHDInsightScriptAction -Config $Config -Name "Customization" -ClusterRoleCollection HeadNode,DataNode -Uri $ScriptActionUri -Parameters $ScriptActionParameters
+    }
+    
     #Configure other config settings
     $SecurePwd = ConvertTo-SecureString $ClusterPassword -AsPlainText -Force
     $Creds = New-Object System.Management.Automation.PSCredential($ClusterUsername, $SecurePwd)

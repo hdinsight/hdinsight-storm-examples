@@ -1,4 +1,3 @@
-#returns account primary key when successful otherwise $null
 [CmdletBinding(PositionalBinding=$True)]
 Param(
     [Parameter(Mandatory = $true)]
@@ -8,8 +7,24 @@ Param(
     [String]$OfferType = "Standard"          # optional    defaults to Standard
     )
 
+###########################################################
+# Start - Initialization - Invocation, Logging etc
+###########################################################
 $VerbosePreference = "SilentlyContinue"
 $ErrorActionPreference = "Stop"
+
+$scriptPath = $MyInvocation.MyCommand.Path
+$scriptDir = Split-Path $scriptPath
+
+& "$scriptDir\..\..\init.ps1"
+if(-not $?)
+{
+    throw "Initialization failure."
+    exit -9999
+}
+###########################################################
+# End - Initialization - Invocation, Logging etc
+###########################################################
 
 #Switch to Azure resource manager mode
 $result = Switch-AzureMode -Name AzureResourceManager

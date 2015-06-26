@@ -1,5 +1,21 @@
-﻿$scriptPath = $MyInvocation.MyCommand.Path
+﻿###########################################################
+# Start - Initialization - Invocation, Logging etc
+###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
+$scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath
+
+& "$scriptDir\..\..\init.ps1"
+if(-not $?)
+{
+    throw "Initialization failure."
+    exit -9999
+}
+###########################################################
+# End - Initialization - Invocation, Logging etc
+###########################################################
 
 $nugetExe = Join-Path $scriptDir "..\..\..\tools\nuget\nuget.exe"
 $install = & "$nugetExe" install WindowsAzure.ServiceBus -version 2.6.1 -OutputDirectory "$scriptDir\..\..\..\packages"

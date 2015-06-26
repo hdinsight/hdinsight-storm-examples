@@ -118,20 +118,39 @@ if($config["HBASE"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase)
     $hbase = $true
 }
 
+$kafka = $false
+if($config["KAFKA"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
+{
+    $kafka = $true
+}
+
 ###########################################################
 # Create Azure Resources
 ###########################################################
+
+Write-SpecialLog "Step 0: Creating Azure Virtual Network" (Get-ScriptName) (Get-ScriptLineNumber)
+$VNetConfigFilePath = Join-Path $ExampleDir ("run\" + $config["VNET_NAME"] + ".netcfg")
+$vnetId = & "$scriptDir\VirtualNetwork\CreateVNet.ps1" $VNetConfigFilePath $config["VNET_NAME"] $config["AZURE_LOCATION"]
+if([String]::IsNullOrWhiteSpace($vnetId))
+{
+    throw "Cannot get VNet Id"
+}
+else
+{
+    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{VNET_ID=$vnetId}
+}
 
 Write-SpecialLog "Step 1: Creating storage account and updating key in configurations.properties" (Get-ScriptName) (Get-ScriptLineNumber)
 $storageKey = & "$scriptDir\Storage\CreateStorageAccount.ps1" $config["WASB_ACCOUNT_NAME"] $config["AZURE_LOCATION"]
 if([String]::IsNullOrWhiteSpace($storageKey))
 {
-    throw "Cannot get storage key"
+    throw "Cannot get Storage Key"
 }
 else
 {
     & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{WASB_ACCOUNT_KEY=$storageKey}
 }
+
 #add a small delay here in order for dependent resources to get the storage account
 sleep -s 15
 
@@ -187,7 +206,7 @@ $scriptCreateStorm = {
     param($subName,$scriptDir,$configFile,$config)
     Select-AzureSubscription -SubscriptionName $subName
     & "$scriptDir\..\init.ps1"
-    $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_SIZE"]
+    $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1"
     if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
     {
         & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{STORM_CLUSTER_URL=$cluster.ConnectionUrl}
@@ -201,13 +220,37 @@ if($hbase)
         param($subName,$scriptDir,$configFile,$config)
         Select-AzureSubscription -SubscriptionName $subName
         & "$scriptDir\..\init.ps1"
-        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_SIZE"]
+        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1"
         if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
         {
             & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HBASE_CLUSTER_URL=$cluster.ConnectionUrl}
         }
     }
     $hbaseJob = Start-Job -Script $scriptCreateHBase -Name HBase -ArgumentList $subName,$scriptDir,$configFile,$config
+}
+
+if($kafka)
+{
+    $scriptCreateKafka = {
+        param($subName,$scriptDir,$configFile,$config)
+        Select-AzureSubscription -SubscriptionName $subName
+        & "$scriptDir\..\init.ps1"
+        $unzipUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["WASB_ACCOUNT_NAME"] "kafkaconfigactionv02" "$scriptDir\HDInsight\Kafka\unzip.exe" "unzip.exe"
+        Write-InfoLog "unzipUri: $unzipUri" (Get-ScriptName) (Get-ScriptLineNumber)
+        $kafkaVersion = "kafka_2.11-0.8.2.1"
+        $kafkaUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["WASB_ACCOUNT_NAME"] "kafkaconfigactionv02" "$scriptDir\HDInsight\Kafka\$kafkaVersion.zip" "$kafkaVersion.zip"
+        Write-InfoLog "KafkaUri: $kafkaUri" (Get-ScriptName) (Get-ScriptLineNumber)
+        $ScriptActionUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["WASB_ACCOUNT_NAME"] "kafkaconfigactionv02" "$scriptDir\HDInsight\Kafka\kafka-installer-v02.ps1" "kafka-installer-v02.ps1"
+        Write-InfoLog "ScriptActionUri: $ScriptActionUri" (Get-ScriptName) (Get-ScriptLineNumber)
+        $ScriptActionParameters = "-KafkaBinaryZipLocation $kafkaUri -KafkaHomeName $kafkaVersion -UnzipExeLocation $unzipUri -RemoteAdminUsername remote{0} -RemoteAdminPassword {1}" -f $config["KAFKA_CLUSTER_USERNAME"], $config["KAFKA_CLUSTER_PASSWORD"]
+        Write-InfoLog "ScriptActionParameters: $ScriptActionParameters" (Get-ScriptName) (Get-ScriptLineNumber)
+        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["KAFKA_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1" $ScriptActionUri $ScriptActionParameters
+        if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
+        {
+            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{KAFKA_CLUSTER_URL=$cluster.ConnectionUrl}
+        }
+    }
+    $kafkaJob = Start-Job -Script $scriptCreateKafka -Name Kafka -ArgumentList $subName,$scriptDir,$configFile,$config
 }
 
 $jobs = Get-Job -State "Running"
@@ -218,19 +261,43 @@ While ($jobs)
     sleep -s 10
     if($stormJob -ne $null)
     {
-        Get-Job -Id $stormJob.Id | Receive-Job
+        $jobOut = Get-Job -Id $stormJob.Id | Receive-Job
+        if($jobOut)
+        {
+            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
+        }
     }
     if($eventhub -and ($ehJob -ne $null))
     {
-        Get-Job -Id $ehJob.Id | Receive-Job
+        $jobOut = Get-Job -Id $ehJob.Id | Receive-Job
+        if($jobOut)
+        {
+            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
+        }
     }
     if($docdb -and ($docdbJob -ne $null))
     {
-        Get-Job -Id $docdbJob.Id | Receive-Job
+        $jobOut = Get-Job -Id $docdbJob.Id | Receive-Job
+        if($jobOut)
+        {
+            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
+        }
     }
     if($hbase -and ($hbaseJob -ne $null))
     {
-        Get-Job -Id $hbaseJob.Id | Receive-Job
+        $jobOut = Get-Job -Id $hbaseJob.Id | Receive-Job
+        if($jobOut)
+        {
+            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
+        }
+    }
+    if($kafka -and ($kafkaJob -ne $null))
+    {
+        $jobOut = Get-Job -Id $kafkaJob.Id | Receive-Job
+        if($jobOut)
+        {
+            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
+        }
     }
     $jobs = Get-Job -State "Running"
 }
@@ -250,6 +317,10 @@ if($docdb -and ($docdbJob -ne $null))
 if($hbase -and ($hbaseJob -ne $null))
 {
     Get-Job -Id $hbaseJob.Id | Remove-Job
+}
+if($kafka -and ($kafkaJob -ne $null))
+{
+    Get-Job -Id $kafkaJob.Id | Remove-Job
 }
 
 $finishTime = Get-Date

@@ -9,6 +9,9 @@ Param(
 ###########################################################
 # Start - Initialization - Invocation, Logging etc
 ###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath
 
@@ -16,11 +19,8 @@ $scriptDir = Split-Path $scriptPath
 if(-not $?)
 {
     throw "Initialization failure."
-    exit /b -9999
+    exit -9999
 }
-
-$VerbosePreference = "SilentlyContinue"
-$ErrorActionPreference = "Stop"
 ###########################################################
 # End - Initialization - Invocation, Logging etc
 ###########################################################
@@ -38,6 +38,7 @@ $defaultConfig=@{
 AZURE_LOCATION="West Europe"
 STORM_CLUSTER_SIZE=4
 HBASE_CLUSTER_SIZE=4
+KAFKA_CLUSTER_SIZE=4
 }
 
 #Update any passed in input configurations. This is mostly used for examples to specify different components to deploy

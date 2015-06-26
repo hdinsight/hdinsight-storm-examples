@@ -1,23 +1,37 @@
-﻿$scriptPath = $MyInvocation.MyCommand.Path
+﻿###########################################################
+# Start - Initialization - Invocation, Logging etc
+###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
+$scriptPath = $MyInvocation.MyCommand.Path
 $scriptDir = Split-Path $scriptPath
+
+& "$scriptDir\..\init.ps1"
+if(-not $?)
+{
+    throw "Initialization failure."
+    exit -9999
+}
+###########################################################
+# End - Initialization - Invocation, Logging etc
+###########################################################
 
 $nugetExe = Join-Path $scriptDir "..\..\tools\nuget\nuget.exe"
 
-$scpNetVersion = "0.9.4.283"
+$scpNetVersion = "0.9.4.346"
+Write-InfoLog "Getting SCP.Net Tools using Microsoft.SCP.Net.SDK version: $scpNetVersion" (Get-ScriptName) (Get-ScriptLineNumber)
+
 $install = & "$nugetExe" install Microsoft.SCP.Net.SDK -version $scpNetVersion -OutputDirectory "$scriptDir\..\..\packages"
 
 $scpNuget = "$scriptDir\..\..\packages\Microsoft.SCP.Net.SDK.$scpNetVersion"
 $scpTools = Join-Path $scpNuget "tools"
 
-#Workaround to get ScpC.exe to work without invoking MSBuild
-Copy-Item -Force ($scpNuget + "\lib\Microsoft.SCPNet.dll") $scpTools
-Copy-Item -Force ($scpNuget + "\sdk\NewtonSoft.Json.dll") $scpTools
-
-$scpC = Join-Path $scpTools "ScpC.exe"
-
-if(-not (Test-Path $scpC))
+if(-not (Test-Path $scpTools))
 {
-    throw "ERROR: $scpC not found. Please make sure you have Microsoft.SCP.Net.SDK nuget package available."
+    Write-ErrorLog "ERROR: $scpTools not found. Please make sure you have Microsoft.SCP.Net.SDK $scpNetVersion NuGet package available." (Get-ScriptName) (Get-ScriptLineNumber)
+    throw "ERROR: $scpTools not found. Please make sure you have Microsoft.SCP.Net.SDK $scpNetVersion NuGet package available."
 }
 
-return $scpC
+Write-InfoLog "SCP.Net tools path: $scpTools" (Get-ScriptName) (Get-ScriptLineNumber)
+return $scpTools

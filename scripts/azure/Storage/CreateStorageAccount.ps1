@@ -7,6 +7,25 @@ Param(
     [String]$Location="West Europe"               # optional    default to "West Europe"
     )
 
+###########################################################
+# Start - Initialization - Invocation, Logging etc
+###########################################################
+$VerbosePreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
+
+$scriptPath = $MyInvocation.MyCommand.Path
+$scriptDir = Split-Path $scriptPath
+
+& "$scriptDir\..\..\init.ps1"
+if(-not $?)
+{
+    throw "Initialization failure."
+    exit -9999
+}
+###########################################################
+# End - Initialization - Invocation, Logging etc
+###########################################################
+
 try
 {
     $Result = Get-AzureStorageAccount -StorageAccountName $AccountName
