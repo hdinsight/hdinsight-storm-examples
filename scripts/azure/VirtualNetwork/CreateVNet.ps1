@@ -53,9 +53,9 @@ if($VNetConfig -ne $null)
         </VirtualNetworkSite>';
         
         $vnetSiteImportXml = $VNetConfigXml.ImportNode($vnetSiteNode.DocumentElement, $true)
-        $VNetConfigXml.NetworkConfiguration.VirtualNetworkConfiguration.VirtualNetworkSites.AppendChild($vnetSiteImportXml)
+        $dummy = $VNetConfigXml.NetworkConfiguration.VirtualNetworkConfiguration.VirtualNetworkSites.AppendChild($vnetSiteImportXml)
         $VNetConfigXml = [xml] $VNetConfigXml.OuterXml.Replace(" xmlns=`"`"", "")
-        $VNetConfigXml.Save($VNetConfigFilePath)
+        $dummy = $VNetConfigXml.Save($VNetConfigFilePath)
         Write-InfoLog ("Updated VNetConfig saved at: {0}" -f $VNetConfigFilePath) (Get-ScriptName) (Get-ScriptLineNumber)
         $VNetConfig = $null
     }
@@ -66,7 +66,7 @@ if($VNetConfig -ne $null)
 }
 else
 {
-    Copy-Item -Force $VNetConfigTemplatePath $VNetConfigFilePath
+    $dummy = Copy-Item -Force $VNetConfigTemplatePath $VNetConfigFilePath
     [xml] $VNetConfigXml = Get-Content $VNetConfigFilePath
     $VNetConfigXml = [xml] $VNetConfigXml.OuterXml.Replace("hdinsightstormexamples", $VNetName)
 }
@@ -91,4 +91,14 @@ Write-InfoLog ("Azure VNet Configuration:`r`n" + $VNetConfig.XMLConfiguration) (
 
 $VNetSite = Get-AzureVNetSite $VNetName
 Write-InfoLog ("Azure VNet Site:`r`n" + ($VNetSite | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
-return $VNetSite.Id
+$vnetId = $VNetSite.Id
+if($vnetId)
+{
+	Write-SpecialLog "Returning VNet Id: $vnetId for VNet: $VNetName" (Get-ScriptName) (Get-ScriptLineNumber)
+	return $vnetId
+}
+else
+{
+	Write-ErrorLog "Unable to get Id for VNet: $VNetName" (Get-ScriptName) (Get-ScriptLineNumber)
+	throw "Unable to get Id for VNet: $VNetName"
+}

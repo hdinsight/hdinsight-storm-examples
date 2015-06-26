@@ -38,7 +38,7 @@ foreach( $key in $config.Keys )
     $newVal = $config[$key]
     if($content -like "*{$key}*")
     {
-        Write-InfoLog "Updating value for $key" (Get-ScriptName) (Get-ScriptLineNumber)
+        Write-InfoLog ("Updating $key with value: " + $config[$key]) (Get-ScriptName) (Get-ScriptLineNumber)
     }
     $content = $content -replace "{$key}", $newVal
 }

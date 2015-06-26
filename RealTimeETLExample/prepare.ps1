@@ -18,9 +18,10 @@ if(-not $?)
 ###########################################################
 
 $inputConfig = @{
+#VNET="true"
+#KAFKA="true"
 EVENTHUBS="true"
 HBASE="true"
-KAFKA="true"
 EVENTHUBS_PARTITION_COUNT=16
 }
 

@@ -146,6 +146,7 @@ if($vnet)
 	else
 	{
 		& "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{VNET_ID=$vnetId}
+		$config["VNET_ID"] = $vnetId
 	}
 }
 
@@ -158,6 +159,7 @@ if([String]::IsNullOrWhiteSpace($storageKey))
 else
 {
     & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{WASB_ACCOUNT_KEY=$storageKey}
+	$config["WASB_ACCOUNT_KEY"] = $storageKey
 }
 
 #add a small delay here in order for dependent resources to get the storage account

@@ -17,10 +17,10 @@ if(-not $?)
 ###########################################################
 
 $inputConfig = @{
+#VNET="true"
+#HBASE="true"
 EVENTHUBS="true"
 SQLAZURE="true"
-HBASE="true"
-DOCUMENTDB="true"
 EVENTHUBS_PARTITION_COUNT=32
 STORM_CLUSTER_SIZE=32
 }
