@@ -45,8 +45,13 @@ And, the second topology reads from EventHub, calculates aggregations("count() g
 
 Read more about this example here: [Real Time ETL example using Azure EventHubs, Storm, HBase & SCP.Net](RealTimeETLExample)
 
-## More Examples
-The repository now also has additional examples for your reference.
+## SCP.Net
+For writing Storm applications in C# using [SCP.Net](https://www.nuget.org/packages/Microsoft.SCP.Net.SDK/) refer [SCPNet-GettingStarted.md](SCPNet-GettingStarted.md)
+
+### SCP.Net Examples
+Check out more [SCP.Net Examples](SCPNetExamples)
+
+The ```HybridTopologyHostMode``` example in [SCPNetExamples/HybridTopologyHostMode](SCPNetExamples/HybridTopologyHostMode/net) has examples on all the different types of hybrid modes.
 
 ### Topology, Spout  Bolt templates
 Templates to connect to various Azure services:
@@ -57,16 +62,6 @@ Templates to connect to various Azure services:
 * Azure Websites (SignalR)
 
 [Templates for Azure services](templates)
-
-### SCP.Net Examples
-Old SCP.Net examples that were on HDInsight clusters have now been moved to this GitHub repository.
-
-Please refer [More SCP.Net Examples](SCPNetExamples)
-
-The ```HybridTopologyHostMode``` example in [SCPNetExamples/HybridTopologyHostMode](SCPNetExamples/HybridTopologyHostMode/net) demonstrates all the different types of hybrid modes.
-
-## Additional Resources
-For writing Storm applications in C# using [SCP.Net](https://www.nuget.org/packages/Microsoft.SCP.Net.SDK/) refer [SCPNet-GettingStarted.md](SCPNet-GettingStarted.md)
 
 ## Azure Services and HDInsisght Helper PowerShell Scripts
 * Looking for some Azure PowerShell scripts that you can use individually or in an automation?
