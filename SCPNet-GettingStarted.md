@@ -10,7 +10,7 @@ When you create a new Storm Application through Visual Studio using [HDInsight T
 
 Also refer the MSDN article on [Developing Storm C# Topology in VS](http://azure.microsoft.com/en-us/documentation/articles/hdinsight-storm-develop-csharp-visual-studio-topology/)
 
-There are some additional SCP.Net examples available at: [SCP.Net Examples](https://github.com/weedqian/hdinsight-storm-examples)
+The additional SCP.Net examples available at: [SCP.Net Examples](https://github.com/weedqian/hdinsight-storm-examples) are now available in [SCPNetExamples](SCPNetExamples) directory in this repository.
 
 ## SCP.Net Applications & Configuration
 There are multiple ways of creating applications in SCP.Net. 
@@ -97,11 +97,43 @@ static void Main(string[] args)
 This section describes how you can pass Apache Storm specific settings from your SCP.Net C# program.
 
 ### Topology Builder Interface
-If you are using the "Class Library" type of applicaiton, you can add these settings directly into Topology Builder.
+If you are using the "Class Library" type of application, you can add these settings directly into Topology Builder.
 
 ```csharp
 TopologyBuilder topologyBuilder = new TopologyBuilder(this.GetType().Name);
+```
 
+Newer method: You can now use ```StormConfig``` class to pass configurations to your spouts, bolts or topologies.
+
+```csharp
+var boltConfig = new StormConfig();
+boltConfig.Set("topology.tick.tuple.freq.secs", "1");
+topologyBuilder.SetBolt(
+	typeof(PartialCountBolt).Name,
+	PartialCountBolt.Get,
+	new Dictionary<string, List<string>>()
+	{
+		{Constants.DEFAULT_STREAM_ID, new List<string>(){ "partialCount" } }
+	},
+	eventHubPartitions,
+	true
+	).
+	DeclareCustomizedJavaSerializer(javaSerializerInfo).
+	shuffleGrouping("com.microsoft.eventhubs.spout.EventHubSpout").
+	addConfigurations(boltConfig);
+```
+
+```csharp
+var topologyConfig = new StormConfig();
+            topologyConfig.setMaxSpoutPending(8192);
+            topologyConfig.setNumWorkers(eventHubPartitions);
+
+            topologyBuilder.SetTopologyConfig(topologyConfig);
+            return topologyBuilder;
+```
+
+Older method (still supported):
+```csharp
 //Assuming a 4 'Large' node cluster we will use half of the worker slots for this topology
 //The default JVM heap size for workers is 768m, we also increase that to 1024m
 //That helps the java spout have additional heap size at disposal.
@@ -126,6 +158,13 @@ If you are using a spec file to describe your topology, you can specify a ":conf
 
 ## Hybrid Mode (Java & C#)
 SCP.Net supports mixed (hybrid) mode topologies wherein you can have a Java Spout with C# bolt or C# spout with Java bolt.
+
+Refer to this example: [HybridTopologyHostMode](SCPNetExamples/HybridTopologyHostMode) that has sources for all different combinations:
+* [C# Spout -> Java Bolt](SCPNetExamples/HybridTopologyHostMode/net/HybridTopology_csharpSpout_javaBolt.cs)
+* [C# Spout -> Java Bolt, CSharpBolt](SCPNetExamples/HybridTopologyHostMode/net/HybridTopology_csharpSpout_javaCsharpBolt.cs)
+* [Java Spout -> C# Bolt](SCPNetExamples/HybridTopologyHostMode/net/HybridTopology_javaSpout_csharpBolt.cs)
+* [Transactional C# Spout -> Java Bolt](SCPNetExamples/HybridTopologyHostMode/net/HybridTopologyTx_csharpSpout_javaBolt.cs)
+* [Transactional Java Spout -> C# Bolt] (SCPNetExamples/HybridTopologyHostMode/net/HybridTopologyTx_javaSpout_csharpBolt.cs)
 
 ### Topology Builder
 One should use the topology builder provided in SCP.Net to create their topologies. 

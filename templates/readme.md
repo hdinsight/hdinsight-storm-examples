@@ -8,4 +8,7 @@ Please follow the //TODO comments to setup your input and output schemas correct
 
 You can also use a pre-exisiting run configuration (run\configuraton.properties) from any of the examples folder to use with this templates solution.
 
-[SCP.Net Readme from NuGet - Microsoft SCP.Net SDK assemblies 0.9.4.283] (scpnet-readme.txt)
+[SCP.Net Readme from NuGet - Microsoft SCP.Net SDK assemblies 0.9.4.346] (scpnet-readme.txt)
+
+## Additional Templates
+* [PowerBI](https://github.com/Blackmist/hdinsight-csharp-storm-powerbi)

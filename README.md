@@ -15,7 +15,7 @@ Each of the examples folder contains a ```run.bat``` that does the following:
   1. Upload jars and create topology packages (as needed)
   2. Submitting the topologies to the HDInsight Storm cluster
 
-An existing run configuration is first detected to provide idempotency in creation of Azure resources. This allows you to re-run the ```run.bat``` in case of some unexpected failure.
+An existing run configuration is first detected to provide idem-potency in creation of Azure resources. This allows you to re-run the ```run.bat``` in case of some unexpected failure.
 
 ### Building the examples
 If you just want to build the source code you can use the ```build.bat``` in each example folder to build that example.
@@ -31,19 +31,19 @@ HDInsight provides users the option to write applications in language of their c
 An internet of things example that demonstrates connected cars scenarios. 
 The example showcases the reading of vehicle events from Event Hub, referencing Azure DocumentDB for vehicular data and then finally storing the computations in Azure Storage using the WASB driver on HDInsight clusters.
 
-Read more about this example here: [IoT example using Azure EventHubs, Storm, Azure DocumentDB, Azure Storage/WASB](IotExample/README.md)
+Read more about this example here: [IoT example using Azure EventHubs, Storm, Azure DocumentDB, Azure Storage/WASB](IotExample)
 
 ### EventHubs Scalability Example (Java & SCP.Net)
 A scalability benchmark that demonstrates throughput from EventHub and stores the event counts in SQL Azure.
 
-Read more about this example here: [Event Count example using Azure EventHubs, Storm, SQL Azure](EventCountExample/README.md)
+Read more about this example here: [Event Count example using Azure EventHubs, Storm, SQL Azure](EventCountExample)
 
 ### Real Time ETL Example (SCP.Net)
 A real time ETL examples that deploy two topologies.
 The first one to generate Web Request Logs and push them to EventHub.
 And, the second topology reads from EventHub, calculates aggregations("count() group by") and then stores the computations in a HDInsight HBase cluster.
 
-Read more about this example here: [Real Time ETL example using Azure EventHubs, Storm, HBase & SCP.Net](RealTimeETLExample/README.md)
+Read more about this example here: [Real Time ETL example using Azure EventHubs, Storm, HBase & SCP.Net](RealTimeETLExample)
 
 ## More Examples
 The repository now also has additional examples for your reference.
@@ -56,16 +56,23 @@ Templates to connect to various Azure services:
 * HBase
 * Azure Websites (SignalR)
 
-[Templates for Azure services](templates/readme.md)
+[Templates for Azure services](templates)
 
 ### SCP.Net Examples
 Old SCP.Net examples that were on HDInsight clusters have now been moved to this GitHub repository.
 
-Please refer [More SCP.Net Examples](SCPNetExamples/readme.md)
+Please refer [More SCP.Net Examples](SCPNetExamples)
 
+The ```HybridTopologyHostMode``` example in [SCPNetExamples/HybridTopologyHostMode](SCPNetExamples/HybridTopologyHostMode/net) demonstrates all the different types of hybrid modes.
 
 ## Additional Resources
-* Writing Storm applications in C# using [SCP.Net](SCPNet-GettingStarted.md)
+For writing Storm applications in C# using [SCP.Net](https://www.nuget.org/packages/Microsoft.SCP.Net.SDK/) refer [SCPNet-GettingStarted.md](SCPNet-GettingStarted.md)
+
+## Azure Services and HDInsisght Helper PowerShell Scripts
+* Looking for some Azure PowerShell scripts that you can use individually or in an automation?
+  * [Azure PowerShell Scripts](scripts/azure)
+* Azure PowerShell scripts to create HDInsight clusters
+  * [Azure HDInsight PowerShell Scripts](scripts/azure/HDInsight)
 
 ## References
 * [HDInsight] (http://azure.microsoft.com/en-us/documentation/services/hdinsight/)

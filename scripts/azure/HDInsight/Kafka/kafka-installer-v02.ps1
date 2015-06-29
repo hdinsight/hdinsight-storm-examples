@@ -292,5 +292,35 @@ catch
     throw "Unable to start Kafka service"
 }
 
+try
+{
+	Write-HDILog "Creating shortcuts"
+	$wshShell = New-Object -comObject WScript.Shell
+	$desktopFolderPath = $wshShell.SpecialFolders.Item("AllUsersDesktop")
+
+	Write-HDILog "Creating $desktopFolderPath\Kafka Command Line.lnk"
+	$shortcut = $wshShell.CreateShortcut("$desktopFolderPath\Kafka Command Line.lnk")
+	$shortcut.TargetPath="cmd.exe"
+	$shortcut.Arguments="/k pushd `"$ENV:KAFKA_HOME`""
+	$shortcut.IconLocation="$ENV:WINDIR\system32\cmd.exe"
+	$shortcut.WorkingDirectory="$ENV:KAFKA_HOME"
+	$shortcut.Save()
+
+	Write-HDILog "Creating $desktopFolderPath\Kafka Documentation.lnk"
+	$shortcut = $wshShell.CreateShortcut("$desktopFolderPath\Kafka Documentation.lnk")
+	$shortcut.TargetPath="http://kafka.apache.org/documentation.html"
+	$shortcut.Save()
+
+	Write-HDILog "Creating $desktopFolderPath\Kafka Quick Start.lnk"
+	$shortcut = $wshShell.CreateShortcut("$desktopFolderPath\Kafka Quick Start.lnk")
+	$shortcut.TargetPath="http://kafka.apache.org/documentation.html#quickstart"
+	$shortcut.Save()
+}
+catch
+{
+	Write-HDILog "[WARN] Encountered an issue while creating shortcuts."
+	Write-HDILog $_
+}
+
 Write-HDILog "Done with Kafka installation at: $(Get-Date)";
 Write-HDILog "[SUCCESS] Installed Kafka at: $KafkaHome";
