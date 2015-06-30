@@ -2,7 +2,7 @@
 All the end-to-end examples in this repository use these scripts to create various Azure resources.
 You should be able to use them in any of your automation scenarios, just ensure that you also copy the init & logging modules alongwith these scripts.
 
-Init module: [../init.ps1]([../init.ps1)
+Init module: [../init.ps1](../init.ps1)
 
 Logging module: [../logging/Logging-HDInsightExamples.psm1](../logging/Logging-HDInsightExamples.psm1)
 
