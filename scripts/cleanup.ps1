@@ -51,10 +51,18 @@ function Clean-ExampleFolder($cleanupDir)
 $ErrorActionPreference = "SilentlyContinue"
 	
 $ExampleDir = $ExampleDir.Replace("""","")
-if(Test-Path "$ExampleDir\run\configuration.properties")
+$runConfigurationFile = Join-Path $ExampleDir "run\configurations.properties"
+
+Write-InfoLog "Checking for a run configuration file. Path: $runConfigurationFile" (Get-ScriptName) (Get-ScriptLineNumber)
+if(Test-Path $runConfigurationFile)
 {
+	Write-InfoLog "Run configuration file found. Path: $runConfigurationFile" (Get-ScriptName) (Get-ScriptLineNumber)
 	Write-SpecialLog "===== Azure Resources clean-up =====" (Get-ScriptName) (Get-ScriptLineNumber)
 	& "$scriptDir\azure\DeleteAzureResources.ps1" "$ExampleDir"
+}
+else
+{
+	Write-WarnLog "Run configuration file not found. Path: $runConfigurationFile" (Get-ScriptName) (Get-ScriptLineNumber)
 }
 
 if($Exclusions)
