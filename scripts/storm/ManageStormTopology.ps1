@@ -112,11 +112,10 @@ else
     }
 
     Write-InfoLog ("Sending POST request at: " + $topologyManagementUri) (Get-ScriptName) (Get-ScriptLineNumber)
+    $error = $false
     try
     {
         $response = Invoke-RestMethod -Uri $topologyManagementUri -Method Post -Headers @{"x-csrf-token"=$antiForgeryToken} -Credential $creds -WebSession $webSession -MaximumRedirection 1
-        Write-SpecialLog "Topology action '$TopologyAction' complete: $ClassName" (Get-ScriptName) (Get-ScriptLineNumber)
-        Write-InfoLog ("Response:`r`n" + ($response | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
     }
     catch
     {
@@ -127,7 +126,14 @@ else
         }
         else
         {
+            $error = $true
             throw "Exception encountered while invoking the [POST] rest method at: $topologyManagementUri"
         }
+    }
+	
+    if(-not $error)
+    {
+        Write-SpecialLog "Topology action '$TopologyAction' complete: $ClassName" (Get-ScriptName) (Get-ScriptLineNumber)
+        Write-InfoLog ("Response:`r`n" + ($response | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
     }
 }

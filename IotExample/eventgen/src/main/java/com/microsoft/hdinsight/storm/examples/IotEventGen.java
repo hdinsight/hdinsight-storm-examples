@@ -7,9 +7,10 @@ import java.util.Properties;
 import java.util.List;
 import java.util.Random;
 
-import com.microsoft.eventhubs.spout.EventHubSpoutConfig;
+import com.microsoft.eventhubs.client.ConnectionStringBuilder;
 import com.microsoft.eventhubs.client.EventHubSender;
 import com.microsoft.eventhubs.client.EventHubClient;
+import com.microsoft.eventhubs.spout.EventHubSpoutConfig;
 
 public class IotEventGen
 {
@@ -33,8 +34,8 @@ public class IotEventGen
       if(targetFqnAddress == null || targetFqnAddress.length()==0) {
         targetFqnAddress = "servicebus.windows.net";
       }
-      String connectionString = EventHubSpoutConfig.buildConnectionString(
-          username, password, namespace, targetFqnAddress);
+      String connectionString = new ConnectionStringBuilder(username, password,
+    		namespace, targetFqnAddress).getConnectionString();
     
       EventHubClient client = EventHubClient.create(connectionString, entitypath);
     

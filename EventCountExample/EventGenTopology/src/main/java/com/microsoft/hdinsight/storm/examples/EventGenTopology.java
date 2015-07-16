@@ -8,6 +8,7 @@ import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 
+import com.microsoft.eventhubs.client.ConnectionStringBuilder;
 import com.microsoft.eventhubs.spout.EventHubSpoutConfig;
 
 public class EventGenTopology {
@@ -31,8 +32,8 @@ public class EventGenTopology {
       targetFqnAddress = "servicebus.windows.net";
     }
     
-    ehConnectStr = EventHubSpoutConfig.buildConnectionString(
-        username, password, namespace, targetFqnAddress);
+    ehConnectStr = new ConnectionStringBuilder(username, password,
+    		namespace, targetFqnAddress).getConnectionString();
     ehEntityPath = properties.getProperty("eventhubs.entitypath");
   }
   

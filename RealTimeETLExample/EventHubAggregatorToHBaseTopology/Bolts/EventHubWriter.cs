@@ -78,6 +78,7 @@ namespace EventHubAggregatorToHBaseTopology.Bolts
 
         public void InitializeEventHub()
         {
+            Context.Logger.Info("Initializing EventHubClient and EventHubSender...");
             var builder = new ServiceBusConnectionStringBuilder();
             builder.Endpoints.Add(new Uri("sb://" + this.appConfig.EventHubNamespace + "." + this.appConfig.EventHubFqnAddress));
             builder.EntityPath = this.appConfig.EventHubEntityPath;
@@ -131,11 +132,18 @@ namespace EventHubAggregatorToHBaseTopology.Bolts
                 {
                     this.context.Fail(tuple);
                 }
+                
                 global_error_count++;
                 if (global_error_count > 10)
                 {
                     Context.Logger.Error("High error count: {0}", global_error_count);
                     throw;
+                }
+                
+                if (eventHubSender.IsClosed)
+                {
+                    Context.Logger.Warn("EventHubSender is closed, re-intializing...");
+                    InitializeEventHub();
                 }
             }
         }

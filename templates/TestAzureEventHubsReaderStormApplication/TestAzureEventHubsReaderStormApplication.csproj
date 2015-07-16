@@ -68,8 +68,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\lib\eventhubs\eventhubs-storm-spout-0.9-jar-with-dependencies.jar">
-      <Link>JavaDependencies\eventhubs-storm-spout-0.9-jar-with-dependencies.jar</Link>
+    <Content Include="..\..\lib\eventhubs\eventhubs-storm-spout-0.9.3-jar-with-dependencies.jar">
+      <Link>JavaDependencies\eventhubs-storm-spout-0.9.3-jar-with-dependencies.jar</Link>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

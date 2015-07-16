@@ -4,6 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProjectTypeGuids>{12D26815-A329-4BD9-922E-4A35B783B8AA};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{A7214D25-EEC2-46D6-963D-FCFBE820B17C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -173,8 +174,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\lib\eventhubs\eventhubs-storm-spout-0.9-jar-with-dependencies.jar">
-      <Link>JavaDependencies\eventhubs-storm-spout-0.9-jar-with-dependencies.jar</Link>
+    <Content Include="..\..\lib\eventhubs\eventhubs-storm-spout-0.9.3-jar-with-dependencies.jar">
+      <Link>JavaDependencies\eventhubs-storm-spout-0.9.3-jar-with-dependencies.jar</Link>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

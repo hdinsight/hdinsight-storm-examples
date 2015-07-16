@@ -73,7 +73,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="JavaDependencies\eventhubs-storm-spout-0.9-jar-with-dependencies.jar" />
+    <Content Include="JavaDependencies\eventhubs-storm-spout-0.9.3-jar-with-dependencies.jar" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

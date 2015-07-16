@@ -47,7 +47,7 @@
     <dependency>
       <groupId>org.apache.storm</groupId>
       <artifactId>storm-core</artifactId>
-      <version>0.9.2-incubating</version>
+      <version>0.9.3</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -61,7 +61,7 @@
     <dependency>
       <groupId>com.microsoft.eventhubs</groupId>
       <artifactId>eventhubs-storm-spout</artifactId>
-      <version>0.9</version>
+      <version>0.9.3</version>
     </dependency>
     
     <!-- dependencies for data reference bolt -->
