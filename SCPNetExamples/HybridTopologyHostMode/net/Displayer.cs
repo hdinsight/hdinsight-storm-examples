@@ -8,7 +8,7 @@ using Microsoft.SCP;
 using Microsoft.SCP.Rpc.Generated;
 using System.Diagnostics;
 
-namespace Scp.App.HybridTopology
+namespace Scp.App.HybridTopologyHostMode
 {
     /// <summary>
     /// The Non-Tx bolt "displayer" print the Person info to logs.

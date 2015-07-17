@@ -7,7 +7,7 @@ using System.Threading;
 using Microsoft.SCP;
 using Microsoft.SCP.Topology;
 
-namespace Scp.App.HybridTopology
+namespace Scp.App.HybridTopologyHostMode
 {
     /// <summary>
     /// TransactionalTopologyBuilder hybrid topology example with CSharp Spout and Java Bolt

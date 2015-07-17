@@ -21,5 +21,3 @@ $ErrorActionPreference = "SilentlyContinue"
 
 $exclusions = @("*.spec")
 & "$scriptDir\..\scripts\cleanup.ps1" "$scriptDir" -Exclusions (, $exclusions)
-
-Remove-Item -Path "$scriptDir\sdk" -Recurse -Force -ErrorActionPreference "SilentlyContinue"

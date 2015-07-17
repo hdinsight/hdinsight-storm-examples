@@ -9,7 +9,7 @@ using System.Collections;
 using Microsoft.SCP;
 using Microsoft.SCP.Rpc.Generated;
 
-namespace Scp.App.HybridTopology
+namespace Scp.App.HybridTopologyHostMode
 {
     /// <summary>
     /// Example of transport Class Object between C# and Java 

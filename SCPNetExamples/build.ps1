@@ -16,16 +16,6 @@ if(-not $?)
 # End - Initialization - Invocation, Logging etc
 ###########################################################
 
-#Download SCP.Net
-$scpTools = & "$scriptDir\..\scripts\scpnet\GetScpTools.ps1"
-
-#Copy into a sdk directory
-Write-SpecialLog "Copying Microsoft.SCP.Net.SDK into $scriptDir\sdk" (Get-ScriptName) (Get-ScriptLineNumber)
-
-$dummy = New-Item -ItemType Directory -Force -Path "$scriptDir\sdk"
-Copy-Item -Force "$scpTools\..\lib\*.*" "$scriptDir\sdk"
-Copy-Item -Force "$scpTools\..\sdk\*.*" "$scriptDir\sdk"
-
 & "$scriptDir\..\scripts\build\buildJava.bat" "$scriptDir"
 
 if($LASTEXITCODE -eq 0)

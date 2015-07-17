@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -8,12 +9,13 @@
     <ProjectGuid>{552D85AD-7666-4AA5-A1A9-53AE391E87E9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HybridTopology</RootNamespace>
-    <AssemblyName>HybridTopology</AssemblyName>
+    <RootNamespace>HelloWorldHostModeMultiSpout</RootNamespace>
+    <AssemblyName>HelloWorldHostModeMultiSpout</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>7c4532b4</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -40,39 +42,50 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.SCPNet">
-      <HintPath>..\..\sdk\Microsoft.SCPNet.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.SCPLogger">
-      <HintPath>..\..\sdk\Microsoft.SCPLogger.dll</HintPath>
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.346\lib\Microsoft.SCPLogger.dll</HintPath>
     </Reference>
-    <Reference Include="Thrift">
-      <HintPath>..\..\sdk\Thrift.dll</HintPath>
+    <Reference Include="Microsoft.SCPNet">
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.346\lib\Microsoft.SCPNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>packages\Newtonsoft.Json.6.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Thrift">
+      <HintPath>packages\Microsoft.SCP.Net.SDK.0.9.4.346\lib\Thrift.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HybridTopology_csharpSpout_javaBolt.cs" />
-    <Compile Include="HybridTopologyTx_csharpSpout_javaBolt.cs" />
     <Compile Include="Displayer.cs" />
-    <Compile Include="Generator.cs" />
-    <Compile Include="HybridTopology_csharpSpout_javaCsharpBolt.cs" />
-    <Compile Include="HybridTopology_javaSpout_csharpBolt.cs" />
-    <Compile Include="HybridTopologyTx_javaSpout_csharpBolt.cs" />
+    <Compile Include="SentenceGenerator.cs" />
+    <Compile Include="PersonGenerator.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Clojure.txt">
+    <None Include="App.config" />
+    <None Include="packages.config" />
+    <None Include="SentenceGenerator.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.targets'))" />
+  </Target>
+  <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.targets" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
