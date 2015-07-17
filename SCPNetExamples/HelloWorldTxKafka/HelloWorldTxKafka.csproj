@@ -3,9 +3,7 @@
   <Import Project="packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props" Condition="Exists('packages\Microsoft.SCP.Net.SDK.0.9.4.346\build\Microsoft.SCP.Net.SDK.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C8BBBA7B-1C77-4549-85B2-DA69FCB8B7B7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>

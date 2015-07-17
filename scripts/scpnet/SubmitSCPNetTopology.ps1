@@ -37,7 +37,7 @@ $ScpWebApiClient = Join-Path $scpTools "ScpWebApiClient.exe"
 $clusterUri = New-Object Uri($ClusterUrl)
 $scpApiUrl = New-Object Uri($clusterUri, "scpapi")
 
-Write-InfoLog "Cluster ScpApiUrl: $scpApiUrl - TopologySpec: $SpecFile, TopologyPackage: $PackageFile, TopologyAction: submit" (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "Cluster ScpApiUrl: $scpApiUrl, User: $ClusterUsername - TopologySpec: $SpecFile, TopologyPackage: $PackageFile, TopologyAction: submit" (Get-ScriptName) (Get-ScriptLineNumber)
 & "$ScpWebApiClient" submit -scpApiUrl $scpApiUrl -username $ClusterUsername -password $ClusterPassword -spec $SpecFile -packageFile $PackageFile -timeout 900
 
 if($LASTEXITCODE -ne 0)

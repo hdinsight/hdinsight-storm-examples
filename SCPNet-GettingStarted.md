@@ -205,7 +205,7 @@ topologyBuilder.SetJavaSpout(
 
 ### Utilizing the automatic Java serialization & deserialization
 SCP.Net provides you automatic Java to C# and vice-versa serliazation and deserialization using JSON.
-To use this option one needs to use the provided JSON seriliazer and deserialer classes and set them in Topology Builder.
+To use this option one needs to use the provided JSON serialiazer and deserializer classes and set them in Topology Builder.
 
 NOTE: 
 * You do NOT need this option if you are doing a Java to Java or C# to C# data transfer.
@@ -224,7 +224,7 @@ this.context.DeclareCustomizedSerializer(new CustomizedInteropJSONSerializer());
 * Topology Builder Section: We need to configure the topology builder so that the Java bolt receives objects Deserialized from JSON
 ```csharp
 // Set a customized JSON Deserializer to deserialize a C# object (emitted by C# Spout) into JSON string for Java to Deserialize
-// Here, fullname of the Java JSON Deserializer class is required followed by the Java types for each of the fields
+// Here, the full name of the Java JSON Deserializer class is required followed by the Java types for each of the fields
 List<string> javaDeserializerInfo = 
     new List<string>() { "microsoft.scp.storm.multilang.CustomizedInteropJSONDeserializer", "java.lang.String" };
 

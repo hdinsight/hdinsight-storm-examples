@@ -40,6 +40,12 @@ function Clean-ExampleFolder($cleanupDir)
 		Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue 
 	}
 	
+	Get-ChildItem -Recurse -Path $cleanupDir -Include "SubmitConfig.xml", "*.spec", "*.zip", "*.suo", "*.user", "*.out", "*.log" -Exclude $Exclusions | % `
+	{
+		Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+		Remove-Item -Path $_ -Force -ErrorAction SilentlyContinue
+	}
+	
 	Get-ChildItem -Recurse -Hidden -Path $cleanupDir -Include "SubmitConfig.xml", "*.spec", "*.zip", "*.suo", "*.user", "*.out", "*.log" -Exclude $Exclusions | % `
 	{
 		Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)

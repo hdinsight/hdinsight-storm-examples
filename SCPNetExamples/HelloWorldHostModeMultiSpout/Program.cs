@@ -26,7 +26,7 @@ namespace Scp.App.HelloWorldHostModeMultiSpout
         {
             // Use TopologyBuilder to define a Non-Tx topology
             // And define each spouts/bolts one by one
-            TopologyBuilder topologyBuilder = new TopologyBuilder("HelloWorld");
+            TopologyBuilder topologyBuilder = new TopologyBuilder("HelloWorldHostModeMultiSpout");
 
             // Set a User customized config (SentenceGenerator.config) for the SentenceGenerator
             topologyBuilder.SetSpout(

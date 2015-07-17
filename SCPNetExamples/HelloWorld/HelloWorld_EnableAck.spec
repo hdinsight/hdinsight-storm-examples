@@ -1,8 +1,8 @@
 {
-  :name "HelloWorld"
+  :name "HelloWorld_EnableAck"
   :topology
     (nontx-topology
-      "HelloWorld"
+      "HelloWorld_EnableAck"
 
       {
         "generator" 

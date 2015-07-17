@@ -51,7 +51,9 @@ For writing Storm applications in C# using [SCP.Net](https://www.nuget.org/packa
 ### SCP.Net Examples
 Check out more [SCP.Net Examples](SCPNetExamples)
 
-The ```HybridTopologyHostMode``` example in [SCPNetExamples/HybridTopologyHostMode](SCPNetExamples/HybridTopologyHostMode/net) has examples on all the different types of hybrid modes.
+This directory now contains many SCP.Net examples that show the APIs available in SCP.Net NuGet package. Follow the instructions in the above directory to deploy these examples to your HDInsight Storm cluster.
+
+The ```HybridTopologyHostMode``` in [SCPNetExamples/HybridTopologyHostMode](SCPNetExamples/HybridTopologyHostMode/net) has examples on all the different types of hybrid modes.
 
 ### Topology, Spout  Bolt templates
 Templates to connect to various Azure services:
