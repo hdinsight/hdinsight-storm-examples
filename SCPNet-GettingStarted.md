@@ -215,37 +215,8 @@ Both of the options below are covered in the realtimeetl example: ```realtimeetl
 
 #### Java -> C#
 This section shows how to setup your customized SerDe for Java to C#.
-* C# Spout Constructor: We need to configure C# spout constructor to serialize the objects as JSON
-```csharp
-//This statement is used for Hybrid scenarios where you will add a customized serializer in C# spout 
-//and a customized deserializer in your java bolt
-this.context.DeclareCustomizedSerializer(new CustomizedInteropJSONSerializer());
-```
-* Topology Builder Section: We need to configure the topology builder so that the Java bolt receives objects Deserialized from JSON
-```csharp
-// Set a customized JSON Deserializer to deserialize a C# object (emitted by C# Spout) into JSON string for Java to Deserialize
-// Here, the full name of the Java JSON Deserializer class is required followed by the Java types for each of the fields
-List<string> javaDeserializerInfo = 
-    new List<string>() { "microsoft.scp.storm.multilang.CustomizedInteropJSONDeserializer", "java.lang.String" };
 
-topologyBuilder.SetSpout(
-        typeof(EventGenerator).Name,
-        EventGenerator.Get,
-        new Dictionary<string, List<string>>()
-        {
-           {Constants.DEFAULT_STREAM_ID, new List<string>(){"Event"}}
-        },
-        appConfig.EventHubPartitions,
-        true
-    ).
-    DeclareCustomizedJavaDeserializer(javaDeserializerInfo);
-```
-* 
-
-#### C# -> Java
-This section shows how to setup your customized SerDe for C# to Java.
-
-* Topology Builder Section: We need to configure the topology so that the C# bolt receives objects serialized from Java to JSON
+* Topology Builder Section: We need to configure the topology so that the C# bolt receives objects serialized from Java in JSON
 ```csharp
 // Set a customized JSON Serializer to serialize a Java object (emitted by Java Spout) into JSON string
 // Here, fullname of the Java JSON Serializer class is required
@@ -264,9 +235,38 @@ topologyBuilder.SetBolt(
     DeclareCustomizedJavaSerializer(javaSerializerInfo).
     shuffleGrouping("EventHubSpout");
 ```
-* C# Bolt Constructor: We also need to setup the constructor of C# bolt to deserialize the JSON serialized objects
+* C# Bolt Constructor: We also need to setup the constructor of C# bolt to deserialize the the object serialized in JSON by Java
 ```csharp
 this.context.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
+```
+
+#### C# -> Java
+This section shows how to setup your customized SerDe for C# to Java.
+
+* C# Spout Constructor: We need to configure C# spout constructor to serialize the objects to JSON
+```csharp
+//This statement is used for Hybrid scenarios where you will add a customized serializer in C# spout 
+//and a customized deserializer in your java bolt
+this.context.DeclareCustomizedSerializer(new CustomizedInteropJSONSerializer());
+```
+* Topology Builder Section: We need to configure the topology builder so that the Java bolt deserializes the objects serialized in JSON by the C# spout
+```csharp
+// Set a customized JSON Deserializer to deserialize a C# object (emitted by C# Spout) into JSON string for Java to Deserialize
+// Here, the full name of the Java JSON Deserializer class is required followed by the Java types for each of the fields
+List<string> javaDeserializerInfo = 
+    new List<string>() { "microsoft.scp.storm.multilang.CustomizedInteropJSONDeserializer", "java.lang.String" };
+
+topologyBuilder.SetSpout(
+        typeof(EventGenerator).Name,
+        EventGenerator.Get,
+        new Dictionary<string, List<string>>()
+        {
+           {Constants.DEFAULT_STREAM_ID, new List<string>(){"Event"}}
+        },
+        appConfig.EventHubPartitions,
+        true
+    ).
+    DeclareCustomizedJavaDeserializer(javaDeserializerInfo);
 ```
 
 ### Tick Tuples in SCP.Net
