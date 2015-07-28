@@ -24,7 +24,7 @@ The default way in Visual Studio is to create a "Class Library" Storm Project, w
   * One has to put their application configuration settings inside SCPHost.exe.config as that is the default execution container
   * You may need to add an empty App.Config file with name ```SCPHost.exe.config``` manually into your project if it was not added or you mistakenly removed it
 
-Reference example: [Real Time ETL Topology](realtimeetl/README.md)
+Reference example: [Real-Time ETL Topology](RealTimeETLExample)
 * The ```realtimeetl\EventHubAggregatorToHBaseTopology\SCPHost.exe.config``` contains all the application settings
 * Refer to ```realtimeetl\EventHubAggregatorToHBaseTopology\Common\AppConfig.cs``` for an alternative way to load any App.Config (by default it loads ```SCPHost.exe.config```).
   * One can also choose to directly use ```ConfigurationManager.AppSettings["YOUR_SETTING_NAME"];```
@@ -211,7 +211,7 @@ NOTE:
 * You do NOT need this option if you are doing a Java to Java or C# to C# data transfer.
 * As that data is just raw bytes that is transfered, you can also choose to implement your own serializers or deserializers.
 
-Both of the options below are covered in the realtimeetl example: ```realtimeetl/EventHubAggregatorToHBaseTopology/EventHubAggregatorToHBaseTopology.cs```
+Both of the options below are covered in the [RealTimeETLExample](RealTimeETLExample) example: [RealTimeETLExample/EventHubAggregatorToHBaseTopology/EventHubAggregatorToHBaseTopology.cs](RealTimeETLExample/EventHubAggregatorToHBaseTopology/EventHubAggregatorToHBaseTopology.cs)
 
 #### Java -> C#
 This section shows how to setup your customized SerDe for Java to C#.
