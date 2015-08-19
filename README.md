@@ -76,3 +76,7 @@ Templates to connect to various Azure services:
 * [Azure Event Hubs] (http://azure.microsoft.com/en-us/services/event-hubs/)
 * [DocumentDB] (http://azure.microsoft.com/en-us/services/documentdb/)
 * [SQL Azure] (http://azure.microsoft.com/en-us/services/sql-database/)
+
+## Build status
+
+[![Build status](https://ci.appveyor.com/api/projects/status/8s55c8pmlye9uhu8?svg=true)](https://ci.appveyor.com/project/rtandonmsft/hdinsight-storm-examples)

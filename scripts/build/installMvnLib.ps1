@@ -17,20 +17,9 @@ if(-not $?)
 # End - Initialization - Invocation, Logging etc
 ###########################################################
 
-$libDir = Join-Path $scriptDir "..\..\lib"
+& "$scriptDir\getMavenTools.ps1"
 
-if(Test-Path env:M2_HOME)
-{
-    Write-InfoLog "Found M2_HOME environment variable with value: '$env:M2_HOME'" (Get-ScriptName) (Get-ScriptLineNumber)
-    if (-not($env:PATH -like "*$env:M2_HOME\bin*"))
-    {
-        $env:PATH = "$env:M2_HOME\bin;$env:PATH"
-    }
-}
-else
-{
-    Write-WarnLog "M2_HOME not found. Please make sure that you either have M2_HOME set or include mvn in your path." (Get-ScriptName) (Get-ScriptLineNumber)
-}
+$libDir = Join-Path $scriptDir "..\..\lib"
 
 Write-SpecialLog "Pushing MVN libs" (Get-ScriptName) (Get-ScriptLineNumber)
 

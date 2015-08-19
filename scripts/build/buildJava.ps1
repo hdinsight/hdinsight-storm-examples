@@ -17,17 +17,18 @@ if(-not $?)
 # End - Initialization - Invocation, Logging etc
 ###########################################################
 
-if(Test-Path env:M2_HOME)
+if(Test-Path env:JAVA_HOME)
 {
-    Write-InfoLog "Found M2_HOME environment variable with value: '$env:M2_HOME'" (Get-ScriptName) (Get-ScriptLineNumber)
-    if (-not($env:PATH -like "*$env:M2_HOME\bin*"))
+    Write-InfoLog "Found JAVA_HOME environment variable with value: '$env:JAVA_HOME'" (Get-ScriptName) (Get-ScriptLineNumber)
+    if (-not($env:PATH -like "*$env:JAVA_HOME\bin*"))
     {
-        $env:PATH = "$env:M2_HOME\bin;$env:PATH"
+        $env:PATH = "$env:JAVA_HOME\bin;$env:JAVA_HOME;$env:PATH"
     }
 }
 else
 {
-    Write-ErrorLog "M2_HOME not found. Please make sure that you either have M2_HOME set or include mvn in your path." (Get-ScriptName) (Get-ScriptLineNumber) (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-ErrorLog "JAVA_HOME not found, please ensure that Java is installed on your system and environment variable JAVA_HOME is set." (Get-ScriptName) (Get-ScriptLineNumber)
+    throw "JAVA_HOME not found, please ensure that Java is installed on your system and environment variable JAVA_HOME is set."
 }
 
 & "$scriptDir\installMvnLib.ps1"
@@ -40,23 +41,23 @@ $javaProjects = gci -Recurse -Filter pom.xml | ? { -not ($_.FullName -like "*\ta
 Write-SpecialLog "Building Java Projects" (Get-ScriptName) (Get-ScriptLineNumber)
 Write-SpecialLog "======================" (Get-ScriptName) (Get-ScriptLineNumber)
 $javaProjects | % {
-Write-SpecialLog ("Building Java Project: " + $_.Directory) (Get-ScriptName) (Get-ScriptLineNumber)
-pushd $_.Directory
-$projectName=$_.FullName
-try
-{
-    mvn clean package
-    if($LASTEXITCODE -ne 0) { $buildErrorList += $projectName } else { $buildList += $projectName }; 
-}
-catch [System.Management.Automation.CommandNotFoundException]
-{
-    $buildErrorList += $projectName
-    Write-ErrorLog "An exception has occurred while building: $projectName"  (Get-ScriptName) (Get-ScriptLineNumber) $_
-}
-finally
-{
-    popd
-}
+    Write-SpecialLog ("Building Java Project: " + $_.Directory) (Get-ScriptName) (Get-ScriptLineNumber)
+    pushd $_.Directory
+    $projectName=$_.FullName
+    try
+    {
+        mvn clean package
+        if($LASTEXITCODE -ne 0) { $buildErrorList += $projectName } else { $buildList += $projectName }; 
+    }
+    catch [System.Management.Automation.CommandNotFoundException]
+    {
+        $buildErrorList += $projectName
+        Write-ErrorLog "An exception has occurred while building: $projectName"  (Get-ScriptName) (Get-ScriptLineNumber) $_
+    }
+    finally
+    {
+        popd
+    }
 }
 
 Write-SpecialLog "Project building complete!`r`n" (Get-ScriptName) (Get-ScriptLineNumber)

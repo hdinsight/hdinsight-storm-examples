@@ -53,7 +53,7 @@ Write-SpecialLog "======================" (Get-ScriptName) (Get-ScriptLineNumber
 
 if($buildErrorList.Count -ne 0)
 {
-    Write-ErrorLog "ERROR: One or more project failed to build:" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-ErrorLog "ERROR: One or more projects failed to build:" (Get-ScriptName) (Get-ScriptLineNumber)
     $buildErrorList | % { Write-ErrorLog $_  (Get-ScriptName) (Get-ScriptLineNumber) }
     Write-SpecialLog "Projects built successfully:" (Get-ScriptName) (Get-ScriptLineNumber)
     $buildList | % { Write-SpecialLog $_  (Get-ScriptName) (Get-ScriptLineNumber) }
