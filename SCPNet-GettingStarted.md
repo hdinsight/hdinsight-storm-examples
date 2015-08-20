@@ -6,6 +6,8 @@ SCP.Net provides .Net C# programmability against Apache Storm on Azure HDInsight
 ## Getting Started
 SCP.Net is now available as a nuget package: [Microsoft.SCP.Net.SDK](http://www.nuget.org/packages/Microsoft.SCP.Net.SDK/)
 
+[![NuGet version](https://badge.fury.io/nu/Microsoft.SCP.Net.SDK.svg)](http://badge.fury.io/nu/Microsoft.SCP.Net.SDK)
+
 When you create a new Storm Application through Visual Studio using [HDInsight Tools](http://azure.microsoft.com/en-us/documentation/articles/hdinsight-hadoop-visual-studio-tools-get-started), SCP.Net is autommatically added into your project.
 
 Also refer the MSDN article on [Developing Storm C# Topology in VS](http://azure.microsoft.com/en-us/documentation/articles/hdinsight-storm-develop-csharp-visual-studio-topology/)

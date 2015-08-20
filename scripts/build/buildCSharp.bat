@@ -1,19 +1,20 @@
 @echo off
-
 set VSTOOLS_PATH="%VS120COMNTOOLS%"
-goto LOADVSTOOLS
+call :LOADVSTOOLS
 
 set VSTOOLS_PATH="%ProgramFiles(x86)%\Microsoft Visual Studio 12.0\Common7\Tools\"
-goto LOADVSTOOLS
+call :LOADVSTOOLS
 
 set VSTOOLS_PATH="%VS110COMNTOOLS%"
-goto LOADVSTOOLS
+call :LOADVSTOOLS
 
 set VSTOOLS_PATH="%ProgramFiles(x86)%\Microsoft Visual Studio 11.0\Common7\Tools\"
-goto LOADVSTOOLS
+call :LOADVSTOOLS
 
-echo ERROR: Could not locate Visual Studio 2012 or Visual Studio 2013 build tools in your path. Please try running this build script from a Visual Studio Command Prompt.
-goto ERROR
+set WARN_MESSAGE=WARNING: Could not locate Visual Studio 2012 or Visual Studio 2013 build tools. Your build may fail while trying to call msbuild.exe if its not in your system path.
+powershell -Command Write-Host "%WARN_MESSAGE%" -foreground "Yellow"
+
+goto BUILD
 
 :LOADVSTOOLS
 IF EXIST %VSTOOLS_PATH%vsvars32.bat (
@@ -36,11 +37,13 @@ goto DONE
 goto :eof
 
 :ERROR
-popd
+if [%1] NEQ [] (popd)
+if %ERRORLEVEL% NEQ 0 (
+exit /b %ERRORLEVEL%
+) ELSE (
 exit /b -1
+)
 
 :DONE
-if [%1] NEQ [] (
-popd
-)
+if [%1] NEQ [] (popd)
 exit /b %ERRORLEVEL%

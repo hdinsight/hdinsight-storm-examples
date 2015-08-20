@@ -31,6 +31,7 @@ $projects | % {
         try
         {
             .\build.ps1
+            if($LASTEXITCODE -ne 0) { $buildErrorList += $projectName } else { $buildList += $projectName };
         }
         catch
         {

@@ -2,7 +2,7 @@
 Param(
     [parameter(Mandatory=$true)]
     [string]$ExampleDir,
-	[parameter(Mandatory=$false)]
+    [parameter(Mandatory=$false)]
     [string[]]$Exclusions
     )
     
@@ -27,65 +27,73 @@ if(-not $?)
 
 function Clean-ExampleFolder($cleanupDir)
 {
-	if(-not (Test-Path $cleanupDir))
-	{
-		return;
-	}
-	
-	Write-InfoLog "Cleaning $cleanupDir" (Get-ScriptName) (Get-ScriptLineNumber)
-	
-	Get-ChildItem -Directory -Recurse -Path $cleanupDir -Include "bin", "obj", "packages", "target" -Exclude $Exclusions | % `
-	{ 
-		Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
-		Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue 
-	}
-	
-	Get-ChildItem -Recurse -Path $cleanupDir -Include "SubmitConfig.xml", "*.spec", "*.zip", "*.suo", "*.user", "*.out", "*.log" -Exclude $Exclusions | % `
-	{
-		Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
-		Remove-Item -Path $_ -Force -ErrorAction SilentlyContinue
-	}
-	
-	Get-ChildItem -Recurse -Hidden -Path $cleanupDir -Include "SubmitConfig.xml", "*.spec", "*.zip", "*.suo", "*.user", "*.out", "*.log" -Exclude $Exclusions | % `
-	{
-		Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
-		Remove-Item -Path $_ -Force -ErrorAction SilentlyContinue
-	}
+    if(-not (Test-Path $cleanupDir))
+    {
+        return;
+    }
+
+    Write-InfoLog "Cleaning $cleanupDir" (Get-ScriptName) (Get-ScriptLineNumber)
+
+    Get-ChildItem -Directory -Recurse -Path $cleanupDir -Include "bin", "obj", "packages", "target" -Exclude $Exclusions | % `
+    {
+        Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+        Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    $Inclusions = @("SubmitConfig.xml", "*.spec", "*.zip", "*.suo", "*.user", "*.out", "*.log")
+
+    Get-ChildItem -Recurse -Path $cleanupDir -Include $Inclusions -Exclude $Exclusions | % `
+    {
+        Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+        Remove-Item -Path $_ -Force -ErrorAction SilentlyContinue
+    }
+
+    Get-ChildItem -Recurse -Hidden -Path $cleanupDir -Include $Inclusions -Exclude $Exclusions | % `
+    {
+        Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+        Remove-Item -Path $_ -Force -ErrorAction SilentlyContinue
+    }
 }
 
 #Try to delete as much as we can
 $ErrorActionPreference = "SilentlyContinue"
-	
+
 $ExampleDir = $ExampleDir.Replace("""","")
 $runConfigurationFile = Join-Path $ExampleDir "run\configurations.properties"
 
 Write-InfoLog "Checking for a run configuration file. Path: $runConfigurationFile" (Get-ScriptName) (Get-ScriptLineNumber)
 if(Test-Path $runConfigurationFile)
 {
-	Write-InfoLog "Run configuration file found. Path: $runConfigurationFile" (Get-ScriptName) (Get-ScriptLineNumber)
-	Write-SpecialLog "===== Azure Resources clean-up =====" (Get-ScriptName) (Get-ScriptLineNumber)
-	& "$scriptDir\azure\DeleteAzureResources.ps1" "$ExampleDir"
+    Write-InfoLog "Run configuration file found. Path: $runConfigurationFile" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-SpecialLog "===== Azure Resources clean-up =====" (Get-ScriptName) (Get-ScriptLineNumber)
+    & "$scriptDir\azure\DeleteAzureResources.ps1" "$ExampleDir"
 }
 else
 {
-	Write-WarnLog "Run configuration file not found. Path: $runConfigurationFile" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-WarnLog "Run configuration file not found. Path: $runConfigurationFile" (Get-ScriptName) (Get-ScriptLineNumber)
 }
 
 if($Exclusions)
 {
-	Write-SpecialLog "===== File and folder clean-up =====" (Get-ScriptName) (Get-ScriptLineNumber)
-	Write-SpecialLog "Exclusions: $Exclusions" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-SpecialLog "===== File and folder clean-up =====" (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-SpecialLog "Exclusions: $Exclusions" (Get-ScriptName) (Get-ScriptLineNumber)
 }
 
 Clean-ExampleFolder "$scriptDir\..\tools"
 Clean-ExampleFolder "$ExampleDir"
 
-Get-ChildItem -Directory -Recurse -Path $ExampleDir -Include "run" -Exclude $Exclusions | % `
-{ 
-	Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
-	Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue 
+Get-ChildItem -Directory -Recurse -Path "$scriptDir\..\tools\maven" -Exclude $Exclusions | % `
+{
+    Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+    Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue
 }
-	
+
+Get-ChildItem -Directory -Recurse -Path $ExampleDir -Include "run" -Exclude $Exclusions | % `
+{
+    Write-InfoLog "Deleting $_" (Get-ScriptName) (Get-ScriptLineNumber)
+    Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 if(Test-Path "$scriptDir\..\packages")
 {
     Remove-Item "$scriptDir\..\packages" -Force -Recurse -ErrorAction SilentlyContinue

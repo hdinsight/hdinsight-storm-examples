@@ -1,6 +1,6 @@
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
 # Build script
 build_script:
   - ps: .\build.ps1
-
-# Tests
-test: off

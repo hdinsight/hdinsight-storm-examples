@@ -1,7 +1,23 @@
 # hdinsight-storm-examples
-This repository contains complete and easy to use examples that demonstrate the power of Apache Storm on Azure HDInsight.
+This repository contains complete and easy to use examples that demonstrate the power of Apache Storm on Microsoft Azure HDInsight.
 
 ## Getting Started
+
+**Official page - [Apache Storm for Microsoft Azure HDInsight](http://azure.microsoft.com/en-us/services/hdinsight/apache-storm/)**
+
+**Getting Started page - [Getting Started with HDInsight Storm](https://azure.microsoft.com/en-us/documentation/articles/hdinsight-storm-overview/)**
+
+### Repository structure
+
+1. End-to-end examples - Read more about them below
+  1. [EventCountExample](EventCountExample) - Scalability benchmark for Microsoft Azure EventHubs
+  2. [IotExample](IotExample) - Internet of things - connected cars scenario
+  3. [RealTimeETLExample](RealTimeETLExample) - Web request aggregation into HBase
+2. [SCPNetExamples](SCPNetExamples) - Examples that show API usage of SCP.Net
+3. [lib](lib) - Java dependencies
+4. [scripts](scripts) - Automation scripts
+5. [Templates](templates) - Azure services templates
+6. [tools](tools) - Helper tools
 
 ### Running the examples
 Each of the examples folder contains a ```run.bat``` that does the following:
@@ -39,9 +55,9 @@ A scalability benchmark that demonstrates throughput from EventHub and stores th
 Read more about this example here: [Event Count example using Azure EventHubs, Storm, SQL Azure](EventCountExample)
 
 ### Real Time ETL Example (SCP.Net)
-A real time ETL examples that deploy two topologies.
-The first one to generate Web Request Logs and push them to EventHub.
-And, the second topology reads from EventHub, calculates aggregations("count() group by") and then stores the computations in a HDInsight HBase cluster.
+A real time ETL example with EventHubs, Storm and HBase that has two topologies.
+* The first topology **Event Sender Topology** generates Web Request Logs and pushes them to EventHubs.
+* The second topology **Event Aggregation Topology** reads from EventHubs, calculates aggregations("count() group by") and then stores the computations in a HDInsight HBase cluster.
 
 Read more about this example here: [Real Time ETL example using Azure EventHubs, Storm, HBase & SCP.Net](RealTimeETLExample)
 

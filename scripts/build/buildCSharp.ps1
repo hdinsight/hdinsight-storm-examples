@@ -32,9 +32,9 @@ pushd $_.Directory
 $projectName=$_.FullName
 try
 {
-    nuget.exe restore
+    nuget-restore -verbosity detailed
     msbuild.exe /m /fl /flp:"Verbosity=Detailed" /clp:verbosity="Minimal;Summary" /t:"Clean;Build" /p:configuration="Debug" /p:platform="Any CPU"
-    if($LASTEXITCODE -ne 0) { $buildErrorList += $projectName } else { $buildList += $projectName }; 
+    if($LASTEXITCODE -ne 0) { $buildErrorList += $projectName } else { $buildList += $projectName };
 }
 catch [System.Management.Automation.CommandNotFoundException]
 {
