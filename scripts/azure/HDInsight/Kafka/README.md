@@ -1,19 +1,19 @@
-# Apache Kafka on Azure HDInsight Storm/Spark Cluster
+# Apache Kafka on Azure HDInsight Storm/Spark Clusters
 
 This directory contains Azure HDInsight ScriptAction scripts to install Kafka on any type of HDInsight cluster: Storm, HBase, Spark, Hadoop.
 
 Directory contents:
 * [CreateKafkaCluster.ps1](CreateKafkaCluster.ps1) - A script that invokes the [HDInsight CreateCluster](..\CreateCluster.ps1) script to deploy a Kafka cluster.
 
-* [kafka-installer-v02.ps1](kafka-installer-v02.ps1) - The main script that is passed to HDInsight Cluster Creation command to be invoked during cluster creation.
+* [kafka-installer-v03.ps1](kafka-installer-v03.ps1) - The main script that is passed to HDInsight Cluster Creation command to be invoked during cluster creation.
 ```PowerShell
-$ScriptActionUri = & "..\Storage\UploadFileToStorage.ps1" --AccountName $StorageAccountName "kafkaconfigactionv02" ".\Kafka\kafka-installer-v02.ps1" "kafka-installer-v02.ps1"
+$ScriptActionUri = & "..\Storage\UploadFileToStorage.ps1" --AccountName $StorageAccountName "kafkaconfigactionv03" ".\Kafka\kafka-installer-v03.ps1" "kafka-installer-v03.ps1"
 $ScriptActionParameters = "-KafkaBinaryZipLocation $kafkaUri -KafkaHomeName $kafkaVersion -UnzipExeLocation $unzipUri -RemoteAdminUsername remote{0} -RemoteAdminPassword {1}" -f $ClusterUsername, $ClusterPassword
 ```
 
 * [kafka_2.11-0.8.2.1.zip](kafka_2.11-0.8.2.1.zip) - Latest Kafka 2.11-0.8.2.1 bits downloaded from [http://kafka.apache.org/downloads.html](http://kafka.apache.org/downloads.html). The tar file is extracted and re-packaged into a zip file alongwith with [nssm](http://www.nssm.cc/) to install Kafka as a service.
 
-* [HDInsightUtilities-v02.psm1](HDInsightUtilities-v02.psm1) - HDInsight Utilities Script that provides general functions that you can use during execution. The script is hosted on [https://hdiconfigactions.blob.core.windows.net/configactionmodulev02/HDInsightUtilities-v02.psm1](https://hdiconfigactions.blob.core.windows.net/configactionmodulev02/HDInsightUtilities-v02.psm1)
+* [HDInsightUtilities-v03.psm1](HDInsightUtilities-v03.psm1) - HDInsight Utilities Script that provides general functions that you can use during execution. The script is hosted on [https://hdiconfigactions.blob.core.windows.net/configactionmodulev03/HDInsightUtilities-v03.psm1](https://hdiconfigactions.blob.core.windows.net/configactionmodulev03/HDInsightUtilities-v03.psm1)
 
 * [unzip.exe](unzip.exe) - A simple command line tool to zip or extract files. We use this as an alternative way of extraction than using Shell.Application (via Expand-HDIZippedFile).
 
@@ -23,6 +23,8 @@ $cluster = & ".\Kafka\CreateKafkaCluster.ps1" --ClusterName $ClusterName --Stora
 ```
 
 ## Kafka Installation Script Notes
+
+* The Kafka broker service is only installed on worker nodes and not headnodes.
 
 * The RemoteAdminUsername and RemoteAdminPassword are optional but come in very handy if you want administrative access created on each node on your cluster. Once you enable RDP on your cluster, you can use this username/password to login via admin credentials. Please use this at your own discretion to avoid giving more than required access.
 
@@ -75,9 +77,12 @@ A HDInsight cluster is spread across 5 Upgrade domains and 2 Fault Domains. On a
 This does not impact any existing offered cluster types as they use Windows Azure Blobs (WASB) as their default storage, so your data is never gone even if a node was unavailable.
 
 However for Kafka, this installation script does not use WASB as the storage platform for Kafka. You may want to consider increasing the replication factor to accomplish durability.
-To ensure your data is highly available during such events, the most safest and conservative approach would be to have replication factor greater than 20% of your node size i.e. a replication factor of 3 is good until a cluster size of 15 nodes.
+To ensure your data is highly available during such events, the most safest and conservative approach would be to have replication factor greater than or equal to 20% of your cluster size + 1 node i.e. a replication factor of 3 is good until a cluster size of 10 nodes.
+For a 15 node cluster size, a replication factor of 4 will be ideal.
 
-Again - this comment is only applicable considering this custom script action in perspective as we have not touched anything related to Kafka FS in this script.
+Again - this comment is only applicable considering this custom script action in perspective as we have not touched anything related to Kafka File System in this script.
+
+The Kafka data logs are located on the C drive under "tmp" directory on the worker nodes.
 
 ## How to debug custom script action
 
@@ -92,5 +97,5 @@ You need to check the ```SetupLog``` Azure Table created in your storage account
   * Here is an example script that takes your script's full path as an input and let's you know if it has any issues: [../../VerifyPowershellScript.ps1](../../VerifyPowershellScript.ps1)
 
 ## References
-* [HDInsightUtilities-v02.psm1](https://hdiconfigactions.blob.core.windows.net/configactionmodulev02/HDInsightUtilities-v02.psm1)
+* [HDInsightUtilities-v03.psm1](https://hdiconfigactions.blob.core.windows.net/configactionmodulev03/HDInsightUtilities-v03.psm1)
 * [PowerShell helper functions for Azure HDInsight](https://github.com/Blackmist/hdinsight-tools)

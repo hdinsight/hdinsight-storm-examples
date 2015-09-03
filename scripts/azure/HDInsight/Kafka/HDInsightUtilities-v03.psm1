@@ -4,9 +4,6 @@
    
 .DESCRIPTION 
   This module provides a list of functions that makes writing script action on HDInsight cluster easy.
-
-.NOTES 
-    Author     : Chu Tong - chtong@microsoft.com
 #> 
 
 
@@ -21,9 +18,43 @@ function Save-HDIFile {
         return
     }
 
+    # Hash the src uri to a well structured format.
+    $md5 = new-object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
+    $utf8 = new-object -TypeName System.Text.UTF8Encoding
+    $hashedSrcUri = [System.BitConverter]::ToString($md5.ComputeHash($utf8.GetBytes($SrcUri)))
+
+    if (Test-IsHDIHeadNode) {
+        $group = "headnode";
+    } else {
+        $group = "workernode";
+    }
+
+    # Make sure config action cache directory is made.
+    $output = Invoke-HDICmdScript -CmdToExecute "%HADOOP_HOME%\bin\hadoop fs -mkdir -p /configactioncache/$group";
+
+    # Check if the file looking for is cached on WASB.
+    $output = Invoke-HDICmdScript -CmdToExecute "hadoop fs -ls /configactioncache/$group/$hashedSrcUri";
+
     # Download source to local disk.
-    $webclient = New-Object System.Net.WebClient
-    $webclient.DownloadFile($SrcUri, $destFile)
+    if (!$output.Contains("No such file")) {
+        # Download the file from WASB if it is there.
+        Write-HDILog "Fetching from WASB cache"
+        $output = Invoke-HDICmdScript -CmdToExecute "hadoop fs -copyToLocal /configactioncache/$group/$hashedSrcUri $DestFile";
+    } else {
+        # Download the file from remote location.
+        $webclient = New-Object System.Net.WebClient
+        $webclient.DownloadFile($SrcUri, $destFile)
+
+        # Cache this file to WASB. Only active headnode or workernode0 will cache to avoid collision.
+        if ((Test-IsHDIFirstDataNode) -or (Test-IsActiveHDIHeadNode)) {
+            $output = Invoke-HDICmdScript -CmdToExecute "%HADOOP_HOME%\bin\hadoop fs -copyFromLocal -f $destFile /configactioncache/$group/$hashedSrcUri";
+        }
+    }
+
+    $rule = new-object System.Security.AccessControl.FileSystemAccessRule("$(whoami)", "FullControl", "Allow");
+    $acl = Get-ACL $DestFile;
+    $acl.SetAccessRule($rule);
+    Set-ACL -Path $DestFile -AclObject $acl;   
 }
 
 function Expand-HDIZippedFile {
@@ -127,6 +158,10 @@ function Test-IsHDIDataNode {
     return (Get-HDIService -ServiceName "datanode") -ne $null
 }
 
+function Test-IsHDIFirstDataNode {
+    return (Test-IsHDIDataNode) -and ($(hostname).Equals("workernode0"))
+}
+
 function Edit-HDIConfigFile {
     param (
         [parameter(Mandatory)][string] $ConfigFileName,
@@ -187,4 +222,5 @@ Export-ModuleMember -function Get-HDIHadoopVersion
 Export-ModuleMember -function Test-IsHDIHeadNode
 Export-ModuleMember -function Test-IsActiveHDIHeadNode
 Export-ModuleMember -function Test-IsHDIDataNode
+Export-ModuleMember -function Test-IsHDIFirstDataNode
 Export-ModuleMember -function Edit-HDIConfigFile
