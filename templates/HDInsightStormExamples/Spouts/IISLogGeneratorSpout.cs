@@ -1,14 +1,6 @@
 ﻿using Microsoft.SCP;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace HDInsightStormExamples.Spouts
 {
@@ -17,12 +9,12 @@ namespace HDInsightStormExamples.Spouts
     /// This is a non-transactional spout that can operate with or without acks
     /// In enableAck = true mode, it caches the tuples and re-emits them on Fail
     /// </summary>
-    class IISLogGeneratorSpout : ISCPSpout
+    public class IISLogGeneratorSpout : ISCPSpout
     {
         Context context;
         long seqId = 0;
 
-        Dictionary<long, object> cachedTuples = new Dictionary<long, object>();
+        Dictionary<long, List<object>> cachedTuples = new Dictionary<long, List<object>>();
         bool enableAck = false;
 
         public static Random random = new Random();
@@ -134,7 +126,7 @@ namespace HDInsightStormExamples.Spouts
                 //Re-emit the failed tuple again - only if it exists
                 if (cachedTuples.ContainsKey(seqId))
                 {
-                    this.context.Emit(Constants.DEFAULT_STREAM_ID, new Values(cachedTuples[seqId]), seqId);
+                    this.context.Emit(Constants.DEFAULT_STREAM_ID, cachedTuples[seqId], seqId);
                 }
             }
         }
