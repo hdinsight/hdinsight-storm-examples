@@ -80,12 +80,18 @@ else
         Write-InfoLog "Creating HDInsight Cluster Configuration - Type: $ClusterType, Size: $ClusterSize, VNet: $VNetId, Subnet: $SubnetName" (Get-ScriptName) (Get-ScriptLineNumber)
         $Config = New-AzureHDInsightClusterConfig -ClusterSizeInNodes $ClusterSize -ClusterType $ClusterType -VirtualNetworkId $VNetId -SubnetName $SubnetName
     }
-	
+
     $Config = $Config | Set-AzureHDInsightDefaultStorage -StorageAccountName $StorageUrl -StorageAccountKey $StorageKey -StorageContainerName $ContainerName
     
     if($ClusterType.Equals("Storm", [System.StringComparison]::OrdinalIgnoreCase))
     {
-        $Config = $Config | Add-AzureHDInsightConfigValues -Storm @{"supervisor.worker.timeout.secs"="45"}
+        $stormConfiguration = @{
+            "nimbus.monitor.freq.secs"="120"
+            "supervisor.worker.timeout.secs"="45"
+            #"supervisor.slots.ports"="[6700,6701,6702,6703,6704,6705,6706,6707,6708,6709,6710,6711]"
+            #"worker.childopts"="-Xmx512m"
+        }
+        $Config = $Config | Add-AzureHDInsightConfigValues -Storm $stormConfiguration
     }
 
     if(-not ([String]::IsNullOrWhitespace($ScriptActionUri)))
