@@ -66,7 +66,7 @@ namespace EventCountHybridTopology
                 "microsoft.scp.storm.multilang.CustomizedInteropJSONSerializer" };
 
             var boltConfig = new StormConfig();
-            boltConfig.Set("topology.tick.tuple.freq.secs", "15");
+            boltConfig.Set("topology.tick.tuple.freq.secs", "1");
 
             topologyBuilder.SetBolt(
                     typeof(PartialCountBolt).Name,

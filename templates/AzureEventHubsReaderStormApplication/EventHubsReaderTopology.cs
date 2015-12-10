@@ -22,11 +22,15 @@ namespace EventHubsReaderTopology
     /// This TopologyDescriptor is marked as Active
     /// </summary>
     [Active(true)]
-    public class EventCountHybridTopology : TopologyDescriptor
+    public class EventHubsReaderTopology : TopologyDescriptor
     {
         public ITopologyBuilder GetTopologyBuilder()
         {
-            TopologyBuilder topologyBuilder = new TopologyBuilder(typeof(EventCountHybridTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
+            var enableAck = true;
+            //var enableAck = bool.Parse(ConfigurationManager.AppSettings["EnableAck"]);
+
+            TopologyBuilder topologyBuilder = 
+                new TopologyBuilder(typeof(EventHubsReaderTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             var eventHubPartitions = int.Parse(ConfigurationManager.AppSettings["EventHubPartitions"]);
 
@@ -42,20 +46,21 @@ namespace EventHubsReaderTopology
 
             // Set a customized JSON Serializer to serialize a Java object (emitted by Java Spout) into JSON string
             // Here, full name of the Java JSON Serializer class is required
-            List<string> javaSerializerInfo = new List<string>() { "microsoft.scp.storm.multilang.CustomizedInteropJSONSerializer" };
+            List<string> javaSerializerInfo = new List<string>() { 
+                "microsoft.scp.storm.multilang.CustomizedInteropJSONSerializer" };
 
             var boltConfig = new StormConfig();
             boltConfig.Set("topology.tick.tuple.freq.secs", "1");
 
             topologyBuilder.SetBolt(
-                typeof(PartialCountBolt).Name,
-                PartialCountBolt.Get,
-                new Dictionary<string, List<string>>()
-                {
-                    {Constants.DEFAULT_STREAM_ID, new List<string>(){ "partialCount" } }
-                },
-                eventHubPartitions,
-                true
+                    typeof(PartialCountBolt).Name,
+                    PartialCountBolt.Get,
+                    new Dictionary<string, List<string>>()
+                    {
+                        {Constants.DEFAULT_STREAM_ID, new List<string>(){ "partialCount" } }
+                    },
+                    eventHubPartitions,
+                    enableAck
                 ).
                 DeclareCustomizedJavaSerializer(javaSerializerInfo).
                 shuffleGrouping("com.microsoft.eventhubs.spout.EventHubSpout").
@@ -69,13 +74,22 @@ namespace EventHubsReaderTopology
                     {Constants.DEFAULT_STREAM_ID, new List<string>(){ "timestamp", "totalCount" } }
                 },
                 1, 
-                true).
+                enableAck).
                 globalGrouping(typeof(PartialCountBolt).Name).
                 addConfigurations(boltConfig);
 
             var topologyConfig = new StormConfig();
-            topologyConfig.setMaxSpoutPending(8192);
             topologyConfig.setNumWorkers(eventHubPartitions);
+            if (enableAck)
+            {
+                topologyConfig.setNumAckers(eventHubPartitions);
+            }
+            else
+            {
+                topologyConfig.setNumAckers(0);
+            }
+            topologyConfig.setWorkerChildOps("-Xmx1g");
+            topologyConfig.setMaxSpoutPending((1024*1024)/100);
 
             topologyBuilder.SetTopologyConfig(topologyConfig);
             return topologyBuilder;

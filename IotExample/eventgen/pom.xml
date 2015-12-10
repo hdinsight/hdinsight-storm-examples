@@ -44,7 +44,7 @@
     <dependency>
       <groupId>com.microsoft.eventhubs</groupId>
       <artifactId>eventhubs-storm-spout</artifactId>
-      <version>0.9.3</version>
+      <version>0.9.4</version>
     </dependency>
     <dependency>
       <groupId>org.json</groupId>

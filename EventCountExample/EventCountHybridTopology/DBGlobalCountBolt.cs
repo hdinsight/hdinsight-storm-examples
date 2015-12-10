@@ -19,6 +19,9 @@ namespace EventCountHybridTopology
         long partialCount = 0L;
         long totalCount = 0L;
 
+        //Maintain a queue of tuples in the current batch
+        //We need to ack these tuples when the batch is finished i.e. when the TICK tuple arrives
+        //Why queue? - So that we can ack in order the tuples were received
         Queue<SCPTuple> tuplesToAck = new Queue<SCPTuple>();
 
         bool enableAck = false;
@@ -95,6 +98,7 @@ namespace EventCountHybridTopology
                 var incomingPartialCount = tuple.GetLong(0);
                 partialCount += incomingPartialCount;
                 totalCount += incomingPartialCount;
+                //Do no ack here but add to the acking queue
                 if (enableAck)
                 {
                     tuplesToAck.Enqueue(tuple);

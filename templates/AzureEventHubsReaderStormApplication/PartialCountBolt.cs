@@ -12,13 +12,15 @@ namespace EventHubsReaderTopology
     {
         Context ctx;
 
+        long partialCount = 0L;
+        long totalCount = 0L;
+
         //Maintain a queue of tuples in the current batch
         //We need to ack these tuples when the batch is finished i.e. when the TICK tuple arrives
         //Why queue? - So that we can ack in order the tuples were received
-        ConcurrentQueue<SCPTuple> queue;
+        Queue<SCPTuple> tuplesToAck = new Queue<SCPTuple>();
 
-        long partialCount = 0L;
-        long totalCount = 0L;
+        bool enableAck = false;
 
         public PartialCountBolt(Context ctx)
         {
@@ -40,7 +42,11 @@ namespace EventHubsReaderTopology
 
             this.ctx.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
 
-            queue = new ConcurrentQueue<SCPTuple>();
+            if (Context.Config.pluginConf.ContainsKey(Constants.NONTRANSACTIONAL_ENABLE_ACK))
+            {
+                enableAck = (bool)(Context.Config.pluginConf[Constants.NONTRANSACTIONAL_ENABLE_ACK]);
+            }
+
             partialCount = 0L;
             totalCount = 0L;
         }
@@ -55,28 +61,23 @@ namespace EventHubsReaderTopology
             {
                 if (partialCount > 0)
                 {
-                    List<SCPTuple> tuplesToAck = new List<SCPTuple>();
-                    while (queue.Count > 0)
-                    {
-                        SCPTuple tupleToAck = null;
-                        var result = queue.TryDequeue(out tupleToAck);
-                        if (result && tupleToAck != null)
-                        {
-                            tuplesToAck.Add(tupleToAck);
-                        }
-                    }
-
-                    Context.Logger.Info("emitting count " +
-                        "- batchSize: " + tuplesToAck.Count +
-                        ", partialCount: " + partialCount +
+                    Context.Logger.Info("emitting partialCount: " + partialCount +
                         ", totalCount: " + totalCount);
-
-                    this.ctx.Emit(Constants.DEFAULT_STREAM_ID, tuplesToAck, new Values(partialCount));
-                    partialCount = 0L;
-                    foreach(var tupleToAck in tuplesToAck)
+                    if (enableAck)
                     {
-                        this.ctx.Ack(tupleToAck);
+                        Context.Logger.Info("tuplesToAck: " + tuplesToAck);
+                        this.ctx.Emit(Constants.DEFAULT_STREAM_ID, tuplesToAck, new Values(partialCount));
+                        foreach (var tupleToAck in tuplesToAck)
+                        {
+                            this.ctx.Ack(tupleToAck);
+                        }
+                        tuplesToAck.Clear();
                     }
+                    else
+                    {
+                        this.ctx.Emit(Constants.DEFAULT_STREAM_ID, new Values(partialCount));
+                    }
+                    partialCount = 0L;
                 }
             }
             else
@@ -84,7 +85,10 @@ namespace EventHubsReaderTopology
                 partialCount++;
                 totalCount++;
                 //Do no ack here but add to the acking queue
-                queue.Enqueue(tuple);
+                if (enableAck)
+                {
+                    tuplesToAck.Enqueue(tuple);
+                }
             }
         }
 
