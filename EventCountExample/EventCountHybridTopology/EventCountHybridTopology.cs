@@ -26,6 +26,8 @@ namespace EventCountHybridTopology
     {
         public ITopologyBuilder GetTopologyBuilder()
         {
+            var enableAck = bool.Parse(ConfigurationManager.AppSettings["EnableAck"]);
+
             TopologyBuilder topologyBuilder = 
                 new TopologyBuilder(typeof(EventCountHybridTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
 
@@ -64,7 +66,7 @@ namespace EventCountHybridTopology
                 "microsoft.scp.storm.multilang.CustomizedInteropJSONSerializer" };
 
             var boltConfig = new StormConfig();
-            boltConfig.Set("topology.tick.tuple.freq.secs", "1");
+            boltConfig.Set("topology.tick.tuple.freq.secs", "15");
 
             topologyBuilder.SetBolt(
                     typeof(PartialCountBolt).Name,
@@ -74,7 +76,7 @@ namespace EventCountHybridTopology
                         {Constants.DEFAULT_STREAM_ID, new List<string>(){ "partialCount" } }
                     },
                     eventHubPartitions,
-                    true
+                    enableAck
                 ).
                 DeclareCustomizedJavaSerializer(javaSerializerInfo).
                 shuffleGrouping("com.microsoft.eventhubs.spout.EventHubSpout").
@@ -84,12 +86,23 @@ namespace EventCountHybridTopology
                 typeof(DBGlobalCountBolt).Name,
                 DBGlobalCountBolt.Get,
                 new Dictionary<string, List<string>>(),
-                1).
+                1,
+                enableAck).
                 globalGrouping(typeof(PartialCountBolt).Name).
                 addConfigurations(boltConfig);
 
             var topologyConfig = new StormConfig();
             topologyConfig.setNumWorkers(eventHubPartitions);
+            if (enableAck)
+            {
+                topologyConfig.setNumAckers(eventHubPartitions);
+            }
+            else
+            {
+                topologyConfig.setNumAckers(0);
+            }
+            topologyConfig.setWorkerChildOps("-Xmx1g");
+            topologyConfig.setMaxSpoutPending((1024*1024)/100);
 
             topologyBuilder.SetTopologyConfig(topologyConfig);
             return topologyBuilder;

@@ -30,12 +30,17 @@ if(-not $?)
 # End - Initialization - Invocation, Logging etc
 ###########################################################
 
-Write-SpecialLog "Replacing configurations in $FilePath" (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "Replacing configurations in $FilePath" (Get-ScriptName) (Get-ScriptLineNumber)
 
 $content = Get-Content $TempFilePath
 foreach( $key in $config.Keys )
 {
     $newVal = $config[$key]
+    if([String]::IsNullOrWhiteSpace($newVal))
+    {
+        Write-ErrorLog ("Value cannot be empty for: " + $config[$key]) (Get-ScriptName) (Get-ScriptLineNumber)
+        throw ("Value cannot be empty for: " + $config[$key])
+    }
     if($content -like "*{$key}*")
     {
         Write-InfoLog ("Updating $key with value: " + $config[$key]) (Get-ScriptName) (Get-ScriptLineNumber)

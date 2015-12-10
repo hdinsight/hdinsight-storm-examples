@@ -1,11 +1,24 @@
-#Azure EventHubs configurations
-eventhubspout.username = {EVENTHUBS_USERNAME}
-eventhubspout.password = {EVENTHUBS_PASSWORD}
-eventhubspout.namespace = {EVENTHUBS_NAMESPACE}
-eventhubspout.entitypath = {EVENTHUBS_ENTITY_PATH}
-eventhubspout.partitions.count = {EVENTHUBS_PARTITION_COUNT}
+#Azure HDInsight Kafka configurations
+kafka.brokers = {KAFKA_BROKERS}
+kafka.zookeepers = {KAFKA_ZOOKEEPERS}
+kafka.topic = {KAFKA_TOPIC}
 
-eventhubspout.checkpoint.interval = 10
-eventhub.receiver.credits = 1024
+#Azure EventHubs configurations
+eventhubs.username = {EVENTHUBS_USERNAME}
+eventhubs.password = {EVENTHUBS_PASSWORD}
+eventhubs.namespace = {EVENTHUBS_NAMESPACE}
+eventhubs.entitypath = {EVENTHUBS_ENTITY_PATH}
+
+eventhubs.checkpoint.interval = 10
+eventhubs.receiver.credits = 1024
+
+#Common configurations
+partition.count = {EVENTHUBS_PARTITION_COUNT}
 
 sqldb.connection.str = jdbc:sqlserver://{SQLAZURE_SERVER_NAME}.database.windows.net:1433;database={SQLAZURE_DB_NAME};user={SQLAZURE_USER};password={SQLAZURE_PASSWORD};encrypt=true;hostNameInCertificate=*.database.windows.net;loginTimeout=30
+
+#We will use acking enabled by default
+topology.ack.enabled = false
+
+#Tick tuple frequency on when to write into SQL
+tick.tuple.freq.secs = 1

@@ -7,44 +7,55 @@
   <version>1.0</version>
   <name>eventcountdb</name>
   <url>http://maven.apache.org</url>
+
   <build>
     <plugins>
       <plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-assembly-plugin</artifactId>
-	    <version>2.4.1</version>
-	    <executions>
-	      <execution>
-	        <goals>
-	          <goal>attached</goal>
-	        </goals>
-	        <phase>package</phase>
-	        <configuration>
-	          <descriptorRefs>
-	            <descriptorRef>jar-with-dependencies</descriptorRef>
-	          </descriptorRefs>
-	          <archive>
-	            <manifest>
-	              <mainClass>org.apache.storm.eventhubs.examples.EventCount</mainClass>
-	            </manifest>
-	          </archive>
-	        </configuration>
-	      </execution>
-	    </executions>
-	  </plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <filters>
+              <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                      <exclude>META-INF/*.SF</exclude>
+                      <exclude>META-INF/*.DSA</exclude>
+                      <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+              </filter>
+          </filters>
+          <createDependencyReducedPom>true</createDependencyReducedPom>
+          <minimizeJar>false</minimizeJar>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer
+                              implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                <transformer
+                              implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.microsoft.hdinsight.storm.examples.EventCountDbTopology</mainClass>
+                  <mainClass/>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
+
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.microsoft.eventhubs</groupId>
-      <artifactId>eventhubs-storm-spout</artifactId>
-      <version>0.9.3</version>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>sqljdbc4</artifactId>
+      <version>4.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.storm</groupId>
@@ -53,9 +64,43 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.microsoft.sqlserver</groupId>
-      <artifactId>sqljdbc4</artifactId>
-      <version>4.0</version>
-  	</dependency>
+      <groupId>org.apache.storm</groupId>
+      <artifactId>storm-kafka</artifactId>
+      <version>0.9.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka_2.10</artifactId>
+      <version>0.8.1.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.zookeeper</groupId>
+          <artifactId>zookeeper</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.microsoft.eventhubs</groupId>
+      <artifactId>eventhubs-storm-spout</artifactId>
+      <version>0.9.4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 </project>

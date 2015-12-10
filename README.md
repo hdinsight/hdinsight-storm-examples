@@ -10,7 +10,7 @@ This repository contains complete and easy to use examples that demonstrate the 
 ### Repository structure
 
 1. End-to-end examples - Read more about them below
-  1. [EventCountExample](EventCountExample) - Scalability benchmark for Microsoft Azure EventHubs
+  1. [EventCountExample](EventCountExample) - Scalability benchmark for Microsoft Azure EventHubs/Apache Kafka on Microsoft Azure HDInsight
   2. [IotExample](IotExample) - Internet of things - connected cars scenario
   3. [RealTimeETLExample](RealTimeETLExample) - Web request aggregation into HBase
 2. [SCPNetExamples](SCPNetExamples) - Examples that show API usage of SCP.Net
@@ -49,8 +49,8 @@ The example showcases the reading of vehicle events from Event Hub, referencing 
 
 Read more about this example here: [IoT example using Azure EventHubs, Storm, Azure DocumentDB, Azure Storage/WASB](IotExample)
 
-### EventHubs Scalability Example (Java & SCP.Net)
-A scalability benchmark that demonstrates throughput from EventHub and stores the event counts in SQL Azure.
+### EventHubs/Kafka Scalability Example (Java & SCP.Net)
+A scalability benchmark that demonstrates throughput from EventHub/Kafka and stores the event counts in SQL Azure.
 
 Read more about this example here: [Event Count example using Azure EventHubs, Storm, SQL Azure](EventCountExample)
 

@@ -2,7 +2,7 @@
 pushd "%~dp0"
 PowerShell.exe -ExecutionPolicy Bypass -Command "& { $ErrorActionPreference = 'Stop'; & '%~dp0cleanup.ps1'; EXIT $LASTEXITCODE }"
 if %ERRORLEVEL% NEQ 0 (
-    echo Cleanup failed! Please check logs for error information.
+    echo Cleanup failed! Please check logs for error information and retry.
 )
 popd
 exit /b %ERRORLEVEL%

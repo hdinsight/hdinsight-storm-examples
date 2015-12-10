@@ -1,6 +1,7 @@
 package com.microsoft.hdinsight.storm.examples;
 
 import java.util.Map;
+import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import backtype.storm.utils.Utils;
 
 /**
  * Partially count number of messages from EventHubs
@@ -26,8 +28,19 @@ public class PartialCountBolt extends BaseRichBolt {
   long partialCount = 0L;
   long totalCount = 0L;
   
+  private LinkedList<Tuple> tuplesToAck = new LinkedList<Tuple>();
   private OutputCollector collector;
   
+  private int tickTupleFreqSecs = 5;
+  
+  Boolean enableAck = false;
+  
+  public PartialCountBolt(Boolean enableAck, int tickTupleFreq) {
+    this.enableAck = enableAck;
+    logger.info("enableAck = " + enableAck);
+    this.tickTupleFreqSecs = tickTupleFreq;
+    logger.info("tickTupleFreqSecs = " + tickTupleFreqSecs);
+  }
   @Override
   public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
     partialCount = 0L;
@@ -41,26 +54,42 @@ public class PartialCountBolt extends BaseRichBolt {
     {
       //only emit if partialCount > 0
       if(partialCount > 0) {
-        logger.info("emitting count" + 
+        logger.info("emitting intermediate count" + 
             ", partialCount: " + partialCount + 
-            ", totalCount: " + totalCount);
-        collector.emit(new Values(partialCount));
+            ", totalCount: " + totalCount + 
+            ", tuplesToAck: " + tuplesToAck.size());
+        
+        if(enableAck) {
+          collector.emit(tuplesToAck, new Values(partialCount));
+        } else {
+          collector.emit(new Values(partialCount));
+        }
         partialCount = 0L;
+        
+        if(enableAck) {
+          for(Tuple tupleToAck : tuplesToAck)
+          {
+            collector.ack(tupleToAck);
+          }
+          tuplesToAck.clear();
+        }
       }
     }
     else
     {
       partialCount++;
       totalCount++;
+      if(enableAck) {
+        tuplesToAck.add(tuple);
+      }
     }
-    collector.ack(tuple);
   }
 
   @Override
   public Map<String,Object>  getComponentConfiguration() {
     Config conf = new Config();
-    //set the TickTuple frequency to 1 second
-    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
+    //set the TickTuple frequency
+    conf.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, tickTupleFreqSecs);
     return conf;
   }
   

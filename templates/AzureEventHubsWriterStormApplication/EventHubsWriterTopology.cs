@@ -17,14 +17,6 @@ namespace AzureEventHubsWriterStormApplication
         {
             var topologyBuilder = new TopologyBuilder(typeof(EventHubsWriterTopology).Name + DateTime.Now.ToString("yyyyMMddHHmmss"));
 
-            topologyBuilder.SetSpout(
-                typeof(IISLogGeneratorSpout).Name, //Set task name
-                IISLogGeneratorSpout.Get,
-                new Dictionary<string, List<string>>() { {Constants.DEFAULT_STREAM_ID, IISLogGeneratorSpout.OutputFields} },
-                1, //Set number of tasks
-                true //Set enableAck
-                );
-
             var EventHubPartitions = ConfigurationManager.AppSettings["EventHubPartitions"];
             if (String.IsNullOrWhiteSpace(EventHubPartitions))
             {
@@ -33,6 +25,14 @@ namespace AzureEventHubsWriterStormApplication
 
             var partitionCount = int.Parse(EventHubPartitions);
 
+            topologyBuilder.SetSpout(
+                typeof(IISLogGeneratorSpout).Name, //Set task name
+                IISLogGeneratorSpout.Get,
+                new Dictionary<string, List<string>>() { {Constants.DEFAULT_STREAM_ID, IISLogGeneratorSpout.OutputFields} },
+                partitionCount/2, //Set number of tasks
+                true //Set enableAck
+                );
+
             topologyBuilder.SetBolt(
                 typeof(EventHubBolt).Name, //Set task name
                 EventHubBolt.Get, //Set task constructor delegate
@@ -40,11 +40,11 @@ namespace AzureEventHubsWriterStormApplication
                 partitionCount, //Set number of tasks
                 true //Set enableAck
                 ).
-                globalGrouping(typeof(IISLogGeneratorSpout).Name);
+                shuffleGrouping(typeof(IISLogGeneratorSpout).Name);
 
             //Set the topology config
             var topologyConfig = new StormConfig();
-            topologyConfig.setNumWorkers(1); //Set number of worker processes
+            topologyConfig.setNumWorkers(partitionCount/2); //Set number of worker processes
             topologyConfig.setMaxSpoutPending(512); //Set maximum pending tuples from spout
             topologyConfig.setWorkerChildOps("-Xmx768m"); //Set Java Heap Size
 

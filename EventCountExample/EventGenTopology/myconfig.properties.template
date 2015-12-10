@@ -1,11 +1,18 @@
+#Azure HDInsight Kafka configurations
+kafka.brokers = {KAFKA_BROKERS}
+kafka.zookeepers = {KAFKA_ZOOKEEPERS}
+kafka.topic = {KAFKA_CLUSTER_NAME}
+
 #Azure EventHubs configurations
 eventhubs.username = {EVENTHUBS_USERNAME}
 eventhubs.password = {EVENTHUBS_PASSWORD}
 eventhubs.namespace = {EVENTHUBS_NAMESPACE}
 eventhubs.entitypath = {EVENTHUBS_ENTITY_PATH}
-eventhubs.partitions.count = {EVENTHUBS_PARTITION_COUNT}
 
-eventhubs.event.size = 30
+#Common configurations
+partition.count = {EVENTHUBS_PARTITION_COUNT}
 
-#It is helpful to keep this number as a multiple of partition count to aide in allGrouping so that each spout task sends equal amount of tuples to every bolt task
-eventhubs.event.count.perpartition = 3200000
+event.size = 100
+
+#We will use shuffleGrouping to get about 5M messages in each partition
+event.count.perpartition = 5000000

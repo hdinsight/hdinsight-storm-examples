@@ -18,11 +18,9 @@ if(-not $?)
 ###########################################################
 
 $inputConfig = @{
-#VNET="true"
-#KAFKA="true"
+VNET="true"
 EVENTHUBS="true"
 HBASE="true"
-EVENTHUBS_PARTITION_COUNT=16
 }
 
 #Create Run Configuration

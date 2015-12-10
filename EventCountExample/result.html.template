@@ -5,7 +5,7 @@
 <html>
   <head>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script type="text/javascript">
 
 google.load("visualization", "1", {packages:["corechart"]});
@@ -16,47 +16,55 @@ var data, connection, rand;
     getDbData(drawVisualization);
 });
 
-var colorArray = ['green', 'blue', 'red','purple'];
-//var colorArray = ['green'];
+var colorArray = ['red', 'green', 'blue'];
 
 function getDbData(callback) {
 
-	connection = new ActiveXObject("ADODB.Connection") ;
-	var connectionstring= "Data Source={SQLAZURE_SERVER_NAME}.database.windows.net;Initial Catalog={SQLAZURE_DB_NAME};User ID={SQLAZURE_USER};Password={SQLAZURE_PASSWORD};Provider=SQLOLEDB"
-	connection.Open(connectionstring);
-	var rs = new ActiveXObject("ADODB.Recordset");
-	var count = 0;
+    connection = new ActiveXObject("ADODB.Connection") ;
+    var connectionstring= "Data Source={SQLAZURE_SERVER_NAME}.database.windows.net;Initial Catalog={SQLAZURE_DB_NAME};User ID={SQLAZURE_USER};Password={SQLAZURE_PASSWORD};Provider=SQLOLEDB"
+    connection.Open(connectionstring);
+    var rs = new ActiveXObject("ADODB.Recordset");
+    var count = 0;
 
-	arr = [];
-	arr.push(['Timestamp', 'Count', { role: 'style' }]);
-	rs.Open("Select (([timestamp] - mintimestamp)/1000) as [timestamp], eventcount from (select * from dbo.EHEventCount, (select min([timestamp]) as mintimestamp from dbo.EHEventCount) as EHEventCountMin) as T where eventcount > 0 order by timestamp desc;", connection);
-	rand = Math.floor(Math.random() * colorArray.length);
-	
-	if (!rs.bof) {
-		rs.MoveFirst
-		while(!rs.eof)
-		{
-		   arr.push([rs.fields(0).value, rs.fields(1).value, colorArray[rand]]);	   
-		   rs.movenext;
-		}	
-		
-		rs.close;
+    arr = [];
+    arr.push(['Timestamp', 'Count', { role: 'style' }]);
+    rs.Open("Select (([timestamp] - mintimestamp)/1000) as [timestamp], eventcount/5 from (select * from dbo.EventCount{INGESTION_NAME}, (select min([timestamp]) as mintimestamp from dbo.EventCount{INGESTION_NAME}) as EventCountMin) as T where eventcount > 0 order by timestamp desc;", connection);
+    rand = Math.floor(Math.random() * colorArray.length);
+    
+    if (!rs.bof) {
+        rs.MoveFirst
+        while(!rs.eof)
+        {
+           arr.push([rs.fields(0).value, rs.fields(1).value, colorArray[rand]]);
+           rs.movenext;
+        }
+        
+        rs.close;
 
-		callback();
-	}	
+        callback();
+    }
 }
 
 
 function drawVisualization() {
 
-	var data = google.visualization.arrayToDataTable(arr);
+    var data = google.visualization.arrayToDataTable(arr);
     var options = {
-    title: 'EventHub Event Count',
+    title: '{INGESTION_NAME} Event Count',
     hAxis: {title: 'Timestamp', titleTextStyle: {color: 'Black'}},
-    vAxis: { viewWindow: {max:  1000000} }
+    vAxis: { viewWindow: {max:  1000000} },
+    curveType: 'function',
+    lineWidth: 2,
+    legend: { position: 'bottom' },
+    trendlines: {
+      0: {
+        type: 'linear',
+        color: 'purple'
+      }
+    }
   };
 
-  var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+  var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
 
   chart.draw(data, options);
   

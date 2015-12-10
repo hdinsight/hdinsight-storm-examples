@@ -1,4 +1,4 @@
-if(Get-Command Add-AzureAccount -errorAction SilentlyContinue)
+if(Get-Command Login-AzureRmAccount -errorAction SilentlyContinue)
 {
     $True
 }

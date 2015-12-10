@@ -93,7 +93,7 @@ else
 }
 
 # Create the consumer group if not exists
-Write-InfoLog "Creating the consumer group: $ConsumerGroupNam] for the event hub: $Path" (Get-ScriptName) (Get-ScriptLineNumber)
+Write-InfoLog "Creating the consumer group: $ConsumerGroupName for the event hub: $Path" (Get-ScriptName) (Get-ScriptLineNumber)
 $ConsumerGroupDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.ConsumerGroupDescription -ArgumentList $Path, $ConsumerGroupName
 $ConsumerGroupDescription.UserMetadata = $ConsumerGroupUserMetadata
 $ConsumerGroupDescription = $NamespaceManager.CreateConsumerGroupIfNotExists($ConsumerGroupDescription);

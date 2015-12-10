@@ -3,8 +3,9 @@ Param(
     [Parameter(Mandatory = $true)]
     [String]$VNetConfigFilePath,
     [Parameter(Mandatory = $true)]
+    [String]$Location,
     [String]$VNetName,
-    [String]$Location="West Europe"               # optional    default to "West Europe"
+    [String]$SubnetName
     )
     
 ###########################################################
@@ -46,7 +47,7 @@ if($VNetConfig -ne $null)
               <AddressPrefix>10.0.0.0/20</AddressPrefix>
             </AddressSpace>
             <Subnets>
-              <Subnet name="Subnet-1">
+              <Subnet name="' + $SubnetName + '">
                 <AddressPrefix>10.0.0.0/20</AddressPrefix>
               </Subnet>
             </Subnets>

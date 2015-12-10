@@ -49,31 +49,74 @@ $config = & "$scriptDir\..\config\ReadConfig.ps1" $configFile
 ###########################################################
 # Add Azure Account
 ###########################################################
-$account = Get-AzureAccount
+
+try
+{
+    $account = Get-AzureRmContext
+}
+catch {}
+
 if($account -eq $null)
 {
-    $account = Add-AzureAccount
+    $account = Add-AzureRmAccount
     if($account -eq $null)
     {
-        Write-ErrorLog "Failed to add Azure Account." (Get-ScriptName) (Get-ScriptLineNumber)
-        throw "Failed to add Azure Account."
+        Write-ErrorLog "Failed to add Azure RM Account." (Get-ScriptName) (Get-ScriptLineNumber)
+        throw "Failed to add Azure RM Account."
     }
 }
-Write-SpecialLog ("Using Azure Account: " + $account.Name) (Get-ScriptName) (Get-ScriptLineNumber)
+Write-SpecialLog ("Using Azure RM Account: " + $account.Name) (Get-ScriptName) (Get-ScriptLineNumber)
 
-Switch-AzureMode -Name AzureServiceManagement
-
-$subscriptions = Get-AzureSubscription
-$subName = ($subscriptions | ? { $_.SubscriptionName -eq $config["AZURE_SUBSCRIPTION_NAME"] } | Select-Object -First 1 ).SubscriptionName
-if($subName -eq $null)
+$subscriptions = Get-AzureRmSubscription
+$subId = ($subscriptions | ? { $_.SubscriptionId -eq $config["AZURE_SUBSCRIPTION_ID"] } | Select-Object -First 1 ).SubscriptionId
+if($subId -eq $null)
 {
-    $subNames = $subscriptions | % { "`r`n" + $_.SubscriptionName + " - " + $_.SubscriptionId}
-    Write-InfoLog ("Available Subscription Names (Name - Id):" + $subNames) (Get-ScriptName) (Get-ScriptLineNumber)
+    Write-InfoLog ("Available Subscription Names:" + ($subscriptions | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
 
-    $subName = Read-Host "Enter subscription name"
+    $subId = Read-Host "Enter Azure Subscription Name or Id)"
 
+    $subscription = $subscriptions | ? { ($_.SubscriptionName -eq $subId) -or ($_.SubscriptionId -eq $subId) } | Select-Object -First 1
     #Update the Azure Subscription Id in config
-    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{AZURE_SUBSCRIPTION_NAME=$subName}
+    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile `
+    @{
+        AZURE_SUBSCRIPTION_NAME=$subscription.SubscriptionName
+        AZURE_SUBSCRIPTION_ID=$subscription.SubscriptionId
+        AZURE_TENANT_ID=$subscription.TenantId
+    }
+
+    $location = Read-Host "Enter Azure Location, hit enter for default (West Europe)"
+    if([String]::IsNullOrWhiteSpace($location))
+    {
+        $location = "West Europe"
+    }
+    
+    #Update the Azure Location in config
+    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{AZURE_LOCATION=$location}
+    
+    $osType = Read-Host "Enter HDInsight OS Choice (Windows or Linux), hit enter for default (Windows)"
+    if([String]::IsNullOrWhiteSpace($osType))
+    {
+        $osType = "Windows"
+    }
+    #Update the HDInsight OS Type in config
+    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HDINSIGHT_CLUSTER_OS_TYPE=$osType}
+    
+    if($osType -eq "Linux")
+    {
+        & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{VNET_VERSION="ARM"}
+    }
+    else
+    {
+        & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{VNET_VERSION="Classic"}
+    }
+
+    $clusterSize = Read-Host "Specify HDInsight Cluster Size in Nodes, hit enter for default (2)"
+    if([String]::IsNullOrWhiteSpace($clusterSize))
+    {
+        $clusterSize = "2"
+    }
+    #Update the HDInsight Cluster Size and event hub partition count in config
+    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HDINSIGHT_CLUSTER_SIZE=$clusterSize}
     
     ###########################################################
     # Refresh Run Configuration
@@ -84,8 +127,8 @@ if($subName -eq $null)
 Write-SpecialLog "Current run configuration:" (Get-ScriptName) (Get-ScriptLineNumber)
 $config.Keys | sort | % { if(-not ($_.Contains("PASSWORD") -or $_.Contains("KEY"))) { Write-SpecialLog ("Key = " + $_ + ", Value = " + $config[$_]) (Get-ScriptName) (Get-ScriptLineNumber) } }
 
-Write-SpecialLog ("Using subscription: " + $config["AZURE_SUBSCRIPTION_NAME"]) (Get-ScriptName) (Get-ScriptLineNumber)
-Select-AzureSubscription -SubscriptionName $config["AZURE_SUBSCRIPTION_NAME"]
+Write-SpecialLog ("Using subscription: {0} - {1}" -f $config["AZURE_SUBSCRIPTION_NAME"], $config["AZURE_SUBSCRIPTION_ID"]) (Get-ScriptName) (Get-ScriptLineNumber)
+Set-AzureRmContext -TenantId $config["AZURE_TENANT_ID"] -SubscriptionId $config["AZURE_SUBSCRIPTION_ID"]
 
 ###########################################################
 # Check Azure Resource Creation List
@@ -134,24 +177,31 @@ if($config["KAFKA"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase)
 # Create Azure Resources
 ###########################################################
 
+Write-SpecialLog "Step 0: Creating Azure Resource Group" (Get-ScriptName) (Get-ScriptLineNumber)
+& "$scriptDir\CreateAzureResourceGroup.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"]
+
 if($vnet)
 {
-	Write-SpecialLog "Step 0: Creating Azure Virtual Network" (Get-ScriptName) (Get-ScriptLineNumber)
-	$VNetConfigFilePath = Join-Path $ExampleDir ("run\" + $config["VNET_NAME"] + ".netcfg")
-	$vnetId = & "$scriptDir\VirtualNetwork\CreateVNet.ps1" $VNetConfigFilePath $config["VNET_NAME"] $config["AZURE_LOCATION"]
-	if([String]::IsNullOrWhiteSpace($vnetId))
-	{
-		throw "Cannot get VNet Id"
-	}
-	else
-	{
-		& "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{VNET_ID=$vnetId}
-		$config["VNET_ID"] = $vnetId
-	}
+    Write-SpecialLog "Step 1: Creating Azure Virtual Network" (Get-ScriptName) (Get-ScriptLineNumber)
+    if($config["VNET_VERSION"] -eq "ARM")
+    {
+        $vnetId = & "$scriptDir\VirtualNetwork\CreateVirtualNetworkARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["VNET_NAME"] $config["SUBNET_NAME"]
+    }
+    else
+    {
+        $VNetConfigFilePath = Join-Path $ExampleDir ("run\" + $config["VNET_NAME"] + ".netcfg")
+        $vnetId = & "$scriptDir\VirtualNetwork\CreateVNet.ps1" $VNetConfigFilePath $config["AZURE_LOCATION"] $config["VNET_NAME"] $config["SUBNET_NAME"]
+        if([String]::IsNullOrWhiteSpace($vnetId))
+        {
+            throw "Cannot get VNet Id"
+        }
+    }
+    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{VNET_ID=$vnetId}
+    $config["VNET_ID"] = $vnetId
 }
 
-Write-SpecialLog "Step 1: Creating storage account and updating key in configurations.properties" (Get-ScriptName) (Get-ScriptLineNumber)
-$storageKey = & "$scriptDir\Storage\CreateStorageAccount.ps1" $config["WASB_ACCOUNT_NAME"] $config["AZURE_LOCATION"]
+Write-SpecialLog "Step 2: Creating storage account and updating key in configurations.properties" (Get-ScriptName) (Get-ScriptLineNumber)
+$storageKey = & "$scriptDir\Storage\CreateStorageAccountARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["WASB_ACCOUNT_NAME"]
 if([String]::IsNullOrWhiteSpace($storageKey))
 {
     throw "Cannot get Storage Key"
@@ -159,7 +209,7 @@ if([String]::IsNullOrWhiteSpace($storageKey))
 else
 {
     & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{WASB_ACCOUNT_KEY=$storageKey}
-	$config["WASB_ACCOUNT_KEY"] = $storageKey
+    $config["WASB_ACCOUNT_KEY"] = $storageKey
 }
 
 #add a small delay here in order for dependent resources to get the storage account
@@ -169,192 +219,102 @@ if($sqlAzure)
 {
     #Let's attempt to create SQL Azure first than trying in parallel as it's critical to not lose information as server name is generated during that
     #This can lead to leaks of new SQL Azure Servers on re-runs if previous task failed to save the value
-    Write-SpecialLog "Step 1.1: Creating SQL Azure Server and updating values in configurations.properties" (Get-ScriptName) (Get-ScriptLineNumber)
-    $sqlServerName = & "$scriptDir\SqlAzure\CreateSqlAzure.ps1" $config["SQLAZURE_SERVER_NAME"] $config["SQLAZURE_DB_NAME"] $config["SQLAZURE_USER"] $config["SQLAZURE_PASSWORD"] $config["AZURE_LOCATION"]
+    Write-SpecialLog "Step 2.1: Creating SQL Azure Server and updating values in configurations.properties" (Get-ScriptName) (Get-ScriptLineNumber)
+    $sqlServerName = & "$scriptDir\SqlAzure\CreateSqlAzureARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] `
+        $config["SQLAZURE_SERVER_NAME"] $config["SQLAZURE_DB_NAME"] $config["SQLAZURE_USER"] $config["SQLAZURE_PASSWORD"]
     if(-not [String]::IsNullOrWhiteSpace($sqlServerName))
     {
         & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{SQLAZURE_SERVER_NAME=$sqlServerName}
     }
 }
 
-Write-SpecialLog "Step 2: Creating remaining resources in parallel" (Get-ScriptName) (Get-ScriptLineNumber)
-    
 if($eventhub)
 {
-    Write-SpecialLog "Creating EventHubs" (Get-ScriptName) (Get-ScriptLineNumber)
-        
-    $scriptCreateEH = {
-        param($subName,$scriptDir,$configFile,$config)
-        Select-AzureSubscription -SubscriptionName $subName
-        & "$scriptDir\..\init.ps1"
-        $ehPassword = & "$scriptDir\EventHubs\CreateEventHubs.ps1" $config["EVENTHUBS_NAMESPACE"] $config["EVENTHUBS_ENTITY_PATH"] $config["EVENTHUBS_USERNAME"] $config["AZURE_LOCATION"] $config["EVENTHUBS_PARTITION_COUNT"]
-        if(-not [String]::IsNullOrWhiteSpace($ehPassword))
-        {
-            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{EVENTHUBS_PASSWORD=$ehPassword}
-        }
+    Write-SpecialLog "Step 2.2: Creating Event Hubs" (Get-ScriptName) (Get-ScriptLineNumber)
+   
+    $ehPassword = & "$scriptDir\EventHubs\CreateEventHubs.ps1" $config["EVENTHUBS_NAMESPACE"] $config["EVENTHUBS_ENTITY_PATH"] $config["EVENTHUBS_USERNAME"] `
+        $config["AZURE_LOCATION"] $config["EVENTHUBS_PARTITION_COUNT"]
+    
+    if(-not [String]::IsNullOrWhiteSpace($ehPassword))
+    {
+        & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{EVENTHUBS_PASSWORD=$ehPassword}
     }
-    $ehJob = Start-Job -Script $scriptCreateEH -Name EventHub -ArgumentList $subName,$scriptDir,$configFile,$config
 }
+
 
 if($docdb)
 {
-    Write-SpecialLog "Creating DocumentDB and update account key in configurations.properties" (Get-ScriptName) (Get-ScriptLineNumber)
-    $scriptCreateDocDb = {
-        param($subName,$scriptDir,$configFile,$config)
-        Select-AzureSubscription -SubscriptionName $subName
-        & "$scriptDir\..\init.ps1"
-        $docdbKey = & "$scriptDir\DocumentDB\CreateDocumentDB.ps1" $config["DOCUMENTDB_ACCOUNT"] $config["AZURE_LOCATION"]
-        if(-not [String]::IsNullOrWhiteSpace($docdbKey))
-        {
-            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{DOCDB_KEY=$docdbKey}
-        }
+    Write-SpecialLog "Step 2.3: Creating DocumentDB and update account key in configurations.properties" (Get-ScriptName) (Get-ScriptLineNumber)
+    $docdbKey = & "$scriptDir\DocumentDB\CreateDocumentDBARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["DOCUMENTDB_ACCOUNT"]
+    if(-not [String]::IsNullOrWhiteSpace($docdbKey))
+    {
+        & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{DOCDB_KEY=$docdbKey}
     }
-    $docdbJob = Start-Job -Script $scriptCreateDocDb -Name DocDb -ArgumentList $subName,$scriptDir,$configFile,$config
 }
 
-Write-SpecialLog "Step 3: Creating HDInsight Clusters" (Get-ScriptName) (Get-ScriptLineNumber)
-$scriptCreateStorm = {
-    param($subName,$scriptDir,$configFile,$config)
-    Select-AzureSubscription -SubscriptionName $subName
-    & "$scriptDir\..\init.ps1"
-	
-    if($config["VNET"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
-    {
-        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1"
-    }
-    else
-    {
-        $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["STORM_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_SIZE"]
-	}
-	
-    if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
-    {
-        & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{STORM_CLUSTER_URL=$cluster.ConnectionUrl}
-    }
+Write-SpecialLog "Step 4: Creating HDInsight Clusters" (Get-ScriptName) (Get-ScriptLineNumber)
+
+$cluster = & "$scriptDir\HDInsight\CreateClusterARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["STORM_CLUSTER_NAME"] `
+    $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_OS_TYPE"] `
+    $config["STORM_CLUSTER_SIZE"] $config["VNET_ID"] $config["SUBNET_NAME"]
+    
+if(-not [String]::IsNullOrWhiteSpace($cluster.HttpEndpoint))
+{
+    & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{STORM_CLUSTER_URL=("https://" + $cluster.HttpEndpoint)}
 }
-$stormJob = Start-Job -Script $scriptCreateStorm -Name Storm -ArgumentList $subName,$scriptDir,$configFile,$config
+
 
 if($hbase)
 {
-    $scriptCreateHBase = {
-        param($subName,$scriptDir,$configFile,$config)
-        Select-AzureSubscription -SubscriptionName $subName
-        & "$scriptDir\..\init.ps1"
-        if($config["VNET"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
-        {
-            $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1"
-        }
-        else
-        {
-            $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["HBASE_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_SIZE"]
-        }
-        if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
-        {
-            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HBASE_CLUSTER_URL=$cluster.ConnectionUrl}
-        }
+    $cluster = & "$scriptDir\HDInsight\CreateClusterARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["HBASE_CLUSTER_NAME"] `
+        $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_OS_TYPE"] `
+        $config["HBASE_CLUSTER_SIZE"] $config["VNET_ID"] $config["SUBNET_NAME"]
+
+    if(-not [String]::IsNullOrWhiteSpace($cluster.HttpEndpoint))
+    {
+            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HBASE_CLUSTER_URL=("https://" + $cluster.HttpEndpoint)}
     }
-    $hbaseJob = Start-Job -Script $scriptCreateHBase -Name HBase -ArgumentList $subName,$scriptDir,$configFile,$config
 }
 
 if($kafka)
 {
-    $scriptCreateKafka = {
-        param($subName,$scriptDir,$configFile,$config)
-        Select-AzureSubscription -SubscriptionName $subName
-        & "$scriptDir\..\init.ps1"
-        $unzipUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["WASB_ACCOUNT_NAME"] "kafkaconfigactionv02" "$scriptDir\HDInsight\Kafka\unzip.exe" "unzip.exe"
+    if($config["KAFKA_CLUSTER_OS_TYPE"] -eq "Linux")
+    {
+        $cluster = & "$scriptDir\HDInsight\CreateClusterARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["KAFKA_CLUSTER_NAME"] `
+            $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_OS_TYPE"] `
+            $config["KAFKA_CLUSTER_SIZE"] $config["VNET_ID"] $config["SUBNET_NAME"]
+            
+        if(-not [String]::IsNullOrWhiteSpace($cluster.HttpEndpoint))
+        {
+            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{KAFKA_CLUSTER_URL=("https://" + $cluster.HttpEndpoint)}
+        }
+    }
+    else
+    {
+        $unzipUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["AZURE_RESOURCE_GROUP"] $config["WASB_ACCOUNT_NAME"] `
+            "kafkaconfigactionv03" "$scriptDir\HDInsight\Kafka\unzip.exe" "unzip.exe"
         Write-InfoLog "unzipUri: $unzipUri" (Get-ScriptName) (Get-ScriptLineNumber)
         $kafkaVersion = "kafka_2.11-0.8.2.1"
-        $kafkaUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["WASB_ACCOUNT_NAME"] "kafkaconfigactionv02" "$scriptDir\HDInsight\Kafka\$kafkaVersion.zip" "$kafkaVersion.zip"
+        $kafkaUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["AZURE_RESOURCE_GROUP"] $config["WASB_ACCOUNT_NAME"] `
+            "kafkaconfigactionv03" "$scriptDir\HDInsight\Kafka\$kafkaVersion.zip" "$kafkaVersion.zip"
         Write-InfoLog "KafkaUri: $kafkaUri" (Get-ScriptName) (Get-ScriptLineNumber)
-        $ScriptActionUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["WASB_ACCOUNT_NAME"] "kafkaconfigactionv02" "$scriptDir\HDInsight\Kafka\kafka-installer-v02.ps1" "kafka-installer-v02.ps1"
+        $ScriptActionUri = & "$scriptDir\Storage\UploadFileToStorage.ps1" $config["AZURE_RESOURCE_GROUP"] $config["WASB_ACCOUNT_NAME"] `
+            "kafkaconfigactionv03" "$scriptDir\HDInsight\Kafka\kafka-installer-v03.ps1" "kafka-installer-v03.ps1"
         Write-InfoLog "ScriptActionUri: $ScriptActionUri" (Get-ScriptName) (Get-ScriptLineNumber)
-        $ScriptActionParameters = "-KafkaBinaryZipLocation $kafkaUri -KafkaHomeName $kafkaVersion -UnzipExeLocation $unzipUri -RemoteAdminUsername remote{0} -RemoteAdminPassword {1}" -f $config["KAFKA_CLUSTER_USERNAME"], $config["KAFKA_CLUSTER_PASSWORD"]
+        $ScriptActionParameters = "-KafkaBinaryZipLocation $kafkaUri -KafkaHomeName $kafkaVersion -UnzipExeLocation $unzipUri -RemoteAdminUsername remote{0} -RemoteAdminPassword {1}" `
+            -f $config["KAFKA_CLUSTER_USERNAME"], $config["KAFKA_CLUSTER_PASSWORD"]
         Write-InfoLog "ScriptActionParameters: $ScriptActionParameters" (Get-ScriptName) (Get-ScriptLineNumber)
-        if($config["VNET"].Equals("true", [System.StringComparison]::OrdinalIgnoreCase))
-        {
-            $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["KAFKA_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_SIZE"] $config["VNET_ID"] "Subnet-1" $ScriptActionUri $ScriptActionParameters
-        }
-        else
-        {
-            $cluster = & "$scriptDir\HDInsight\CreateCluster.ps1" $config["KAFKA_CLUSTER_NAME"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_SIZE"] "" "" $ScriptActionUri $ScriptActionParameters
-        }
+        
+        $cluster = & "$scriptDir\HDInsight\CreateClusterARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["KAFKA_CLUSTER_NAME"] `
+            $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_OS_TYPE"] `
+            $config["KAFKA_CLUSTER_SIZE"] $config["VNET_ID"] $config["SUBNET_NAME"] `
+            $ScriptActionUri $ScriptActionParameters
+            
         if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
         {
-            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{KAFKA_CLUSTER_URL=$cluster.ConnectionUrl}
+            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{KAFKA_CLUSTER_URL=$cluster.ConnectionUrl}            
         }
     }
-    $kafkaJob = Start-Job -Script $scriptCreateKafka -Name Kafka -ArgumentList $subName,$scriptDir,$configFile,$config
-}
-
-$jobs = Get-Job -State "Running"
-While ($jobs)
-{
-    $jobsInfo = $jobs | % { "`r`nJob Id = " + $_.Id + ", Job Name = " + $_.Name + ", Job State = " + $_.State }
-    Write-InfoLog "Currently running Jobs:$jobsInfo" (Get-ScriptName) (Get-ScriptLineNumber)
-    sleep -s 10
-    if($stormJob -ne $null)
-    {
-        $jobOut = Get-Job -Id $stormJob.Id | Receive-Job
-        if($jobOut)
-        {
-            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
-        }
-    }
-    if($eventhub -and ($ehJob -ne $null))
-    {
-        $jobOut = Get-Job -Id $ehJob.Id | Receive-Job
-        if($jobOut)
-        {
-            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
-        }
-    }
-    if($docdb -and ($docdbJob -ne $null))
-    {
-        $jobOut = Get-Job -Id $docdbJob.Id | Receive-Job
-        if($jobOut)
-        {
-            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
-        }
-    }
-    if($hbase -and ($hbaseJob -ne $null))
-    {
-        $jobOut = Get-Job -Id $hbaseJob.Id | Receive-Job
-        if($jobOut)
-        {
-            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
-        }
-    }
-    if($kafka -and ($kafkaJob -ne $null))
-    {
-        $jobOut = Get-Job -Id $kafkaJob.Id | Receive-Job
-        if($jobOut)
-        {
-            Write-InfoLog $jobOut (Get-ScriptName) (Get-ScriptLineNumber)
-        }
-    }
-    $jobs = Get-Job -State "Running"
-}
-
-if($stormJob -ne $null)
-{
-    Get-Job -Id $stormJob.Id | Remove-Job
-}
-if($eventhub -and ($ehJob -ne $null))
-{
-    Get-Job -Id $ehJob.Id | Remove-Job
-}
-if($docdb -and ($docdbJob -ne $null))
-{
-    Get-Job -Id $docdbJob.Id | Remove-Job
-}
-if($hbase -and ($hbaseJob -ne $null))
-{
-    Get-Job -Id $hbaseJob.Id | Remove-Job
-}
-if($kafka -and ($kafkaJob -ne $null))
-{
-    Get-Job -Id $kafkaJob.Id | Remove-Job
 }
 
 $finishTime = Get-Date

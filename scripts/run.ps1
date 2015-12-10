@@ -42,7 +42,7 @@ if(-not $?)
     throw "Preparation of configuration failed for $ExampleDir."
 }
 
-Write-SpecialLog "Phase 1 - Preparation - End - Preparation complete for $ExampleDir."
+Write-SpecialLog "Phase 1 - Preparation - End - Preparation complete for $ExampleDir." (Get-ScriptName) (Get-ScriptLineNumber)
 
 ###########################################################
 # 2 - Build
@@ -67,7 +67,7 @@ Write-SpecialLog "Build complete for $ExampleDir" (Get-ScriptName) (Get-ScriptLi
 ###########################################################
 # 3 - Execute
 ###########################################################
-Write-SpecialLog "Phase 3 - Execute - Start - Executing the example in $ExampleDir"
+Write-SpecialLog "Phase 3 - Execute - Start - Executing the example in $ExampleDir" (Get-ScriptName) (Get-ScriptLineNumber)
 
 if(-not (Test-Path "$ExampleDir\execute.ps1"))
 {
@@ -83,7 +83,7 @@ if(-not $?)
     throw "Execute resulted in an error. Please check the error logs for more information."
 }
 
-Write-SpecialLog "Phase 3 - Execute - End - Executed the example in $ExampleDir"
+Write-SpecialLog "Phase 3 - Execute - End - Executed the example in $ExampleDir" (Get-ScriptName) (Get-ScriptLineNumber)
 
 #Finish
 Write-SpecialLog "Run Complete! Please use cleanup.bat for deleting all the created resources." (Get-ScriptName) (Get-ScriptLineNumber)

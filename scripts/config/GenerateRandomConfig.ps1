@@ -68,7 +68,14 @@ if($resourceName.Length -gt 24)
     $resourceName = $resourceName.Substring(0, 24)
 }
 
+$resourceGroupName = $ResourcePrefix + "-group-" + [System.DateTime]::Now.ToString("yyyyMMddHHmm")
+if($resourceGroupName.Length -gt 32)
+{
+    $resourceGroupName = $resourceGroupName.Substring(0, 32)
+}
+
 $config = @{
+    RANDOM_RESOURCE_GROUP = $resourceGroupName
     RANDOM_RESOURCE_NAME = $resourceName
     RANDOM_SQL_PASSWORD = GetRandomPassword(12)
     RANDOM_CLUSTER_PASSWORD = GetRandomPassword(12)

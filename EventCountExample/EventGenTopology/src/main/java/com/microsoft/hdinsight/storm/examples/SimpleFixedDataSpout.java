@@ -23,7 +23,7 @@ public class SimpleFixedDataSpout extends BaseRichSpout {
   
   private int eventSize;
   private long eventCount;
-  private long curCount;
+  private long currCount;
   private SpoutOutputCollector collector;
   
   private String stringToSend;
@@ -35,11 +35,11 @@ public class SimpleFixedDataSpout extends BaseRichSpout {
   
   @Override
   public void nextTuple() {
-    curCount++;
+    currCount++;
     
-    if(curCount > eventCount) {
+    if((eventCount > 0) && currCount > eventCount) {
       try {
-        if(curCount % 10 == 0) {
+        if(currCount % 10 == 0) {
           logger.info("Each bolt has been sent " + eventCount + " events by this spout task. It will not send any more events.");
         }
         Thread.sleep(1000);
@@ -48,9 +48,9 @@ public class SimpleFixedDataSpout extends BaseRichSpout {
       return;
     }
     
-    collector.emit(new Values(stringToSend));
-    if(curCount == eventCount) {
-      logger.info("Finished sending events: " + curCount);
+    collector.emit(new Values(String.valueOf(currCount), stringToSend));
+    if(currCount == eventCount) {
+      logger.info("Finished sending events: " + currCount);
     }
   }
 
@@ -58,13 +58,13 @@ public class SimpleFixedDataSpout extends BaseRichSpout {
   public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
     stringToSend = getStringToSend(eventSize);
     this.collector = collector;
-    curCount = 0;
+    currCount = 0;
     logger.info("Fixed data string that will be sent: " + stringToSend);
   }
 
   @Override
   public void declareOutputFields(OutputFieldsDeclarer declarer) {
-    declarer.declare(new Fields("data"));
+    declarer.declare(new Fields("key", "message"));
   }
 
   private String getStringToSend(int size) {

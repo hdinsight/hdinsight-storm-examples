@@ -24,7 +24,7 @@ $libDir = Join-Path $scriptDir "..\..\lib"
 Write-SpecialLog "Pushing MVN libs" (Get-ScriptName) (Get-ScriptLineNumber)
 
 # EventHubSpout jar
-cmd /c "mvn -q install:install-file -Dfile=""$libDir\eventhubs\eventhubs-storm-spout-0.9.3-jar-with-dependencies.jar"" -DgroupId=com.microsoft.eventhubs -DartifactId=eventhubs-storm-spout -Dversion=0.9.3 -Dpackaging=jar"
+cmd /c "mvn -q install:install-file -Dfile=""$libDir\eventhubs\eventhubs-storm-spout-0.9.4-jar-with-dependencies.jar"" -DgroupId=com.microsoft.eventhubs -DartifactId=eventhubs-storm-spout -Dversion=0.9.4 -Dpackaging=jar"
 if($LASTEXITCODE -ne 0)
 {
     Write-ErrorLog "MVN push lib failure: EventHubSpout Jar" (Get-ScriptName) (Get-ScriptLineNumber)

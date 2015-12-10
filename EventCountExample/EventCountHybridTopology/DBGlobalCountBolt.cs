@@ -19,6 +19,10 @@ namespace EventCountHybridTopology
         long partialCount = 0L;
         long totalCount = 0L;
 
+        Queue<SCPTuple> tuplesToAck = new Queue<SCPTuple>();
+
+        bool enableAck = false;
+
         public DBGlobalCountBolt(Context ctx)
         {
             this.ctx = ctx;
@@ -32,6 +36,11 @@ namespace EventCountHybridTopology
 
             // Declare input and output schemas
             this.ctx.DeclareComponentSchema(new ComponentStreamSchema(inputSchema, null));
+
+            if (Context.Config.pluginConf.ContainsKey(Constants.NONTRANSACTIONAL_ENABLE_ACK))
+            {
+                enableAck = (bool)(Context.Config.pluginConf[Constants.NONTRANSACTIONAL_ENABLE_ACK]);
+            }
 
             sqlConnStringBuilder = new SqlConnectionStringBuilder();
             sqlConnStringBuilder.DataSource = ConfigurationManager.AppSettings["SqlDbServerName"] + ".database.windows.net";
@@ -69,6 +78,15 @@ namespace EventCountHybridTopology
                         ", totalCount: " + totalCount);
                     db.insertValue(CurrentTimeMillis(), partialCount);
                     partialCount = 0L;
+                    if (enableAck)
+                    {
+                        Context.Logger.Info("tuplesToAck: " + tuplesToAck);
+                        foreach (var tupleToAck in tuplesToAck)
+                        {
+                            this.ctx.Ack(tupleToAck);
+                        }
+                        tuplesToAck.Clear();
+                    }
                 }
             }
             else
@@ -77,6 +95,10 @@ namespace EventCountHybridTopology
                 var incomingPartialCount = tuple.GetLong(0);
                 partialCount += incomingPartialCount;
                 totalCount += incomingPartialCount;
+                if (enableAck)
+                {
+                    tuplesToAck.Enqueue(tuple);
+                }
             }
         }
 

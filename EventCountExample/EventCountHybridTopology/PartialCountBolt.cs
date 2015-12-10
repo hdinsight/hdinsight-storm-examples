@@ -15,6 +15,10 @@ namespace EventCountHybridTopology
         long partialCount = 0L;
         long totalCount = 0L;
 
+        Queue<SCPTuple> tuplesToAck = new Queue<SCPTuple>();
+
+        bool enableAck = false;
+
         public PartialCountBolt(Context ctx)
         {
             this.ctx = ctx;
@@ -35,6 +39,11 @@ namespace EventCountHybridTopology
 
             this.ctx.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
 
+            if (Context.Config.pluginConf.ContainsKey(Constants.NONTRANSACTIONAL_ENABLE_ACK))
+            {
+                enableAck = (bool)(Context.Config.pluginConf[Constants.NONTRANSACTIONAL_ENABLE_ACK]);
+            }
+
             partialCount = 0L;
             totalCount = 0L;
         }
@@ -51,7 +60,20 @@ namespace EventCountHybridTopology
                 {
                     Context.Logger.Info("emitting partialCount: " + partialCount +
                         ", totalCount: " + totalCount);
-                    this.ctx.Emit(new Values(partialCount));
+                    if (enableAck)
+                    {
+                        Context.Logger.Info("tuplesToAck: " + tuplesToAck);
+                        this.ctx.Emit(Constants.DEFAULT_STREAM_ID, tuplesToAck, new Values(partialCount));
+                        foreach (var tupleToAck in tuplesToAck)
+                        {
+                            this.ctx.Ack(tupleToAck);
+                        }
+                        tuplesToAck.Clear();
+                    }
+                    else
+                    {
+                        this.ctx.Emit(Constants.DEFAULT_STREAM_ID, new Values(partialCount));
+                    }
                     partialCount = 0L;
                 }
             }
@@ -59,7 +81,10 @@ namespace EventCountHybridTopology
             {
                 partialCount++;
                 totalCount++;
-                this.ctx.Ack(tuple);
+                if (enableAck)
+                {
+                    tuplesToAck.Enqueue(tuple);
+                }
             }
         }
 

@@ -17,12 +17,10 @@ if(-not $?)
 ###########################################################
 
 $inputConfig = @{
-#VNET="true"
-#HBASE="true"
+VNET="true"
 EVENTHUBS="true"
+KAFKA="true"
 SQLAZURE="true"
-EVENTHUBS_PARTITION_COUNT=32
-STORM_CLUSTER_SIZE=32
 }
 
 #Create Run Configuration
@@ -44,6 +42,16 @@ if(-not $?)
 #Update Project Properties
 $configFile = Join-Path $scriptDir "run\configurations.properties"
 $config = & "$scriptDir\..\scripts\config\ReadConfig.ps1" $configFile
+
+$clusterInformation = & "$scriptDir\..\scripts\storm\GetAmbariClusterInformation.ps1" $config["KAFKA_CLUSTER_URL"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] $config["KAFKA_CLUSTER_NAME"]
+
+$kafkaBrokers = $($clusterInformation.items.Hosts | ? {$_.host_name -like "wn*"} | % { $_.host_name + ":9092"}) -Join ","
+Write-InfoLog "Kafka Brokers: $kafkaBrokers"
+$config.add("KAFKA_BROKERS", $kafkaBrokers)
+
+$kafkaZookeepers = $($clusterInformation.items.Hosts | ? {$_.host_name -like "zk*"} | % { $_.host_name + ":2181"}) -Join ","
+Write-InfoLog "Kafka Zookeepers: $KafkaZookeepers"
+$config.add("KAFKA_ZOOKEEPERS", $kafkaZookeepers)
 
 & "$scriptDir\..\scripts\config\ReplaceStringInFile.ps1" "$scriptDir\EventGenTopology\myconfig.properties.template" "$scriptDir\EventGenTopology\src\main\resources\myconfig.properties" $config
 & "$scriptDir\..\scripts\config\ReplaceStringInFile.ps1" "$scriptDir\EventCountTopology\myconfig.properties.template" "$scriptDir\EventCountTopology\src\main\resources\myconfig.properties" $config

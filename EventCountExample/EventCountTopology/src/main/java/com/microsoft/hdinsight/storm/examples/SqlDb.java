@@ -14,14 +14,17 @@ public class SqlDb {
 
   // Declare the JDBC objects.
   private Connection con = null;
+  private String tableName = "EventCount";
   private Statement stmt = null;
   private ResultSet rs = null;
 
-  public SqlDb (String connectionStr) {
+  public SqlDb (String connectionStr, String table) {
     try {
       // Establish the connection.
       logger.info("connectionStr: " + connectionStr);
-      con = DriverManager.getConnection(connectionStr);
+      this.con = DriverManager.getConnection(connectionStr);
+      this.tableName = table;
+      logger.info("tableName: " + tableName);
     }
     catch (Exception e) {
        logger.error("Exception", e);
@@ -30,7 +33,8 @@ public class SqlDb {
   
   public void createTable() {
     logger.info("createTable");
-    String SQL = "CREATE TABLE EHEventCount(timestamp bigint PRIMARY KEY, eventCount bigint)";
+    String SQL = "CREATE TABLE " + tableName + 
+        " (timestamp bigint PRIMARY KEY, eventCount bigint)";
 
     // Create and execute an SQL statement that returns some data.
     try {
@@ -44,7 +48,8 @@ public class SqlDb {
   
   public void dropTable() {
     logger.info("dropTable");
-    String SQL = "IF OBJECT_ID (N'dbo.EHEventCount', N'U') IS NOT NULL DROP TABLE dbo.EHEventCount";
+    String SQL = "IF OBJECT_ID (N'dbo." + tableName + 
+        "', N'U') IS NOT NULL DROP TABLE dbo." + tableName;
     try {
       stmt = con.createStatement();
       stmt.execute(SQL);
@@ -55,8 +60,8 @@ public class SqlDb {
   }
   
   public void insertValue(long timestamp, long count) {
-    String SQL = "INSERT INTO EHEventCount "
-        + "VALUES (" + timestamp + "," + count + ");";
+    String SQL = "INSERT INTO " + tableName
+        + " VALUES (" + timestamp + "," + count + ");";
     try {
       stmt = con.createStatement();
       stmt.executeUpdate(SQL);
@@ -68,7 +73,7 @@ public class SqlDb {
 
   public void resetTable() {
     logger.info("resetTable");
-    String SQL = "Truncate Table EHEventCount";
+    String SQL = "Truncate Table " + tableName;
     try {
       stmt = con.createStatement();
       rs = stmt.executeQuery(SQL);

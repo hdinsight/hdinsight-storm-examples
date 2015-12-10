@@ -12,13 +12,13 @@ namespace EventHubsReaderTopology
     {
         Context ctx;
 
-        long partialCount = 0L;
-        long totalCount = 0L;
-
         //Maintain a queue of tuples in the current batch
         //We need to ack these tuples when the batch is finished i.e. when the TICK tuple arrives
         //Why queue? - So that we can ack in order the tuples were received
-        Queue<SCPTuple> tuplesToAck = new Queue<SCPTuple>();
+        ConcurrentQueue<SCPTuple> queue;
+
+        long partialCount = 0L;
+        long totalCount = 0L;
 
         public PartialCountBolt(Context ctx)
         {
@@ -40,6 +40,7 @@ namespace EventHubsReaderTopology
 
             this.ctx.DeclareCustomizedDeserializer(new CustomizedInteropJSONDeserializer());
 
+            queue = new ConcurrentQueue<SCPTuple>();
             partialCount = 0L;
             totalCount = 0L;
         }
@@ -54,19 +55,28 @@ namespace EventHubsReaderTopology
             {
                 if (partialCount > 0)
                 {
-                    Context.Logger.Info("emitting partialCount: " + partialCount +
-                        ", totalCount: " + totalCount);
-                    //emit with anchors set the tuples in this batch
-                    this.ctx.Emit(Constants.DEFAULT_STREAM_ID, tuplesToAck, new Values(partialCount));
-                    //ideally in the logs partialCount and the batch count will match
-                    Context.Logger.Info("acking the batch: " + tuplesToAck.Count);
-                    foreach (var t in tuplesToAck)
+                    List<SCPTuple> tuplesToAck = new List<SCPTuple>();
+                    while (queue.Count > 0)
                     {
-                        this.ctx.Ack(t);
+                        SCPTuple tupleToAck = null;
+                        var result = queue.TryDequeue(out tupleToAck);
+                        if (result && tupleToAck != null)
+                        {
+                            tuplesToAck.Add(tupleToAck);
+                        }
                     }
-                    //once all the tuples are acked, clear the batch
-                    tuplesToAck.Clear();
+
+                    Context.Logger.Info("emitting count " +
+                        "- batchSize: " + tuplesToAck.Count +
+                        ", partialCount: " + partialCount +
+                        ", totalCount: " + totalCount);
+
+                    this.ctx.Emit(Constants.DEFAULT_STREAM_ID, tuplesToAck, new Values(partialCount));
                     partialCount = 0L;
+                    foreach(var tupleToAck in tuplesToAck)
+                    {
+                        this.ctx.Ack(tupleToAck);
+                    }
                 }
             }
             else
@@ -74,7 +84,7 @@ namespace EventHubsReaderTopology
                 partialCount++;
                 totalCount++;
                 //Do no ack here but add to the acking queue
-                tuplesToAck.Enqueue(tuple);
+                queue.Enqueue(tuple);
             }
         }
 

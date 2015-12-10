@@ -50,7 +50,7 @@ public class EventHubsPartitionBolt extends BaseRichBolt {
   @Override
   public void execute(Tuple tuple) {
     try {
-      sender.send(tuple.getString(0));
+      sender.send(tuple.getStringByField("message"));
       curCount++;
       if(curCount % 10000 == 0) {
         logger.info("sent " + curCount + " messages for partition " + myPartitionId);

@@ -1,5 +1,5 @@
 #Azure PowerShell Helper Scripts
-All the end-to-end examples in this repository use these scripts to create various Azure resources.
+All the end-to-end examples in this repository use these scripts to create various Azure resources. The newer scripts target Azure Resource Manager to create the required resources.
 You should be able to use them in any of your automation scenarios, just ensure that you also copy the init & logging modules alongwith these scripts.
 
 Init module: [../init.ps1](../init.ps1)

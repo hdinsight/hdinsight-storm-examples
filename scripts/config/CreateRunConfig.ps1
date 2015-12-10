@@ -35,7 +35,6 @@ Write-SpecialLog "Step 0: Creating Run Configuration" (Get-ScriptName) (Get-Scri
 & "$scriptDir\GenerateRandomConfig.ps1" $configFile $ExamplePrefix
 
 $defaultConfig=@{
-AZURE_LOCATION="West Europe"
 STORM_CLUSTER_SIZE=4
 HBASE_CLUSTER_SIZE=4
 KAFKA_CLUSTER_SIZE=4

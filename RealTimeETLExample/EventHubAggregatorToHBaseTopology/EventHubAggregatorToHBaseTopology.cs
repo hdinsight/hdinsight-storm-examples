@@ -69,8 +69,8 @@ namespace EventHubAggregatorToHBaseTopology
             //We will half of those slots for this topology
             topologyBuilder.SetTopologyConfig(new Dictionary<string, string>()
             {
-                {"topology.workers","8"},
-                {"topology.max.spout.pending","1600"}
+                {"topology.workers", appConfig.EventHubPartitions.ToString()},
+                {"topology.max.spout.pending","4096"}
             });
 
             return topologyBuilder;
@@ -108,8 +108,8 @@ namespace EventHubAggregatorToHBaseTopology
                 shuffleGrouping(typeof(EventGenerator).Name);
 
             var topologyConfig = new StormConfig();
-            topologyConfig.setNumWorkers(8);
-            topologyConfig.setMaxSpoutPending(1600);
+            topologyConfig.setNumWorkers(appConfig.EventHubPartitions);
+            topologyConfig.setMaxSpoutPending(4096);
             topologyBuilder.SetTopologyConfig(topologyConfig);
 
             return topologyBuilder;
@@ -183,8 +183,8 @@ namespace EventHubAggregatorToHBaseTopology
             //The default JVM heap size for workers is 768m, we also increase that to 1024m
             //That helps the java spout have additional heap size at disposal.
             var topologyConfig = new StormConfig();
-            topologyConfig.setNumWorkers(8);
-            topologyConfig.setMaxSpoutPending(1000);
+            topologyConfig.setNumWorkers(appConfig.EventHubPartitions);
+            topologyConfig.setMaxSpoutPending(4096);
             topologyConfig.setWorkerChildOps("-Xmx1024m");
 
             topologyBuilder.SetTopologyConfig(topologyConfig);
