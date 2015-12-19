@@ -47,7 +47,7 @@ Write-SpecialLog "Phase 1 - Preparation - End - Preparation complete for $Exampl
 ###########################################################
 # 2 - Build
 ###########################################################
-Write-SpecialLog "Phase 2 - Build - Start - Building $ExampleDir"
+Write-SpecialLog "Phase 2 - Build - Start - Building $ExampleDir" (Get-ScriptName) (Get-ScriptLineNumber)
 
 if(-not (Test-Path "$ExampleDir\build.ps1"))
 {

@@ -67,13 +67,27 @@ $localJarPath = "$scriptDir\iot\target\iot-1.0.jar"
 $blobPath = "Storm/SubmittedJars/iot-1.0.jar"
 $jarPath = "{0}{1}" -f "/",$blobPath
 $className = "com.microsoft.hdinsight.storm.examples.IotTopology"
+$classArgs = "IotTopology"
 
 Write-SpecialLog "Starting Storm topology for IoT" (Get-ScriptName) (Get-ScriptLineNumber)
-$result = & "$scriptDir\..\scripts\azure\Storage\UploadFileToStorage.ps1" $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $localJarPath $blobPath
-$result = & "$scriptDir\..\scripts\storm\SubmitStormTopology.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] $jarPath $className "IotTopology"
 
-#Sleep a while for topologies to get started
+if($config["STORM_CLUSTER_OS_TYPE"] -like "Windows")
+{
+    $result = & "$scriptDir\..\scripts\azure\Storage\UploadFileToStorageARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $localJarPath $blobPath
+    $result = & "$scriptDir\..\scripts\storm\SubmitStormTopology.ps1" $config["STORM_CLUSTER_OS_TYPE"] $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] $jarPath $className $classArgs
+}
+else
+{
+    $sshUrl = $config["STORM_CLUSTER_URL"].Replace("https://", "").Replace(".azurehdinsight.net", "-ssh.azurehdinsight.net")
+    $sshUsername = "ssh" + $config["STORM_CLUSTER_USERNAME"]
+    $result = & "$scriptDir\..\scripts\storm\SubmitStormTopology.ps1" $config["STORM_CLUSTER_OS_TYPE"] $sshUrl $sshUsername $config["STORM_CLUSTER_PASSWORD"] $localJarPath $className $classArgs
+}
+
+
+Write-InfoLog "Waiting for a short while for topologies to get started ..." (Get-ScriptName) (Get-ScriptLineNumber)
 sleep -s 15
 
 & "$scriptDir\..\scripts\storm\GetStormSummary.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"]
-& "$scriptDir\..\scripts\storm\LaunchStormUI.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"]
+& "$scriptDir\..\scripts\storm\LaunchStormUI.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] $config["STORM_CLUSTER_OS_TYPE"]
+
+Write-SpecialLog "If you notice throttling errors from DocumentDB make sure to increase your scale factor." (Get-ScriptName) (Get-ScriptLineNumber)

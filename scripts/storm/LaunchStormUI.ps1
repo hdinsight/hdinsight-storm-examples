@@ -5,7 +5,8 @@ Param(
     [Parameter(Mandatory = $true)]
     [String]$ClusterUsername,
     [Parameter(Mandatory = $true)]
-    [String]$ClusterPassword
+    [String]$ClusterPassword,
+    [String]$ClusterOSType,
 )
 
 ###########################################################
@@ -31,7 +32,14 @@ $secureClusterPassword = ConvertTo-SecureString $ClusterPassword -AsPlainText -F
 $clusterCreds = New-Object System.Management.Automation.PSCredential ($ClusterUsername, $secureClusterPassword)
 
 $clusterUri = new-object Uri($ClusterUrl)
-$stormUiUri = new-object Uri($clusterUri, "StormDashboard/StormExtUI")
+if($ClusterOSType -and ($ClusterOSType -like "Linux"))
+{
+    $stormUiUri = new-object Uri($clusterUri, "stormui")
+}
+else
+{
+    $stormUiUri = new-object Uri($clusterUri, "StormDashboard/StormExtUI")
+}
 
 Write-SpecialLog ("Launching browser for Storm dashboard: " + $stormUiUri.AbsoluteUri) (Get-ScriptName) (Get-ScriptLineNumber)
 Write-InfoLog "Please use the following credentials in your browser window:" (Get-ScriptName) (Get-ScriptLineNumber)

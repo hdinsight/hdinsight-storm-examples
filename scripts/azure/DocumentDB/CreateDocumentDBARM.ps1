@@ -2,13 +2,13 @@
 Param(
     [Parameter(Mandatory = $true)]
     [ValidatePattern("^[a-z0-9-]*$")]
-    [String]$ResourceGroupName,              # required - needs to be alphanumeric or "-"
+    [String]$ResourceGroupName,             # required - needs to be alphanumeric or "-"
     [Parameter(Mandatory = $true)]
-    [String]$Location,                       # required
+    [String]$Location,                      # required
     [Parameter(Mandatory = $true)]
     [ValidatePattern("^[a-z0-9-]*$")]
-    [String]$AccountName,                    # required    needs to be alphanumeric or "-"
-    [String]$OfferType = "Standard"          # optional    defaults to Standard
+    [String]$AccountName,                   # required    needs to be alphanumeric or "-"
+    [String]$OfferType = "Standard"         # optional    defaults to Standard
     )
 
 ###########################################################
@@ -42,7 +42,7 @@ $resourceStatus = $false
 try
 {
     Write-InfoLog "Trying to find DocumentDB account: $AccountName in ResourceGroup: $ResourceGroupName" (Get-ScriptName) (Get-ScriptLineNumber)
-    $Resource = Get-AzureRmResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -OutputObjectFormat New
+    $Resource = Get-AzureRmResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion
     $resourceStatus = $true
 }
 catch 
@@ -55,23 +55,31 @@ if($Resource -eq $null)
     Write-InfoLog "Creating DocumentDB account" (Get-ScriptName) (Get-ScriptLineNumber)
     try
     {
-        $docDbProperties = @{name = "$AccountName"; "id" = "$AccountName"; "databaseAccountOfferType" = "$OfferType"; }
+        $docDbProperties = @{name = "$AccountName"; "id" = "$AccountName"; "databaseAccountOfferType" = "$OfferType"}
         Write-InfoLog ("DocumentDB Properties:`r`n" + ($docDbProperties | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
         
-        $Resource = New-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $AccountName -Location "$Location" -ResourceType $ResourceType -ApiVersion $ApiVersion -PropertyObject $docDbProperties -Force -OutputObjectFormat New
+        $Resource = New-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $AccountName -Location "$Location" -ResourceType $ResourceType -ApiVersion $ApiVersion -PropertyObject $docDbProperties -Force
         $iterCount = 30
         $iter = 1
         while($iter -le $iterCount)
         {
-            $Resource = Get-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $AccountName -ResourceType $ResourceType -ApiVersion $ApiVersion -OutputObjectFormat New
-            $CurrentState = $Resource.Properties['provisioningState']
-            Write-InfoLog "DocumentDB current state: [$CurrentState]" (Get-ScriptName) (Get-ScriptLineNumber)
-            if("succeeded" -eq $CurrentState) 
+            $Resource = Get-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $AccountName -ResourceType $ResourceType -ApiVersion $ApiVersion
+            $CurrentState = $Resource.Properties['ProvisioningState']
+            if($CurrentState)
             {
-                $resourceStatus = $true
-                break
+                Write-InfoLog "DocumentDB current state: $CurrentState" (Get-ScriptName) (Get-ScriptLineNumber)
+                if($CurrentState -like "Succeeded") 
+                {
+                    $resourceStatus = $true
+                    break
+                }
+            }
+            else
+            {
+                Write-InfoLog "DocumentDB Resource Properties: $Resource" (Get-ScriptName) (Get-ScriptLineNumber)
             }
             Start-Sleep -s 30
+            $iter++
         }
     }
     catch
@@ -102,7 +110,15 @@ if($resourceStatus)
     $header = $authresult.CreateAuthorizationHeader()
 
     $sub = Get-AzureRmContext
-    $keysurl = [System.String]::Format("https://management.azure.com/subscriptions/{0}/resourcegroups/{1}/providers/Microsoft.DocumentDB/databaseAccounts/{2}/listKeys?api-version=$ApiVersion", $sub.SubscriptionId, $ResourceGroupName, $AccountName)
+    if($sub)
+    {
+        Write-InfoLog ("Using subscription:`r`n" + ($sub | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
+    }
+    else
+    {
+        Write-ErrorLog "Unable to find subscription information" (Get-ScriptName) (Get-ScriptLineNumber)
+    }
+    $keysurl = [System.String]::Format("https://management.azure.com/subscriptions/{0}/resourcegroups/{1}/providers/Microsoft.DocumentDB/databaseAccounts/{2}/listKeys?api-version=$ApiVersion", $sub.Subscription.SubscriptionId, $ResourceGroupName, $AccountName)
     $keys = Invoke-RestMethod -Method POST -Uri $keysurl -Headers @{"Authorization"=$header} -ContentType "application/json"
     $keys.primaryMasterKey
     

@@ -68,15 +68,34 @@ pushd $JarDir
 pwd
 if(Test-Path $JarName) { Write-Host "jar exists"}
 
-$failure = Run-Command "scp" "-p" "$JarName" "$ClusterSshUsername`@$ClusterSshUrl`:~/$JarName"
-popd
+$retry = 0
 
-$failure = Run-Command "ssh" "" "$ClusterSshUsername`@$ClusterSshUrl" "storm jar ~/$JarName $ClassName $AdditionalParams"
+while($retry -lt 3)
+{
+    $failure = Run-Command "scp" "-p" "$JarName" "$ClusterSshUsername`@$ClusterSshUrl`:~/$JarName"
+    popd
+    if($scpfailure)
+    {
+        Write-WarnLog "Topology upload encountered an error, retrying..." (Get-ScriptName) (Get-ScriptLineNumber)
+    }
+    else
+    {
+        Write-SpecialLog "Successfully uploaded topology jar: $JarName" (Get-ScriptName) (Get-ScriptLineNumber)
+    }
+    $retry++
+}
 
 if($failure)
 {
-    Write-ErrorLog "Topology submission encountered an error, please check logs for error information." (Get-ScriptName) (Get-ScriptLineNumber)
-    throw "Topology submission encountered an error, please check logs for error information."
+    Write-ErrorLog "Topology upload encountered an error, please check logs for error information." (Get-ScriptName) (Get-ScriptLineNumber)
+    throw "Topology submission encountered an error, please check logs for error information and retry again."
+}
+
+$failure = Run-Command "ssh" "" "$ClusterSshUsername`@$ClusterSshUrl" "storm jar ~/$JarName $ClassName $AdditionalParams"
+if($failure)
+{
+      Write-ErrorLog "Topology submission encountered an error, please check logs for error information and retry." (Get-ScriptName) (Get-ScriptLineNumber)
+      throw "Topology submission encountered an error, please check logs for error information and retry."
 }
 else
 {

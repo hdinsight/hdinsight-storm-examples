@@ -25,7 +25,6 @@
                   </excludes>
               </filter>
           </filters>
-          <createDependencyReducedPom>true</createDependencyReducedPom>
           <minimizeJar>false</minimizeJar>
         </configuration>
         <executions>

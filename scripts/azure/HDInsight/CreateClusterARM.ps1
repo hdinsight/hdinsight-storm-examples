@@ -87,15 +87,31 @@ if($Cluster -eq $null)
     {
         if($OSType -eq "Linux")
         {
-            $Cluster = New-AzureRmHDInsightCluster -ResourceGroupName $ResourceGroupName -ClusterName $ClusterName -Config $Config -DefaultStorageContainer $ContainerName -Location "$Location" `
-                -ClusterSizeInNodes $ClusterSize -HttpCredential $httpCredential -ClusterType $ClusterType -SshCredential $sshCredential -OSType $OSType `
-                -VirtualNetworkId $VNetId -SubnetName ($VNetId + "/subnets/" + $SubnetName)
+            if($VNetId -and $SubnetName)
+            {
+                $Cluster = New-AzureRmHDInsightCluster -ResourceGroupName $ResourceGroupName -ClusterName $ClusterName -Config $Config -DefaultStorageContainer $ContainerName -Location "$Location" `
+                    -ClusterSizeInNodes $ClusterSize -HttpCredential $httpCredential -ClusterType $ClusterType -SshCredential $sshCredential -OSType $OSType `
+                    -VirtualNetworkId $VNetId -SubnetName ($VNetId + "/subnets/" + $SubnetName)
+            }
+            else
+            {
+                $Cluster = New-AzureRmHDInsightCluster -ResourceGroupName $ResourceGroupName -ClusterName $ClusterName -Config $Config -DefaultStorageContainer $ContainerName -Location "$Location" `
+                    -ClusterSizeInNodes $ClusterSize -HttpCredential $httpCredential -ClusterType $ClusterType -SshCredential $sshCredential -OSType $OSType
+            }
         }
         else
         {
-            $Cluster = New-AzureRmHDInsightCluster -ResourceGroupName $ResourceGroupName -ClusterName $ClusterName -Config $Config -DefaultStorageContainer $ContainerName -Location "$Location" `
-                -ClusterSizeInNodes $ClusterSize -HttpCredential $httpCredential -ClusterType $ClusterType -OSType $OSType `
-                -VirtualNetworkId $VNetId -SubnetName $SubnetName
+            if($VNetId -and $SubnetName)
+            {
+                $Cluster = New-AzureRmHDInsightCluster -ResourceGroupName $ResourceGroupName -ClusterName $ClusterName -Config $Config -DefaultStorageContainer $ContainerName -Location "$Location" `
+                    -ClusterSizeInNodes $ClusterSize -HttpCredential $httpCredential -ClusterType $ClusterType -OSType $OSType `
+                    -VirtualNetworkId $VNetId -SubnetName $SubnetName
+            }
+            else
+            {
+                $Cluster = New-AzureRmHDInsightCluster -ResourceGroupName $ResourceGroupName -ClusterName $ClusterName -Config $Config -DefaultStorageContainer $ContainerName -Location "$Location" `
+                    -ClusterSizeInNodes $ClusterSize -HttpCredential $httpCredential -ClusterType $ClusterType -OSType $OSType                
+            }
         }
     }
     catch
@@ -110,7 +126,8 @@ Write-InfoLog $clusterInfo (Get-ScriptName) (Get-ScriptLineNumber)
 
 $startTime = Get-Date
 while(($totalSeconds -lt 3600) -and `
-    ($Cluster.ClusterState -ne "Running") -and (-not [String]::IsNullOrWhitespace($Cluster.Error)))
+    (($Cluster.ClusterState -ne "Running") -and ($Cluster.ClusterState -ne "Operational")) -and 
+    (-not [String]::IsNullOrWhitespace($Cluster.Error)))
 {
     sleep -s 30
     $Cluster = Get-AzureRmHDInsightCluster -ResourceGroupName $ResourceGroupName -ClusterName $ClusterName
@@ -124,9 +141,9 @@ while(($totalSeconds -lt 3600) -and `
     }
 }
 
-if ($Cluster.ClusterState -ne "Running")
+if (($Cluster.ClusterState -ne "Running") -and ($Cluster.ClusterState -ne "Operational"))
 {
-    Write-ErrorLog ("HDInsight Cluster: {0} is not in a running state. State: {1}" -f $ClusterName, $Cluster.ClusterState) (Get-ScriptName) (Get-ScriptLineNumber)
-    throw ("HDInsight Cluster: {0} is not in a running state. State: {1}" -f $ClusterName, $Cluster.ClusterState)
+    Write-ErrorLog ("HDInsight Cluster: {0} is not in a running/operational state. State: {1}" -f $ClusterName, $Cluster.ClusterState) (Get-ScriptName) (Get-ScriptLineNumber)
+    throw ("HDInsight Cluster: {0} is not in a running/operational state. State: {1}" -f $ClusterName, $Cluster.ClusterState)
 }
 return $Cluster

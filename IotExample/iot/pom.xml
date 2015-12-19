@@ -7,43 +7,50 @@
   <version>1.0</version>
   <name>iot</name>
   <url>http://maven.apache.org</url>
+
   <build>
     <plugins>
       <plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-shade-plugin</artifactId>
-	    <version>2.3</version>
-	    <executions>
-	      <execution>
-	        <goals>
-	          <goal>shade</goal>
-	        </goals>
-	        <phase>package</phase>
-	      </execution>
-	    </executions>
-	    <configuration>
-	      <createDependencyReducedPom>true</createDependencyReducedPom>
-	      <minimizeJar>false</minimizeJar>
-	      <relocations>
-	        <relocation>
-	          <!-- this is needed by documentdb bolt,
-	            to avoid version conflict for httpclient in Storm -->
-	          <pattern>org.apache.http</pattern>
-	          <shadedPattern>iot.org.apache.http</shadedPattern>
-	        </relocation>
-	      </relocations>
-	    </configuration>
-	  </plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <filters>
+              <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                      <exclude>META-INF/*.SF</exclude>
+                      <exclude>META-INF/*.DSA</exclude>
+                      <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+              </filter>
+          </filters>
+          <minimizeJar>false</minimizeJar>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer
+                              implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                <transformer
+                              implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.microsoft.hdinsight.storm.examples.IotTopology</mainClass>
+                  <mainClass/>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
+
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-    
     <dependency>
       <groupId>org.apache.storm</groupId>
       <artifactId>storm-core</artifactId>
@@ -57,11 +64,24 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
     <dependency>
       <groupId>com.microsoft.eventhubs</groupId>
       <artifactId>eventhubs-storm-spout</artifactId>
       <version>0.9.4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     
     <!-- dependencies for data reference bolt -->

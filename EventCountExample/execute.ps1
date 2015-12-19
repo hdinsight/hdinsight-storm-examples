@@ -59,7 +59,7 @@ function Submit-Topology($config, $localJarPath, $blobPath, $jarPath, $className
     sleep -s 15
 
     & "$scriptDir\..\scripts\storm\GetStormSummary.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"]
-    & "$scriptDir\..\scripts\storm\LaunchStormUI.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"]
+    & "$scriptDir\..\scripts\storm\LaunchStormUI.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] $config["STORM_CLUSTER_OS_TYPE"]
 }
 
 function Submit-EventGenTopology($config, $ingestionName)

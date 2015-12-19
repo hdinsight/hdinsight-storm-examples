@@ -254,9 +254,15 @@ if($docdb)
 
 Write-SpecialLog "Step 4: Creating HDInsight Clusters" (Get-ScriptName) (Get-ScriptLineNumber)
 
+if($vnet)
+{
+    $vnetId = $config["VNET_ID"]
+    $subnet = $config["SUBNET_NAME"]
+}
+
 $cluster = & "$scriptDir\HDInsight\CreateClusterARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["STORM_CLUSTER_NAME"] `
     $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"] "Storm" $config["STORM_CLUSTER_OS_TYPE"] `
-    $config["STORM_CLUSTER_SIZE"] $config["VNET_ID"] $config["SUBNET_NAME"]
+    $config["STORM_CLUSTER_SIZE"] $vnetId $subnet
     
 if(-not [String]::IsNullOrWhiteSpace($cluster.HttpEndpoint))
 {
@@ -268,11 +274,11 @@ if($hbase)
 {
     $cluster = & "$scriptDir\HDInsight\CreateClusterARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["HBASE_CLUSTER_NAME"] `
         $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["HBASE_CLUSTER_USERNAME"] $config["HBASE_CLUSTER_PASSWORD"] "HBase" $config["HBASE_CLUSTER_OS_TYPE"] `
-        $config["HBASE_CLUSTER_SIZE"] $config["VNET_ID"] $config["SUBNET_NAME"]
+        $config["HBASE_CLUSTER_SIZE"] $vnetId $subnet
 
     if(-not [String]::IsNullOrWhiteSpace($cluster.HttpEndpoint))
     {
-            & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HBASE_CLUSTER_URL=("https://" + $cluster.HttpEndpoint)}
+        & "$scriptDir\..\config\ReplaceStringInFile.ps1" $configFile $configFile @{HBASE_CLUSTER_URL=("https://" + $cluster.HttpEndpoint)}
     }
 }
 
@@ -282,7 +288,7 @@ if($kafka)
     {
         $cluster = & "$scriptDir\HDInsight\CreateClusterARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["KAFKA_CLUSTER_NAME"] `
             $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_OS_TYPE"] `
-            $config["KAFKA_CLUSTER_SIZE"] $config["VNET_ID"] $config["SUBNET_NAME"]
+            $config["KAFKA_CLUSTER_SIZE"] $vnetId $subnet
             
         if(-not [String]::IsNullOrWhiteSpace($cluster.HttpEndpoint))
         {
@@ -307,8 +313,8 @@ if($kafka)
         
         $cluster = & "$scriptDir\HDInsight\CreateClusterARM.ps1" $config["AZURE_RESOURCE_GROUP"] $config["AZURE_LOCATION"] $config["KAFKA_CLUSTER_NAME"] `
             $config["WASB_ACCOUNT_NAME"] $config["WASB_CONTAINER"] $config["KAFKA_CLUSTER_USERNAME"] $config["KAFKA_CLUSTER_PASSWORD"] "Storm" $config["KAFKA_CLUSTER_OS_TYPE"] `
-            $config["KAFKA_CLUSTER_SIZE"] $config["VNET_ID"] $config["SUBNET_NAME"] `
-            $ScriptActionUri $ScriptActionParameters
+            $config["KAFKA_CLUSTER_SIZE"] $vnetId $subnet `
+            -ScriptActionUri $ScriptActionUri -ScriptActionParameters $ScriptActionParameters
             
         if(-not [String]::IsNullOrWhiteSpace($cluster.ConnectionUrl))
         {
