@@ -38,7 +38,7 @@ function Run-Command($command, $commandOption, $commandArg1, $commandArg2)
   try
   {
       Write-InfoLog "Running command: $command $commandOption $commandArg1 $commandArg2" (Get-ScriptName) (Get-ScriptLineNumber)
-      & $command $commandOption $commandArg1 $commandArg2
+      & $command $commandOption $commandArg1 $commandArg2 | Out-Host
       
       if($?)
       {
@@ -62,28 +62,38 @@ $failure = $false
 $JarDir = Split-Path $JarPath
 $JarName = Split-Path $JarPath -Leaf
 
-Write-SpecialLog "Please use this password to complete the scp and ssh tasks: $ClusterSshPassword" (Get-ScriptName) (Get-ScriptLineNumber)
+Write-SpecialLog "Cluster SSH Password: $ClusterSshPassword" (Get-ScriptName) (Get-ScriptLineNumber)
 
-pushd $JarDir
-pwd
-if(Test-Path $JarName) { Write-Host "jar exists"}
+$PrevDir = Get-Location
+$dummy = Set-Location $JarDir
+if(Test-Path $JarName) 
+{ 
+    Write-InfoLog "$JarName found in $JarDir" (Get-ScriptName) (Get-ScriptLineNumber)
+}
+else
+{
+    Write-WarnLog "$JarName not found in $JarDir" (Get-ScriptName) (Get-ScriptLineNumber)
+}
 
 $retry = 0
 
 while($retry -lt 3)
 {
     $failure = Run-Command "scp" "-p" "$JarName" "$ClusterSshUsername`@$ClusterSshUrl`:~/$JarName"
-    popd
-    if($scpfailure)
+    
+    if($failure)
     {
         Write-WarnLog "Topology upload encountered an error, retrying..." (Get-ScriptName) (Get-ScriptLineNumber)
     }
     else
     {
         Write-SpecialLog "Successfully uploaded topology jar: $JarName" (Get-ScriptName) (Get-ScriptLineNumber)
+        break
     }
     $retry++
 }
+
+$dummy = Set-Location $PrevDir
 
 if($failure)
 {
@@ -94,8 +104,8 @@ if($failure)
 $failure = Run-Command "ssh" "" "$ClusterSshUsername`@$ClusterSshUrl" "storm jar ~/$JarName $ClassName $AdditionalParams"
 if($failure)
 {
-      Write-ErrorLog "Topology submission encountered an error, please check logs for error information and retry." (Get-ScriptName) (Get-ScriptLineNumber)
-      throw "Topology submission encountered an error, please check logs for error information and retry."
+      Write-WarnLog "Topology submission encountered an error, please check logs for error information and retry." (Get-ScriptName) (Get-ScriptLineNumber)
+      #throw "Topology submission encountered an error, please check logs for error information and retry."
 }
 else
 {

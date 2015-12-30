@@ -1,7 +1,7 @@
 #Azure HDInsight Kafka configurations
 kafka.brokers = {KAFKA_BROKERS}
 kafka.zookeepers = {KAFKA_ZOOKEEPERS}
-kafka.topic = {KAFKA_TOPIC}
+kafka.topic = {KAFKA_CLUSTER_NAME}
 
 #Azure EventHubs configurations
 eventhubs.username = {EVENTHUBS_USERNAME}

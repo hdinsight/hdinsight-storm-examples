@@ -6,7 +6,7 @@ Param(
     [String]$ClusterUsername,
     [Parameter(Mandatory = $true)]
     [String]$ClusterPassword,
-    [String]$ClusterOSType,
+    [String]$ClusterOSType
 )
 
 ###########################################################
@@ -44,6 +44,6 @@ else
 Write-SpecialLog ("Launching browser for Storm dashboard: " + $stormUiUri.AbsoluteUri) (Get-ScriptName) (Get-ScriptLineNumber)
 Write-InfoLog "Please use the following credentials in your browser window:" (Get-ScriptName) (Get-ScriptLineNumber)
 Write-InfoLog ("Storm Cluster Username: " + $ClusterUsername) (Get-ScriptName) (Get-ScriptLineNumber)
-Write-InfoLog ("Storm Cluster Password: " + $ClusterPassword) (Get-ScriptName) (Get-ScriptLineNumber)
+Write-SpecialLog ("Storm Cluster Password: " + $ClusterPassword) (Get-ScriptName) (Get-ScriptLineNumber)
 
 $result = & "start" $stormUiUri

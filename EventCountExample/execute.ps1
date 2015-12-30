@@ -95,11 +95,12 @@ function Submit-EventCountTopology($config, $ingestionName)
     $jarPath = "{0}{1}" -f "/",$blobPath
     $className = "com.microsoft.hdinsight.storm.examples.EventCountDbTopology"
     $topologyName = "EventCountTopologyFor$ingestionName" + [System.DateTime]::Now.ToString("yyyyMMddHHmmss")
-    $classArgs = '"$topologyName" "$ingestionName"'
+    $classArgs = '"{0}" "{1}"' -f $topologyName, $ingestionName
     
     Submit-Topology $config $localJarPath $blobPath $jarPath $className $classArgs
 
-    $config.Add("INGESTION_NAME", $ingestionName)
+    $config["INGESTION_NAME"] = $ingestionName
+    
     #create and open result.html to view the count
     $resultTemplateFile = "$scriptDir\result.html.template"
     $resultFile = "$scriptDir\run\$ingestionName-result.html"
@@ -125,7 +126,7 @@ function Submit-EventCountHybridTopology($config)
 
     & "$scriptDir\..\scripts\storm\GetStormSummary.ps1" $config["STORM_CLUSTER_URL"] $config["STORM_CLUSTER_USERNAME"] $config["STORM_CLUSTER_PASSWORD"]
 
-    $config.Add("INGESTION_NAME", $ingestionName)
+    $config["INGESTION_NAME"] = $ingestionName
     
     #create and open result.html to view the count
     $resultTemplateFile = "$scriptDir\result_hybrid.html.template"

@@ -38,11 +38,12 @@ $startTime = Get-Date
 & "$scriptDir\..\CreateAzureResourceGroup.ps1" $ResourceGroupName $Location
 
 $resourceStatus = $false
+$Resource = $null
 
 try
 {
     Write-InfoLog "Trying to find DocumentDB account: $AccountName in ResourceGroup: $ResourceGroupName" (Get-ScriptName) (Get-ScriptLineNumber)
-    $Resource = Get-AzureRmResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion
+    $Resource = Get-AzureRmResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -ExpandProperties
     $resourceStatus = $true
 }
 catch 
@@ -58,25 +59,25 @@ if($Resource -eq $null)
         $docDbProperties = @{name = "$AccountName"; "id" = "$AccountName"; "databaseAccountOfferType" = "$OfferType"}
         Write-InfoLog ("DocumentDB Properties:`r`n" + ($docDbProperties | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
         
-        $Resource = New-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $AccountName -Location "$Location" -ResourceType $ResourceType -ApiVersion $ApiVersion -PropertyObject $docDbProperties -Force
+        $Resource = New-AzureRmResource -Name $AccountName -ResourceGroupName $ResourceGroupName -Location "$Location" -ResourceType $ResourceType -ApiVersion $ApiVersion -PropertyObject $docDbProperties -Force
         $iterCount = 30
         $iter = 1
         while($iter -le $iterCount)
         {
-            $Resource = Get-AzureRmResource -ResourceGroupName $ResourceGroupName -Name $AccountName -ResourceType $ResourceType -ApiVersion $ApiVersion
-            $CurrentState = $Resource.Properties['ProvisioningState']
-            if($CurrentState)
+            Write-InfoLog "Getting DocumentDB resource state: $AccountName" (Get-ScriptName) (Get-ScriptLineNumber)
+            $Resource = Get-AzureRmResource -Name $AccountName -ResourceGroupName $ResourceGroupName -ResourceType $ResourceType -ApiVersion $ApiVersion -ExpandProperties
+            Write-InfoLog ("DocumentDB Resource:`r`n" + ($Resource | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
+            $ResourceProperties = $Resource.Properties
+            Write-InfoLog ("DocumentDB Resource Properties:`r`n" + ($ResourceProperties | Out-String)) (Get-ScriptName) (Get-ScriptLineNumber)
+            if($ResourceProperties -ne $null)
             {
+                $CurrentState = $ResourceProperties.ProvisioningState
                 Write-InfoLog "DocumentDB current state: $CurrentState" (Get-ScriptName) (Get-ScriptLineNumber)
-                if($CurrentState -like "Succeeded") 
+                if($CurrentState -like 'Succeeded')
                 {
                     $resourceStatus = $true
                     break
                 }
-            }
-            else
-            {
-                Write-InfoLog "DocumentDB Resource Properties: $Resource" (Get-ScriptName) (Get-ScriptLineNumber)
             }
             Start-Sleep -s 30
             $iter++
@@ -89,7 +90,7 @@ if($Resource -eq $null)
     }
 
     #Later you can modify the account properties like this:
-    #$DocumentDBProperties = @{capacityUnits="3", “consistencyPolicy={“defaultConsistencyLevel”=”0”}}
+    #$DocumentDBProperties = @{capacityUnits="3", consistencyPolicy={"defaultConsistencyLevel"="0"}}
     #Set-AzureRmResource -ResourceGroupName MyResourceGroup -Name DocDBAccountName  -ResourceType "Microsoft.DocumentDb/databaseAccounts" -ApiVersion $ApiVersion -PropertyObject $DocumentDBProperties
 }
 
