@@ -1,6 +1,14 @@
 # hdinsight-storm-examples
 This repository contains complete and easy to use examples that demonstrate the power of Apache Storm on Microsoft Azure HDInsight.
 
+The .Net examples are applicable to all HDInsight Windows Storm clusters.
+
+The Java examples are applicable to :
+ * 3.3 and below versions of HDInsight Windows
+ * 3.4 and below versions of HDInsight Linux Storm clusters.
+ 
+For version 3.5+ Linux based HDInsight Storm clusters please look under HDI3.5 folder.
+
 ## Getting Started
 
 **Official page - [Apache Storm for Microsoft Azure HDInsight](http://azure.microsoft.com/en-us/services/hdinsight/apache-storm/)**
