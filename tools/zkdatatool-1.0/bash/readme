@@ -1,0 +1,5 @@
+The Script has three parts to it:
+	
+1)	Export: This step takes the zookeeper zknode node data and copies it to the local file system. You can validate this by navigating to the local file system and finding out the binary data is the same as the zknode. The zknode here by default is named as eventhubspout. This step needs to be executed in the old cluster where the storm topology has been run.
+2)	Delete: This step needs to be executed on the new cluster which you are migrating to. This step just ensures that if there is a zknode named eventhubspout, it is deleted.
+3)	Import: This step needs to be executed on the new cluster where you are migrating to. Copy the export data from step 1 to the local directory of your zookeeper node and run the import step. After successful completion of this step you should find zknode named as eventhubspout.
