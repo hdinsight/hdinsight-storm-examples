@@ -66,17 +66,15 @@ namespace HDInsightStormExamples.Spouts
             return new VehicleRecordGeneratorSpout(context, parms);
         }
 
-        //Handy list to provide names to fields when building the topology in TopologyBuilder
-        public static List<string> OutputFields = new List<string>() { "Vehicle" };
         //Handy list to provide types of fields for other tasks that will consume tuples from this spout
         //NOTE: Make sure the class is marked with Serializable attribute if you wish to emit objects of non-primitive typles
-        //Sending object as it is than lists is useful in a DocumentDB writing scenario
-        public static List<Type> OutputFieldTypes = new List<Type>() { typeof(Vehicle) };
-
-        bool emitAsValues = false; //Set this to true if you wish to use output like below else set to false if you wish to send Vehicle objects
-        //Alternatively - If we wanted to send like a list instead of Vehicle object - Useful in a HBase writing scenario
-        //public static List<string> OutputFields = new List<string>() { "VIN", "Timestamp", "Make", "Model", "Year", "Status" };
-        //public static List<Type> OutputFieldTypes = new List<Type>() { typeof(string), typeof(DateTime), typeof(string), typeof(int), typeof(int), typeof(string) };
+        
+        bool emitAsValues = true; //Set this to true if you wish to use output like below else set to false if you wish to send Vehicle objects
+        public static List<string> OutputFields = new List<string>() { "VIN", "Timestamp", "Make", "Model", "Year", "Status" };
+        public static List<Type> OutputFieldTypes = new List<Type>() { typeof(string), typeof(DateTime), typeof(string), typeof(int), typeof(int), typeof(string) };
+        //Alternate method of one field containing a complex type. Used if emitAsValues = false
+        //public static List<string> OutputFields = new List<string>() { "Vehicle" };
+        //public static List<Type> OutputFieldTypes = new List<Type>() { typeof(Vehicle) };
 
         /// <summary>
         /// The NextTuple method of a spout
