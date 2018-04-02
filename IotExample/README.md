@@ -1,22 +1,22 @@
 # Internet of Things example
-This is an example for IOT (Internet of Things) scenario using Storm. The basic idea is to showcase how to use Storm topology to read messages from Azure EventHubs, read document from Azure DocumentDB for data referencing and save data to Azure Storage.
+This is an example for IOT (Internet of Things) scenario using Storm. The basic idea is to showcase how to use Storm topology to read messages from Azure EventHubs, read document from Azure Cosmos DB for data referencing and save data to Azure Storage.
 
 For this example to work end to end, along with the Storm topology (iot), following tools have been provided:
 
 1. EventHubs event generator (eventgen) 
-2. DocumentDB document generator (docdbgen)
+2. Azure Cosmos DB document generator (docdbgen)
 
 ## Source code
 vehiclegen.py: this is a simple python scripts to generate random vehicle VIN number and model number as a text file (vehiclevin.txt).
 
 eventgen: the Azure EventHubs generator, a standalone java program to write messages to Azure EventHubs. It uses the vehicle info to generate engine temperature messages for each vehicle.
 
-docdbgen: The Azure DocumentDB generator, a standalone java program to create DocumentDB collection that stores vehicle VIN to model number map. Later the document DB is used to retrieve model number from the VIN.
+docdbgen: The Azure Cosmos DB generator, a standalone java program to create an Azure Cosmos DB collection that stores vehicle VIN to model number map. Later the document DB is used to retrieve model number from the VIN.
 
 iot: The Storm topology, it has the following components:
 EventHubSpout: source of stream
 TypeConversionBolt: converts EventHubs message in JSON format into fields in a tuple
-DataReferenceBolt: enrich data by reading DocumentDB to get models for a given VIN
+DataReferenceBolt: enrich data by reading Azure Cosmos DB to get models for a given VIN
 WasbStoreBolt: write the enriched data points into Azure Blob Storage
 
 ## Prerequisites
@@ -37,7 +37,7 @@ Use ```IoTExample\run.bat``` to run the example that will create resources in Az
 
 ```IMPORTANT NOTES:```
 * During the process, you will be prompted to login with your Azure credentials and type your subscription name.
-* This will first create all dependencies (DocumentDB, EventHubs, Storage) in Azure, then update configuration files, then build all 3 projects.
+* This will first create all dependencies (Azure Cosmos DB, EventHubs, Storage) in Azure, then update configuration files, then build all 3 projects.
 * This script will open a browser window for the external Storm UI, you need to enter Storm cluster credentials, they are stored at config\configurations.properties
 * In the case of failure in creating resources in Azure, you can run ```IoTExample\cleanup.bat``` which will delete resources that have been created.
 
